@@ -1,5 +1,5 @@
 *.o
 *.png
-**/__pychache__
+**/__pycache__/**
 *.dat
 *.pdf
