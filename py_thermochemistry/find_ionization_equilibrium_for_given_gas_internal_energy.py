@@ -246,7 +246,7 @@ def plot_solution(u, T, mu, XH0, XHp, XHe0, XHep, XHepp, XH, XHe):
         "k",
         label="total",
         ls="-",
-        **plotkwargs
+        **plotkwargs,
     )
     ax4.semilogx(u_theory, XH0_theory, label="$H^0$", ls=":", **plotkwargs)
     ax4.semilogx(u_theory, XHp_theory, label="$H^+$", ls="-.", **plotkwargs)

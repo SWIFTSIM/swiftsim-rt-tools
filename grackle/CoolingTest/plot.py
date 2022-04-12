@@ -10,10 +10,10 @@ plotkwargs = {"alpha": 0.4}
 mh = 1.67262171e-24  # Hydrogen mass in g
 
 print("Reminder: Set units manually in plot.py if you change them in main.c")
-length_units = 3.08567758e21;
-mass_units = 1.99848e43;
-density_units = mass_units / length_units **3
-time_units = 3.08567758e16;
+length_units = 3.08567758e21
+mass_units = 1.99848e43
+density_units = mass_units / length_units ** 3
+time_units = 3.08567758e16
 
 
 data = np.loadtxt("out.dat")
@@ -34,8 +34,6 @@ HeII_density = data[:, 8]
 HeIII_density = data[:, 9]
 
 ne = data[:, 10]  # number density
-
-
 
 
 # compute number density for all species
@@ -62,7 +60,6 @@ XHeII = HeII_density / tot_density
 XHeIII = HeIII_density / tot_density
 
 
-
 fig, axs = pt.subplots(2, 2)
 fig.set_size_inches(8, 6)
 
@@ -73,7 +70,7 @@ axs[0][0].set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 axs[0][0].set_ylabel(r"$\rm{Temperature\,\,[K]}$")
 #  axs[0][0].set_xscale("log")
 
-axs[0][1].plot(Time_Myr,mu)
+axs[0][1].plot(Time_Myr, mu)
 axs[0][1].set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 axs[0][1].set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
 #  axs[0][1].set_xscale("log")
@@ -92,12 +89,12 @@ axs[1][0].set_ylabel(r"$\rm{Number\,\,Densities}$")
 axs[1][0].legend()
 
 Xtot = XHI + XHII + XHeI + XHeII + XHeIII
-axs[1][1].plot(Time_Myr,XHI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
-axs[1][1].plot(Time_Myr,XHII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
-axs[1][1].plot(Time_Myr,XHeI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
-axs[1][1].plot(Time_Myr,XHeII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
-axs[1][1].plot(Time_Myr,XHeIII, ls="--", label=r"$\rm{XHeIII}$", **plotkwargs)
-axs[1][1].plot(Time_Myr,Xtot, ls="--", label="total", **plotkwargs)
+axs[1][1].plot(Time_Myr, XHI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
+axs[1][1].plot(Time_Myr, XHII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
+axs[1][1].plot(Time_Myr, XHeI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
+axs[1][1].plot(Time_Myr, XHeII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
+axs[1][1].plot(Time_Myr, XHeIII, ls="--", label=r"$\rm{XHeIII}$", **plotkwargs)
+axs[1][1].plot(Time_Myr, Xtot, ls="--", label="total", **plotkwargs)
 axs[1][1].set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 axs[1][1].set_ylabel(r"$\rm{HeI,HeII,HeIII\,\,mass fraction}$")
 axs[1][1].legend()
