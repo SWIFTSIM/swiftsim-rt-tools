@@ -13,6 +13,11 @@ SWIFT.
 -   `HLLRiemannSolverEigenvalues` - compute the Eigenvalues for the HLL Riemann 
     solver used (optionally) in the GEAR-RT scheme
 
+-   `photonNumberRateToLuminosity` - scripts to convert (ionizing) photon number
+    rates into stellar luminosities. Needed e.g. to reproduce standard RT tests.
+
 -   `pyThermochemistry` - some python functions and scripts related to 
     thermochemistry. Useful to set up initial conditions, or do some outside
     computations for setups.
+
+

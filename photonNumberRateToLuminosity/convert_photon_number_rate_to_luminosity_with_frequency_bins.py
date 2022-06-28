@@ -13,8 +13,6 @@ import unyt
 import scipy.integrate as integrate
 
 from blackbody import B_nu, B_nu_over_h_nu, nu_peak
-import constants
-
 
 # --------------------------------------------------------
 # USER SETUP
@@ -30,11 +28,15 @@ frequency_bins = [3.288e15, 5.945e15, 13.157e15]  # Hz
 # --------------------------------------------------------
 
 # Use cgs values only, no unyts.
-kB = constants.kB.v
-h_planck = constants.h_planck.v
-c = constants.c.v
-L_Sol = (1 * unyt.Lsun).to("erg/s").v
-
+#  import unyt
+#  kB = unyt.boltzmann_constant_cgs # erg
+#  h_planck = unyt.planck_constant_cgs
+#  c = unyt.speed_of_light_cgs
+#  L_Sol = (1 * unyt.Lsun).to("erg/s")
+kB = 1.3806488e-16  # erg/K
+h_planck = 6.62606957e-27  # cm**2*g/s
+c = 29979245800.0  # cm/s
+L_Sol = 3.827e33  # erg/s
 
 peak_frequency = nu_peak(T, kB, h_planck)
 print("peak of the blackbody spectrum: {0:10.3e} [Hz]".format(peak_frequency))
