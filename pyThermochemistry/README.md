@@ -16,6 +16,9 @@ plots, methods etc.
 
 - `convert_photon_number_to_luminosity.py`
     Convert a given photon number to total luminosity for a blackbody spectrum
+- `convert_photon_number_to_luminosity_with_frequency_bins.py`
+    Convert a given photon number to total luminosity for a blackbody spectrum
+    and frequency bins.
 - `find_ionization_equilibrium_for_given_gas_internal_energy.py`
     determine the ionization equilibrium state of the primordial species
     network.

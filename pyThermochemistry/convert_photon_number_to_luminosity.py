@@ -14,12 +14,17 @@ import scipy.integrate as integrate
 from blackbody import B_nu, B_nu_over_h_nu, nu_peak
 import constants
 
+# --------------------------------------------------------
+# USER SETUP
+
 # temperature for blackbody spectrum
 T = 1e5  # K
 # photon number emission rate you want
 Ndot = 5e48  # s^-1
 # lowest frequency
 nu_min = 3.288e15  # Hz
+
+# --------------------------------------------------------
 
 # Use cgs values only, no unyts.
 kB = constants.kB.v
@@ -28,9 +33,10 @@ c = constants.c.v
 L_Sol = (1 * unyt.Lsun).to("erg/s").v
 
 
-nu_max = 10 * nu_peak(T, kB, h_planck)
-print("nu_min: {0:12.3e} nu_peak: {1:12.3e} [Hz]".format(nu_min, nu_max))
+frequency_peak = nu_peak(T, kB, h_planck)
+print("nu_min: {0:12.3e} nu_peak: {1:12.3e} [Hz]".format(nu_min, frequency_peak))
 
+nu_max = 10 * frequency_peak
 E_scipy_numax = integrate.quad(B_nu, nu_min, nu_max, args=(T, kB, h_planck, c))
 N_scipy_numax = integrate.quad(
     B_nu_over_h_nu, nu_min, nu_max, args=(T, kB, h_planck, c)
@@ -41,7 +47,7 @@ print(
     )
 )
 
-nu_max = 100 * nu_peak(T, kB, h_planck)
+nu_max = 100 * frequency_peak
 E_scipy_numax = integrate.quad(B_nu, nu_min, nu_max, args=(T, kB, h_planck, c))
 N_scipy_numax = integrate.quad(
     B_nu_over_h_nu, nu_min, nu_max, args=(T, kB, h_planck, c)
