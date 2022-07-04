@@ -6,6 +6,10 @@ SWIFT.
 
 ## Contents
 
+-   `additionalTests/` Additional test cases which have not made it into the 
+    main repository, e.g. because they require manual tweaks of the main 
+    codebase.
+
 -   `grackle/` - standalone programs using the 
     [grackle](https://github.com/grackle-project/grackle) library for specific 
     problems.
