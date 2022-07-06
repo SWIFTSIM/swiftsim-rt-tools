@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # -----------------------------------------------------------------------------
-# Compute energy- and number density weighted cross sections assuming a 
+# Compute energy- and number density weighted cross sections assuming a
 # blackbody spectrum.
 # In what follows, the index `i` stands for a frequency bin, while `j`
 # stands for an ionizing species (H, He, He+)
@@ -32,7 +32,7 @@ import cross_section_parametrization as cs_params
 T = 1e5  # K
 # define upper limits for frequency bins. We assume that
 # the lowest bin is the first ionizing frequency.
-frequency_bins = [0., 3.288e15, 5.945e15, 13.157e15]  # Hz
+frequency_bins = [0.0, 3.288e15, 5.945e15, 13.157e15]  # Hz
 #  frequency_bins = [0.]
 # number of photon groups we are using
 ngroups = len(frequency_bins)
@@ -50,6 +50,7 @@ c = 29979245800.0  # cm/s
 
 # Define functions to pass to the integrator
 
+
 def energy_weighted_cross_section(nu, species, cross_section, T, kB, h_planck, c):
     """
     Return the integrand for the energy weighted cross section.
@@ -66,6 +67,7 @@ def energy_weighted_cross_section(nu, species, cross_section, T, kB, h_planck, c
     E = nu * h_planck
     sigma = cross_section.get_cross_section(E, species)
     return B_nu(nu, T, kB, h_planck, c) * sigma
+
 
 def number_weighted_cross_section(nu, species, cross_section, T, kB, h_planck, c):
     """
@@ -85,7 +87,8 @@ def number_weighted_cross_section(nu, species, cross_section, T, kB, h_planck, c
     return B_nu_over_h_nu(nu, T, kB, h_planck, c) * sigma
 
 
-# Functions for pretty printouts 
+# Functions for pretty printouts
+
 
 def print_header(title):
     print("\n", title)
@@ -99,10 +102,11 @@ def print_header(title):
     print()
     return
 
+
 def print_results(results_list):
     for g in range(ngroups):
 
-        print("            group {0:2d} |".format(g), end =" ")
+        print("            group {0:2d} |".format(g), end=" ")
         for s in range(cs_params.nspecies):
             print("{0:20.6e} |".format(results_list[g][s]), end=" ")
         print()
@@ -142,14 +146,19 @@ if __name__ == "__main__":
             B_nu_over_h_nu, nu_min, nu_max, args=(T, kB, h_planck, c)
         )
 
-
         for s in range(cs_params.nspecies):
 
             energy_weighted_integral, eerr = integrate.quad(
-                energy_weighted_cross_section, nu_min, nu_max, args=(s, cs, T, kB, h_planck, c)
+                energy_weighted_cross_section,
+                nu_min,
+                nu_max,
+                args=(s, cs, T, kB, h_planck, c),
             )
             number_weighted_integral, nerr = integrate.quad(
-                number_weighted_cross_section, nu_min, nu_max, args=(s, cs, T, kB, h_planck, c)
+                number_weighted_cross_section,
+                nu_min,
+                nu_max,
+                args=(s, cs, T, kB, h_planck, c),
             )
 
             cse_species = energy_weighted_integral / E_nu_integral
