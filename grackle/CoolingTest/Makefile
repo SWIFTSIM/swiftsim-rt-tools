@@ -3,7 +3,7 @@
 #==================================
 
 # executable name
-EXEC   = rt
+EXEC   = cooling_test
 # source directory
 SRCDIR = .
 # include directory

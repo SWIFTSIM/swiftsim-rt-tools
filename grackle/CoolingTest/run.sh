@@ -4,5 +4,5 @@ set -e
 
 make clean
 make
-./rt
+./cooling_test
 ./plot.py

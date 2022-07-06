@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
+#--------------------------------------------------------------------------
+# Plot the results of the cooling test. Plots temperature, mean molecular 
+# weight, number densities, and mass fractions of ionizing species.
+#--------------------------------------------------------------------------
 
 import numpy as np
-import Ptools as pt
-
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import pyplot as plt
 
 plotkwargs = {"alpha": 0.4}
 
@@ -60,47 +65,50 @@ XHeII = HeII_density / tot_density
 XHeIII = HeIII_density / tot_density
 
 
-fig, axs = pt.subplots(2, 2)
-fig.set_size_inches(8, 6)
+fig = plt.figure(figsize=(8,6))
+ax1 = fig.add_subplot(2,2,1)
+ax2 = fig.add_subplot(2,2,2)
+ax3 = fig.add_subplot(2,2,3)
+ax4 = fig.add_subplot(2,2,4)
 
-axs[0][0].plot(Time_Myr, Temperature, **plotkwargs)
-#  axs[0].scatter(Time, Temperature)
-axs[0][0].semilogy()
-axs[0][0].set_xlabel(r"$\rm{Time\,\,[Myr]}$")
-axs[0][0].set_ylabel(r"$\rm{Temperature\,\,[K]}$")
-#  axs[0][0].set_xscale("log")
+ax1.plot(Time_Myr, Temperature, **plotkwargs)
+#  ax1.scatter(Time, Temperature)
+ax1.semilogy()
+ax1.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax1.set_ylabel(r"$\rm{Temperature\,\,[K]}$")
+#  ax1.set_xscale("log")
 
-axs[0][1].plot(Time_Myr, mu)
-axs[0][1].set_xlabel(r"$\rm{Time\,\,[Myr]}$")
-axs[0][1].set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
-#  axs[0][1].set_xscale("log")
+ax2.plot(Time_Myr, mu)
+ax2.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax2.set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
+#  ax2.set_xscale("log")
 
-axs[1][0].plot(Time_Myr, nHI, ls=":", label=r"$\rm{HI}$", **plotkwargs)
-axs[1][0].plot(Time_Myr, nHII, ls="-.", label=r"$\rm{HII}$", **plotkwargs)
-axs[1][0].plot(Time_Myr, nHeI, ls=":", label=r"$\rm{HeI}$", **plotkwargs)
-axs[1][0].plot(Time_Myr, nHeII, ls="-.", label=r"$\rm{HeII}$", **plotkwargs)
-axs[1][0].plot(Time_Myr, nHeIII, ls="--", label=r"$\rm{HeIII}$", **plotkwargs)
-axs[1][0].plot(Time_Myr, ne, ":", label=r"$\rm{n_e}$", **plotkwargs)
-axs[1][0].plot(Time_Myr, n, label=r"$\rm{Tot}$", alpha=1)
+ax3.plot(Time_Myr, nHI, ls=":", label=r"$\rm{HI}$", **plotkwargs)
+ax3.plot(Time_Myr, nHII, ls="-.", label=r"$\rm{HII}$", **plotkwargs)
+ax3.plot(Time_Myr, nHeI, ls=":", label=r"$\rm{HeI}$", **plotkwargs)
+ax3.plot(Time_Myr, nHeII, ls="-.", label=r"$\rm{HeII}$", **plotkwargs)
+ax3.plot(Time_Myr, nHeIII, ls="--", label=r"$\rm{HeIII}$", **plotkwargs)
+ax3.plot(Time_Myr, ne, ":", label=r"$\rm{n_e}$", **plotkwargs)
+ax3.plot(Time_Myr, n, label=r"$\rm{Tot}$", alpha=1)
 
-axs[1][0].set_xlabel(r"$\rm{Time\,\,[Myr]}$")
-axs[1][0].set_ylabel(r"$\rm{Number\,\,Densities}$")
-#  axs[1][0].set_xscale("log")
-axs[1][0].legend()
+ax3.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax3.set_ylabel(r"$\rm{Number\,\,Densities}$")
+#  ax3.set_xscale("log")
+ax3.legend()
 
 Xtot = XHI + XHII + XHeI + XHeII + XHeIII
-axs[1][1].plot(Time_Myr, XHI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
-axs[1][1].plot(Time_Myr, XHII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
-axs[1][1].plot(Time_Myr, XHeI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
-axs[1][1].plot(Time_Myr, XHeII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
-axs[1][1].plot(Time_Myr, XHeIII, ls="--", label=r"$\rm{XHeIII}$", **plotkwargs)
-axs[1][1].plot(Time_Myr, Xtot, ls="--", label="total", **plotkwargs)
-axs[1][1].set_xlabel(r"$\rm{Time\,\,[Myr]}$")
-axs[1][1].set_ylabel(r"$\rm{HeI,HeII,HeIII\,\,mass fraction}$")
-axs[1][1].legend()
-axs[1][1].grid()
-#  axs[1][1].set_xscale("log")
+ax4.plot(Time_Myr, XHI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
+ax4.plot(Time_Myr, XHII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
+ax4.plot(Time_Myr, XHeI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
+ax4.plot(Time_Myr, XHeII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
+ax4.plot(Time_Myr, XHeIII, ls="--", label=r"$\rm{XHeIII}$", **plotkwargs)
+ax4.plot(Time_Myr, Xtot, ls="--", label="total", **plotkwargs)
+ax4.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax4.set_ylabel(r"$\rm{HeI,HeII,HeIII\,\,mass fraction}$")
+ax4.legend()
+ax4.grid()
+#  ax4.set_xscale("log")
 
 
-pt.tight_layout()
-pt.savefig("rt_output.png", dpi=300)
+plt.tight_layout()
+plt.savefig("cooling_test_output.png", dpi=300)
