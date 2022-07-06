@@ -14,13 +14,13 @@ TimeIntegration:
   time_begin: 0.    # The starting time of the simulation (in internal units).
   time_end:   0.102  # The end time of the simulation (in internal units).
   dt_min:     1.e-8 # The minimal time-step size of the simulation (in internal units).
-  dt_max:     1.e-5  # The maximal time-step size of the simulation (in internal units).
+  dt_max:     1.e-3  # The maximal time-step size of the simulation (in internal units).
 
 # Parameters governing the snapshots
 Snapshots:
-  basename:            output # Common part of the name of output files
-  time_first:          0.    # Time of the first output (in internal units)
-  delta_time:          0.0001
+  basename:            output    # Common part of the name of output files
+  time_first:          0.        # Time of the first output (in internal units)
+  delta_time:          0.006375
 
 # Parameters governing the conserved quantities statistics
 Statistics:
@@ -55,5 +55,5 @@ GEARRT:
   stellar_spectrum_type: 1                         # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
   stellar_spectrum_blackbody_temperature_K: 1.e5    # (Conditional) if stellar_spectrum_type=1, use this temperature (in K) for the blackbody spectrum.
   # stars_max_timestep: 5.468750e-05                  # (Optional) restrict the maximal timestep of stars to this value (in internal units)
-  stars_max_timestep: 6.250000e-05                  # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  stars_max_timestep: 2.490234e-05                  # (Optional) restrict the maximal timestep of stars to this value (in internal units)
 
