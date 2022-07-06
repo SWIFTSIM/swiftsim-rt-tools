@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-#--------------------------------------------------------------------------
-# Plot the results of the cooling test. Plots temperature, mean molecular 
+# --------------------------------------------------------------------------
+# Plot the results of the cooling test. Plots temperature, mean molecular
 # weight, number densities, and mass fractions of ionizing species.
-#--------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 
 import numpy as np
 import matplotlib
+
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
@@ -65,11 +66,11 @@ XHeII = HeII_density / tot_density
 XHeIII = HeIII_density / tot_density
 
 
-fig = plt.figure(figsize=(8,6))
-ax1 = fig.add_subplot(2,2,1)
-ax2 = fig.add_subplot(2,2,2)
-ax3 = fig.add_subplot(2,2,3)
-ax4 = fig.add_subplot(2,2,4)
+fig = plt.figure(figsize=(8, 6))
+ax1 = fig.add_subplot(2, 2, 1)
+ax2 = fig.add_subplot(2, 2, 2)
+ax3 = fig.add_subplot(2, 2, 3)
+ax4 = fig.add_subplot(2, 2, 4)
 
 ax1.plot(Time_Myr, Temperature, **plotkwargs)
 #  ax1.scatter(Time, Temperature)

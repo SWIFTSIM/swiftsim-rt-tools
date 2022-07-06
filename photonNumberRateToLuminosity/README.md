@@ -2,7 +2,8 @@ Convert a given photon number to luminosities assuming a blackbody spectrum.
 
 ## Scripts intended for import:
 
-- `blackbody_spectrum.py`     blackbody related functions, intended for import.
+- `blackbody.py`     
+    blackbody related functions, intended for import.
 
 
 ## Scripts intended to be run:

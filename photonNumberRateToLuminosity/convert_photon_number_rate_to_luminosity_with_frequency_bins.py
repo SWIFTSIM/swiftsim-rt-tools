@@ -17,38 +17,44 @@
 #
 # Then we need to compute the fraction `f` of ionizing photons in each bin:
 #
-#   f_i = [ \int_{\nu_{i,min}^{\nu_{i, max}} J(\nu) / (h \nu) d\nu r ] /
-#         [ \int_{\nu_{min}}^\infty J(\nu) / (h \nu) d\nu ]
+#  let  nl = \nu_{i,min},
+#       nu = \nu_{i,max}
 #
+#   f_i = [ \int_{nl}^{nu}   J(\nu) / (h \nu) d\nu ] /
+#         [ \int_{nl}^\infty J(\nu) / (h \nu) d\nu ]
+#
+# Note that we start both integrations with `nl` because we assume that
+# we need to distribute a certain amount of *ionizing* photons, not
+# total photons following the given spectrum.
 # We finally get the luminosity L from the photon number rate Ndot as
 #
 #   L_i = <E_photon>_i * f_i * Ndot
 #
 # The final computation then simplifies to
 #
-#   L_i = [ \int_{\nu_{i,min}^{\nu_{i, max}} J(\nu)  d\nu r ] /
-#         [ \int_{\nu_{min}}^\infty J(\nu) / (h \nu) d\nu ] * Ndot
+#   L_i = [ \int_{nl}^{nu}   J(\nu)           d\nu ] /
+#         [ \int_{nl}^\infty J(\nu) / (h \nu) d\nu ] * Ndot
 # -----------------------------------------------------------------------------
 
 import numpy as np
-from matplotlib import pyplot as plt
-import unyt
 import scipy.integrate as integrate
 
 from blackbody import B_nu, B_nu_over_h_nu, nu_peak
 
-# --------------------------------------------------------
+# -----------------------------------------------------------------------------
 # USER SETUP
 
 # temperature for blackbody spectrum
 T = 1e5  # K
 # ionizing photon number emission rate you want
-Ndot = 5e48  # s^-1
+Ndot = 5e48  # s^-1 # for many Iliev tests
+#  Ndot = 1e12  # s^-1 # for Iliev06Test0part3
 # define upper limits for frequency bins. We assume that
 # the lowest bin is the first ionizing frequency.
 frequency_bins = [3.288e15, 5.945e15, 13.157e15]  # Hz
+#  frequency_bins = [0.]#, 5.945e15, 13.157e15]  # Hz
 
-# --------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Use cgs values only, no unyts.
 #  import unyt
@@ -88,9 +94,9 @@ for f in range(len(frequency_bins)):
     energy_density_integral, eerr = integrate.quad(
         B_nu, nu_min, nu_max, args=(T, kB, h_planck, c)
     )
-    L = energy_density_integral / number_density_integral_tot * Ndot / L_Sol
+    L = energy_density_integral / number_density_integral_tot * Ndot
 
-    print("Luminosity = {0:12.3e} [L_Sol]".format(L))
+    print("Luminosity = {0:12.3e} [erg/s] {1:12.3e} [L_Sol]".format(L, L / L_Sol))
 
     Lsum += L
 
@@ -104,6 +110,6 @@ for f in range(len(frequency_bins)):
 #      B_nu_over_h_nu, frequency_bins[0], integration_limit, args=(T, kB, h_planck, c)
 #  )
 #
-#  L_single = energy_density_integral / number_density_integral * Ndot / L_Sol
+#  L_single = energy_density_integral / number_density_integral * Ndot
 #
 #  print("Sanity check: sum over all bins / total luminosity integral = {0:12.3e}".format(Lsum / L_single))
