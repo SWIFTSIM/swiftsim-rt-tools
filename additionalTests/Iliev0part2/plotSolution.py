@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
 
-# ----------------------------------------------------
-# Stromgren 3D with grey approximation (single-frequency bin) and fixed temperature
-# The test is identical to Test 1 in Iliev et al. 2006 doi:10.1111/j.1365-2966.2006.10775.x
-# Analytic solution is described in Appendix C of SPHM1RT paper (https://arxiv.org/abs/2102.08404)
-# Plot comparison of simulated neutral fraction with analytic solution
-# ----------------------------------------------------
-
 import swiftsimio
-from matplotlib import pyplot as plt
 import matplotlib as mpl
+mpl.use('Agg')
+from matplotlib import pyplot as plt
 import numpy as np
 import sys
 import stromgren_plotting_tools as spt
 import unyt
 from scipy import stats
+
+#  mpl.use('Gtk')
 
 
 # Plot parameters

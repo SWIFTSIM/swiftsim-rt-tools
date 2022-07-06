@@ -8,3 +8,6 @@ timesteps_*.txt
 unused_parameters.yml
 used_parameters.yml
 statistics.txt
+*slm
+*out
+*.log
