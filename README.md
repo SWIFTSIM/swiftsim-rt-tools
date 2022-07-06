@@ -13,6 +13,9 @@ SWIFT.
 -   `HLLRiemannSolverEigenvalues` - compute the Eigenvalues for the HLL Riemann 
     solver used (optionally) in the GEAR-RT scheme
 
+-   `integrateCrossSections` - Get average photoionization cross sections, 
+    averaged over frequency bins.
+
 -   `photonNumberRateToLuminosity` - scripts to convert (ionizing) photon number
     rates into stellar luminosities. Needed e.g. to reproduce standard RT tests.
 
