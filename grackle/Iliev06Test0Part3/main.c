@@ -4,7 +4,7 @@
  * let it cool without any RT.
  * --------------------------------------------- */
 
-/* define these before including my_grackle_utils.h */
+/* define these before including local headers like my_grackle_utils.h */
 #define FIELD_SIZE 1
 #define GRIDDIM 1
 
@@ -16,9 +16,11 @@
 #include <grackle.h>
 
 #include "constants.h"
+#include "cross_sections.h"
 #include "ionization_equilibrium.h"
 #include "mean_molecular_weight.h"
 #include "my_grackle_utils.h"
+#include "photon_interaction_rates.h"
 
 int main() {
 
@@ -28,16 +30,18 @@ int main() {
 
   /* Print some extra data to screen? */
   int verbose = 1;
+  grackle_verbose = 0;
   /* output file */
   FILE *fd = fopen("out.dat", "w");
   /* output frequency  in number of steps */
-  int output_frequency = 8;
+  int output_frequency = 1;
 
-  /* Define units : use the same as internal units for swift */
-  /* ------------------------------------------------------- */
-  double mass_units = 1.99848e43;
-  double length_units = 3.08567758e21;
-  double velocity_units = 1e5;
+  /* Define units  */
+  /* --------------*/
+  /* Stick with cgs for now. */
+  double mass_units = 1.;
+  double length_units = 1.;
+  double velocity_units = 1.;
 
   double density_units =
       mass_units / length_units / length_units / length_units;
@@ -46,32 +50,37 @@ int main() {
   /* Time integration variables */
   /* -------------------------- */
   double t = 0.;
-  double dt = 4.882813e-05; /* in internal units. Copy this from swift output */
-  double tinit = 1e3;       /* in yr; will be converted later */
-  double tend = 1e8;        /* in yr; will be converted later */
+  double dt_max = 5293212890.625; /* ~168yrs in internal units, 32768 time steps. */
+  /* double dt_max = 330825805.6640625; [> 32768 * 16 <] */
+  /* double dt = 661651611.328125; [> 32768 * 8 <] */
+  double tinit = 1e-5;       /* in yr; will be converted later */
+  double tend = 5.5e6;      /* in yr; will be converted later */
   t = tinit * const_yr / time_units;   /* yr to code units */
   tend = tend * const_yr / time_units; /* yr to code units */
 
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
-  double hydrogen_fraction_by_mass = 0.76;
-  /* Use solution of swift's output. This is in internal units already. */
-  double gas_density = 0.00024633363;
-  double internal_energy = 21201.879;
+  double hydrogen_fraction_by_mass = 1.00;
+  double gas_density = const_mh; /* corresponds to number density 1 cm^-3 */
+  double T = 100.; /* K */
+
+  /* Initial conditions for radiation */
+  /* See README for details */
+  double T_blackbody = 1e5; /* K */
+  double frequency_bins[4] = {0., 3.288e15, 5.945e15, 13.157e15}; /* Hz */
+  double fixed_luminosity[4] = {0., 1.350e+01, 2.779e+01, 6.152e+00}; /* erg / cm^2 / s */
+  double fixed_radiation_density_field[4] = {0., 0., 0., 0.};
+  for (int g = 0; g < RT_NGROUPS; g++){
+    fixed_radiation_density_field[g] = fixed_luminosity[g] / const_speed_light_c;
+  }
 
   /* Derived quantities from ICs */
   /* --------------------------- */
 
-  /* Assuming fully ionized gas */
-  double mu_init = mean_molecular_weight_from_mass_fractions(
-      0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
-  double internal_energy_cgs =
-      internal_energy * length_units * length_units / time_units / time_units;
+  /* Assuming fully neutral gas */
+  double mu_init = 1.;
 
-  double T = internal_energy_cgs * (const_adiabatic_index - 1) * mu_init *
-             const_mh / const_kboltz;
-  if (verbose)
-    printf("Initial setup: u_cgs %g T_cgs %g\n", internal_energy_cgs, T);
+  double internal_energy = T * const_kboltz / (const_mh * mu_init * (const_adiabatic_index - 1.));
 
   /* define the hydrogen number density */
   /* use `gr_float` to use the same type of floats that grackle
@@ -79,12 +88,7 @@ int main() {
    * floats, or precision-64 otherwise. */
   gr_float nH =
       hydrogen_fraction_by_mass * gas_density / (const_mh / mass_units);
-  gr_float nHI;
-  gr_float nHII;
-  gr_float nHeI;
-  gr_float nHeII;
-  gr_float nHeIII;
-  gr_float ne;
+  gr_float nHI, nHII, nHeI, nHeII, nHeIII, ne;
 
   /* get densities of primordial spicies assuming ionization equilibrium */
   ionization_equilibrium_calculate_densities(T, nH, hydrogen_fraction_by_mass,
@@ -110,6 +114,24 @@ int main() {
       e_density,  0.,          0.,          0.,           0.,
       0.,         0.};
 
+  /* Get photon cross sections and mean energies */
+  /* ------------------------------------------- */
+  double **cse = malloc(RT_NGROUPS * sizeof(double *));
+  double **csn = malloc(RT_NGROUPS * sizeof(double *));
+  double mean_photon_energies[RT_NGROUPS];
+  for (int group = 0; group < RT_NGROUPS; group++) {
+    cse[group] = malloc(RT_NIONIZING_SPECIES * sizeof(double));
+    csn[group] = malloc(RT_NIONIZING_SPECIES * sizeof(double));
+    mean_photon_energies[group] = 0.;
+  }
+
+  get_cross_sections(T_blackbody, frequency_bins, cse, csn, mean_photon_energies);
+
+  for (int g = 0; g < RT_NGROUPS; g++){
+    printf("group %d cse=%.3e csn=%.3e mean=%.3e\n", g, cse[g][0], csn[g][0], mean_photon_energies[g]);
+  }
+
+
   /* Grackle behaviour setup */
   /* ----------------------- */
 
@@ -119,16 +141,8 @@ int main() {
   int use_radiative_transfer = 0;
   char *grackle_data_file = "";
 
-  gr_float RT_HI_ionization_rate = 0.;
-  gr_float RT_HeI_ionization_rate = 0.;
-  gr_float RT_HeII_ionization_rate = 0.;
-  gr_float RT_H2_dissociation_rate = 0.;
-  gr_float RT_heating_rate = 0.;
-
   /* Store them all in a single array for simplicity. */
-  gr_float interaction_rates[5] = {
-      RT_HI_ionization_rate, RT_HeI_ionization_rate, RT_HeII_ionization_rate,
-      RT_H2_dissociation_rate, RT_heating_rate};
+  gr_float interaction_rates[5] = {0., 0., 0., 0., 0};
 
   /*********************************************************************
    * Set up gracke data and fields.
@@ -151,24 +165,15 @@ int main() {
 
   chemistry_data grackle_chemistry_data;
   if (set_default_chemistry_parameters(&grackle_chemistry_data) == 0) {
-    fprintf(stderr, "Errir in set_default_chemistry_parameters");
+    fprintf(stderr, "Error in set_default_chemistry_parameters");
     return EXIT_FAILURE;
   }
 
   /* Set parameter values for chemistry. */
   setup_grackle_chemistry(&grackle_chemistry_data, primordial_chemistry,
-                          UVbackground, grackle_data_file, use_radiative_cooling,
+                          UVbackground, grackle_data_file, use_radiative_cooling, 
                           use_radiative_transfer, hydrogen_fraction_by_mass);
 
-  /* Initialize the chemistry_data_storage object to be able to use local
-   * functions */
-  /* chemistry_data_storage *grackle_chemistry_rates; */
-  /* grackle_chemistry_rates = malloc(sizeof(chemistry_data_storage)); */
-  /* if (_initialize_chemistry_data(&grackle_chemistry_data,
-   * grackle_chemistry_rates, &grackle_units_data) == 0) { */
-  /*   fprintf(stderr, "Error in initialize_chemistry_data.\n"); */
-  /*   return EXIT_FAILURE; */
-  /* } */
   if (initialize_chemistry_data(&grackle_units_data) == 0) {
     fprintf(stderr, "Error in initialize_chemistry_data.\n");
     return EXIT_FAILURE;
@@ -188,6 +193,7 @@ int main() {
   gr_float *mu = malloc(FIELD_SIZE * sizeof(gr_float));
 
   /* Write headers */
+  /* ------------- */
 
   if (verbose) {
     printf("%15s%15s%15s%15s%15s%15s%15s%15s\n",
@@ -197,30 +203,31 @@ int main() {
            nHII, nHeI, nHeII, nHeIII, ne);
   }
 
-  printf("%15s%15s%15s%15s%15s%15s%15s%15s%15s%15s%15s\n", "Time [yr]",
+  printf("%7s%15s%15s%15s%15s%15s%15s%15s%15s%15s%15s%15s\n", "step", "Time [yr]",
          "dt [yr]", "Temperature [K]", "Mean Mol. W. [1]", "Tot dens. [IU]",
          "HI dens. [IU]", "HII dens. [IU]", "HeI dens. [IU]", "HeII dens. [IU]",
          "HeIII dens. [IU]", "e- num. dens. [IU]");
+  /* TODO: dt is wrong here */
   printf(
-      "%15.3e%15.3e%15.1f%15.3f%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e \n",
-      t / const_yr * time_units, dt / const_yr * time_units, T, mean_weight,
+      "%6d %15.3e%15.3e%15.1f%15.3f%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e \n", 0, 
+      t / const_yr * time_units, dt_max / const_yr * time_units, T, mean_weight,
       grackle_fields.density[0], grackle_fields.HI_density[0],
       grackle_fields.HII_density[0], grackle_fields.HeI_density[0],
       grackle_fields.HeII_density[0], grackle_fields.HeIII_density[0],
       grackle_fields.e_density[0]);
 
-
   /* write down what ICs you used into file */
-  write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units, length_units, velocity_units, dt, hydrogen_fraction_by_mass, gas_density, internal_energy);
-
+  /* TODO: dt is wrong here */
+  write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units, length_units, velocity_units, dt_max, hydrogen_fraction_by_mass, gas_density, internal_energy);
   fprintf(fd, "#%14s%15s%15s%15s%15s%15s%15s%15s%15s%15s%15s\n", "Time [yr]",
           "dt [yr]", "Temperature [K]", "Mean Mol. W. [1]", "Tot dens. [IU]",
           "HI dens. [IU]", "HII dens. [IU]", "HeI dens. [IU]",
           "HeII dens. [IU]", "HeIII dens. [IU]", "e- num. dens. [IU]");
+  /* TODO: dt is wrong here */
   fprintf(
       fd,
       "%15.3e%15.3e%15.1f%15.3f%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e \n",
-      t / const_yr * time_units, dt / const_yr * time_units, T, mean_weight,
+      t / const_yr * time_units, dt_max / const_yr * time_units, T, mean_weight,
       grackle_fields.density[0], grackle_fields.HI_density[0],
       grackle_fields.HII_density[0], grackle_fields.HeI_density[0],
       grackle_fields.HeII_density[0], grackle_fields.HeIII_density[0],
@@ -234,6 +241,69 @@ int main() {
   int step = 0;
   while (t < tend) {
 
+
+    /* Set up radiation fields, and compute the resulting interaction
+     * rates depending on the simulation time. */
+    gr_float interaction_rates[5] = {0., 0., 0., 0., 0.};
+    if (t / const_yr * time_units < 8.5e6) {
+      /* below 0.5 Myr, we heat. */
+      /* double test = ; */
+      /* RT_HI_ionization_rate = 1e-22; */
+      /* RT_HeI_ionization_rate = 0.; */
+      /* RT_HeII_ionization_rate = 0.; */
+      /* RT_H2_dissociation_rate = 0.; */
+      /* RT_heating_rate = 1e-22; */
+
+      /* RT_HI_ionization_rate = 1.6e-06; [> in s^-1 <] */
+      /* RT_HeI_ionization_rate = 0; */
+      /* RT_HeII_ionization_rate = 0; */
+      /* RT_H2_dissociation_rate = 0; */
+      /* RT_heating_rate = 5.191e-17 * 0.3; [> in erg/s/cm3 <] */
+
+      /* printf("heating\n"); */
+
+      double radiation_energy_density[RT_NGROUPS];
+      radiation_energy_density[0] = fixed_radiation_density_field[0];
+      radiation_energy_density[1] = fixed_radiation_density_field[1];
+      radiation_energy_density[2] = fixed_radiation_density_field[2];
+      radiation_energy_density[3] = fixed_radiation_density_field[3];
+
+      gr_float species_densities[6];
+      species_densities[0] = grackle_fields.HI_density[0];
+      species_densities[1] = grackle_fields.HII_density[0];
+      species_densities[2] = grackle_fields.HeI_density[0];
+      species_densities[3] = grackle_fields.HeII_density[0];
+      species_densities[4] = grackle_fields.HeIII_density[0];
+      species_densities[5] = grackle_fields.e_density[0];
+
+      get_interaction_rates(radiation_energy_density, 
+                            species_densities,
+                            cse, csn, mean_photon_energies,
+                            interaction_rates);
+    }
+
+    for (int i = 0; i < FIELD_SIZE; i++){
+      printf("%.4e\n", interaction_rates[0]);
+      grackle_fields.RT_heating_rate[i] = interaction_rates[0];
+      grackle_fields.RT_HI_ionization_rate[i] = interaction_rates[1];
+      grackle_fields.RT_HeI_ionization_rate[i] = interaction_rates[2];
+      grackle_fields.RT_HeII_ionization_rate[i] = interaction_rates[3];
+      grackle_fields.RT_H2_dissociation_rate[i] = interaction_rates[4];
+    }
+
+    /* gr_float cooling_time[FIELD_SIZE]; */
+    /* if (calculate_cooling_time(&grackle_units_data, &grackle_fields, */
+    /*                            cooling_time) == 0) { */
+    /*   fprintf(stderr, "Error in calculate_cooling_time.\n"); */
+    /*   return 0; */
+    /* } */
+    /* gr_float dt = dt_max; */
+    /* for (int i = 0; i < FIELD_SIZE; i++){ */
+    /*   [> If we're heating, the cooling time will be negative <] */
+    /*   if (fabs(cooling_time[i]) < dt) dt = fabs(cooling_time[i]); */
+    /* } */
+    /*  */
+    gr_float dt = dt_max;
     t += dt;
     step += 1;
 
@@ -264,8 +334,8 @@ int main() {
     }
 
     printf(
-        "%15.3e%15.3e%15.1f%15.3f%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e \n",
-        t / const_yr * time_units, dt / const_yr * time_units, temperature[0],
+        "%6d %15.3e%15.3e%15.1f%15.3f%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e%15.3e \n",
+        step, t / const_yr * time_units, dt / const_yr * time_units, temperature[0],
         mu[0], grackle_fields.density[0], grackle_fields.HI_density[0],
         grackle_fields.HII_density[0], grackle_fields.HeI_density[0],
         grackle_fields.HeII_density[0], grackle_fields.HeIII_density[0],
@@ -287,6 +357,8 @@ int main() {
   clean_up_fields(&grackle_fields);
   free(mu);
   free(temperature);
+  free(cse);
+  free(csn);
 
   return EXIT_SUCCESS;
 }
