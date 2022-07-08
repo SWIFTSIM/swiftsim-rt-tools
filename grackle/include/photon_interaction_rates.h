@@ -52,7 +52,7 @@ void get_interaction_rates( double radiation_energy_density[RT_NGROUPS],
   /* singly ionized helium */
   species_number_densities[2] = 0.25 * species_densities[3] / const_mh;
 
-  const double nHI = species_densities[0] / const_mh; /* this pretends to be in internal units, which are cgs anyway */
+  /* const double nHI = species_densities[0] / const_mh; */
   /* const double nHI = species_number_densities_cgs[0]; */
 
   /* store photoionization rate for each species here */
@@ -66,9 +66,10 @@ void get_interaction_rates( double radiation_energy_density[RT_NGROUPS],
     /* Sum results for this group over all species */
     /* double heating_rate_group_nHI = 0.; */
     double heating_rate_group = 0.;
-    double Eic = radiation_energy_density[group] * const_speed_light_c;
-    /* const double emean_inv = rt_props->average_photon_energy[group] > 0. ? 1. / rt_props->average_photon_energy[group] : 0.; */
     const double Emean = mean_energy[group];
+    const double Eic = radiation_energy_density[group] * const_speed_light_c;
+    double Nic = 0.;
+    if (Emean > 0.) Nic = Eic / Emean;
 
     for (int spec = 0; spec < RT_NIONIZING_SPECIES; spec++) {
       /* Note: the cross sections are in cgs. */
@@ -76,11 +77,12 @@ void get_interaction_rates( double radiation_energy_density[RT_NGROUPS],
       const double csn = number_weighted_cross_sections[group][spec];
       const double n_spec = species_number_densities[spec];
 
-      heating_rate_group += (cse - E_ion[spec] * csn / Emean) * n_spec;
-      ionization_rates_by_species[spec] += cse * n_spec * Eic; /* internal units T^-1 */
+      heating_rate_group += (cse * Emean - E_ion[spec] * csn) * n_spec;
+      ionization_rates_by_species[spec] += csn * n_spec * Nic;
     }
 
-    rates[0] += heating_rate_group * Eic / nHI;
+    /* rates[0] += heating_rate_group * Eic / nHI; */
+    rates[0] += heating_rate_group * Nic;
   }
 
   /* We're done. Write the results in correct place */
@@ -89,6 +91,5 @@ void get_interaction_rates( double radiation_energy_density[RT_NGROUPS],
   rates[3] = ionization_rates_by_species[2];
   /* rates[4] = skipped for now */
 }
-
 
 #endif
