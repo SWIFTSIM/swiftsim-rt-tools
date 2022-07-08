@@ -16,8 +16,8 @@ plotkwargs = {"alpha": 0.4}
 mh = 1.67262171e-24  # Hydrogen mass in g
 
 print("Reminder: Set units manually in plot.py if you change them in main.c")
-length_units = 1.
-mass_units = 1.
+length_units = 1.e-3
+mass_units = 1.e-26
 density_units = mass_units / length_units ** 3
 time_units = 1.
 
@@ -87,13 +87,13 @@ ax2.set_xlabel(r"$\rm{Time\,\,[yr]}$")
 ax2.set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
 ax2.set_xscale("log")
 
-ax3.plot(Time_Myr, nHI, ls=":", label=r"$\rm{HI}$", **plotkwargs)
-ax3.plot(Time_Myr, nHII, ls="-.", label=r"$\rm{HII}$", **plotkwargs)
-ax3.plot(Time_Myr, nHeI, ls=":", label=r"$\rm{HeI}$", **plotkwargs)
-ax3.plot(Time_Myr, nHeII, ls="-.", label=r"$\rm{HeII}$", **plotkwargs)
-ax3.plot(Time_Myr, nHeIII, ls="--", label=r"$\rm{HeIII}$", **plotkwargs)
-ax3.plot(Time_Myr, ne, ":", label=r"$\rm{n_e}$", **plotkwargs)
-ax3.plot(Time_Myr, n, label=r"$\rm{Tot}$", alpha=1)
+ax3.plot(Time, nHI, ls=":", label=r"$\rm{HI}$", **plotkwargs)
+ax3.plot(Time, nHII, ls="-.", label=r"$\rm{HII}$", **plotkwargs)
+ax3.plot(Time, nHeI, ls=":", label=r"$\rm{HeI}$", **plotkwargs)
+ax3.plot(Time, nHeII, ls="-.", label=r"$\rm{HeII}$", **plotkwargs)
+ax3.plot(Time, nHeIII, ls="--", label=r"$\rm{HeIII}$", **plotkwargs)
+ax3.plot(Time, ne, ":", label=r"$\rm{n_e}$", **plotkwargs)
+ax3.plot(Time, n, label=r"$\rm{Tot}$", alpha=1)
 
 ax3.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 ax3.set_ylabel(r"$\rm{Number\,\,Densities}$")
