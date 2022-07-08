@@ -33,7 +33,9 @@ T = 1e5  # K
 # define upper limits for frequency bins. We assume that
 # the lowest bin is the first ionizing frequency.
 frequency_bins = [0.0, 3.288e15, 5.945e15, 13.157e15]  # Hz
-#  frequency_bins = [0.]
+# NOTE: If you're only using 1 photon group, start at the lowest
+# ionizing frequency, not zero!! E.g:
+#  frequency_bins = [3.288e15]
 # number of photon groups we are using
 ngroups = len(frequency_bins)
 

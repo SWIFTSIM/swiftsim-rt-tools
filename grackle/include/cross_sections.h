@@ -268,7 +268,13 @@ void get_cross_sections(double T_blackbody, double frequency_bins[RT_NGROUPS], d
   for (int group = 0; group < RT_NGROUPS - 1; group++)
     nu_stop[group] = frequency_bins[group + 1];
 
-  nu_start[0] = 1e-20; /* don't start at exactly 0 to avoid unlucky divisions */
+  /* don't start at exactly 0 to avoid unlucky divisions */
+  if (nu_start[0] == 0.) nu_start[0] = nu_start[1] * TINY_NUMBER;
+  if (RT_NGROUPS == 1) {
+    /* If we only have one group, start integrating from the Hydrogen
+     * ionization frequency, not from zero. */
+    nu_start[0] = cs_params.E_ion[0] / const_planck_h;
+  }
   /* Stop at 10 times the frequency of the blackbody peak */
   nu_stop[RT_NGROUPS - 1] = 10. * blackbody_peak_frequency(T_blackbody, const_kboltz, const_planck_h);
 
