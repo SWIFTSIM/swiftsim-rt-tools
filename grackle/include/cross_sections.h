@@ -218,6 +218,10 @@ double cross_sections_integrate_gsl(
   gsl_integration_qags(&F, nu_start, nu_stop, /*espabs=*/0., /*epsrel=*/1e-7,
                        npoints, w, &result, &error);
 
+  gsl_integration_workspace_free(w);
+
+  /* TODO MLADEN: don't forget to change this part in swift too ! */
+
   return result;
 }
 
