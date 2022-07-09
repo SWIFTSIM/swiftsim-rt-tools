@@ -57,15 +57,15 @@ ne = data[:, 10]  # number density
 
 
 # compute number density for all species
-nHI = HI_density * density_units / (mh / mass_units)
+nHI = HI_density * density_units / mh
 # in part per cc
-nHII = HII_density * density_units / (mh / mass_units)
+nHII = HII_density * density_units / mh
 # in part per cc
-nHeI = HeI_density * density_units / (4 * (mh / mass_units))
+nHeI = HeI_density * density_units / (4 * mh)
 # in part per cc
-nHeII = HeII_density * density_units / (4 * (mh / mass_units))
+nHeII = HeII_density * density_units / (4 * mh)
 # in part per cc
-nHeIII = HeIII_density * density_units / (4 * (mh / mass_units))
+nHeIII = HeIII_density * density_units / (4 * mh)
 # in part per cc
 ne = ne * density_units / (mh / mass_units)
 # in part per cc
@@ -106,9 +106,8 @@ ax3.plot(Time, nHeII, ls="-.", label=r"$\rm{HeII}$", **plotkwargs)
 ax3.plot(Time, nHeIII, ls="--", label=r"$\rm{HeIII}$", **plotkwargs)
 ax3.plot(Time, ne, ":", label=r"$\rm{n_e}$", **plotkwargs)
 ax3.plot(Time, n, label=r"$\rm{Tot}$", alpha=1)
-
 ax3.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
-ax3.set_ylabel(r"$\rm{Number\,\,Densities}$")
+ax3.set_ylabel(r"$\rm{Number\,\,Densities}\ [\rm{cm}^{-3}]$")
 ax3.set_xscale("log")
 ax3.legend()
 
