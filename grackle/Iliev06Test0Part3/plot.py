@@ -11,39 +11,52 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
+# file to read from
+resultfile = "out.dat"
+
 plotkwargs = {"alpha": 0.4}
+
 
 mh = 1.67262171e-24  # Hydrogen mass in g
 
-print("Reminder: Set units manually in plot.py if you change them in main.c")
-length_units = 1.e-3
-mass_units = 1.e-26
+# Read in units.
+f = open(resultfile, "r")
+firstline = f.readline()
+massline = f.readline()
+lengthline = f.readline()
+velline = f.readline()
+f.close()
+units = []
+for l in [massline, lengthline, velline]:
+    before, after = l.split("used:")
+    val, unit = after.split("[")
+    val = val.strip()
+    units.append(float(val))
+
+mass_units = units[0]
+length_units = units[1]
+velocity_units = units[2]
+time_units = velocity_units / length_units
 density_units = mass_units / length_units ** 3
-time_units = 1.
 
-
-data = np.loadtxt("out.dat")
+# Read in all other data 
+data = np.loadtxt(resultfile)
 
 Time = data[:, 0]
 Time_Myr = Time * 1e-6
 dt = data[:, 1]
 Temperature = data[:, 2]
 mu = data[:, 3]
-
 tot_density = data[:, 4]  # mass density
-
 HI_density = data[:, 5]
 HII_density = data[:, 6]
-
 HeI_density = data[:, 7]
 HeII_density = data[:, 8]
 HeIII_density = data[:, 9]
-
 ne = data[:, 10]  # number density
 
 
 # compute number density for all species
-
 nHI = HI_density * density_units / (mh / mass_units)
 # in part per cc
 nHII = HII_density * density_units / (mh / mass_units)
@@ -56,7 +69,6 @@ nHeIII = HeIII_density * density_units / (4 * (mh / mass_units))
 # in part per cc
 ne = ne * density_units / (mh / mass_units)
 # in part per cc
-
 n = nHI + nHII + nHeI + nHeII + nHeIII
 
 XHI = HI_density / tot_density
