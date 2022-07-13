@@ -14,6 +14,9 @@ SWIFT.
     [grackle](https://github.com/grackle-project/grackle) library for specific 
     problems.
 
+-   `GEARRTUnitCheck/` - a set of checks for unit compatibility with float 
+    precision for GEAR RT & Grackle.
+
 -   `HLLRiemannSolverEigenvalues` - compute the Eigenvalues for the HLL Riemann 
     solver used (optionally) in the GEAR-RT scheme
 
