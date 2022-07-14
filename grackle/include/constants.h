@@ -3,6 +3,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#include <math.h>
+
 /* Physical
  * ------------------------------- */
 
@@ -19,6 +21,10 @@
 /* year in s */
 #define const_yr 31557600.
 #define const_adiabatic_index 1.666667
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 /* Code internals
  * ------------------------------- */
