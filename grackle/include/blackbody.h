@@ -1,6 +1,8 @@
 #ifndef BLACKBODY_H
 #define BLACKBODY_H
 
+#include "constants.h"
+
 /* ------------------------------------------- */
 /* Functions related to the blackbody spectrum */
 /* ------------------------------------------- */
