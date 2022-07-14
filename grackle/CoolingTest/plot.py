@@ -39,7 +39,7 @@ time_units = velocity_units / length_units
 density_units = mass_units / length_units ** 3
 
 # Read in all other data 
-data = np.loadtxt("out.dat")
+data = np.loadtxt(resultfile)
 
 Time = data[:, 1]
 Time_Myr = Time * 1e-6
