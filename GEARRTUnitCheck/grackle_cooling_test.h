@@ -2,7 +2,7 @@
 #define GRACKLE_COOLING_TEST_H
 
 /* ----------------------------------------------------------
- * In this example, we start with high internal energies and 
+ * In this example, we start with high internal energies and
  * a fully ionized gas, and just let it cool without any RT.
  * --------------------------------------------------------- */
 
@@ -13,10 +13,10 @@
 
 #include <grackle.h>
 
-#include "ionization_equilibrium.h"
-#include "mean_molecular_weight.h"
 #include "error.h"
 #include "grackle_checks.h"
+#include "ionization_equilibrium.h"
+#include "mean_molecular_weight.h"
 /* NOTE: don't include my_grackle_utils here to make sure you've
  * got the correct FIELD_SIZE etc definitions. */
 #ifndef MY_GRACKLE_UTILS_H
@@ -32,24 +32,18 @@
  *
  * @param density gas density to use
  * @param name name of the test case. NO SPACES.
- * @param mass_units the internal mass units to use. 
- * @param length_units the internal length units to use. 
- * @param density_units the internal density units to use. 
- * @param velocity_units the internal velocity units to use. 
- * @param internal_energy_units the internal specific internal energy units to use. 
+ * @param mass_units the internal mass units to use.
+ * @param length_units the internal length units to use.
+ * @param density_units the internal density units to use.
+ * @param velocity_units the internal velocity units to use.
+ * @param internal_energy_units the internal specific internal energy units to
+ *use.
  * @param verbose print time step data to screen?
  **/
-void run_grackle_cooling_test(
-    float density,
-    char *name,
-    double mass_units,
-    double length_units,
-    double time_units,
-    double density_units,
-    double velocity_units,
-    double internal_energy_units,
-    int verbose
-    ) {
+void run_grackle_cooling_test(float density, char *name, double mass_units,
+                              double length_units, double time_units,
+                              double density_units, double velocity_units,
+                              double internal_energy_units, int verbose) {
 
   /******************************************************************
    * Set up initial conditions and runtime parameters.
@@ -67,13 +61,13 @@ void run_grackle_cooling_test(
 
   /* Time integration variables */
   /* -------------------------- */
-  double dt = 1e3;    /* in yr. will be converted later */
-  double tinit = 1.;  /* in yr; will be converted later */
-  double tend = 1e7;  /* in yr; will be converted later */
+  double dt = 1e3;   /* in yr. will be converted later */
+  double tinit = 1.; /* in yr; will be converted later */
+  double tend = 1e7; /* in yr; will be converted later */
 
-  double t = tinit * const_yr / time_units;   /* yr to code units */
-  dt = dt * const_yr / time_units;   /* yr to code units */
-  tend = tend * const_yr / time_units; /* yr to code units */
+  double t = tinit * const_yr / time_units; /* yr to code units */
+  dt = dt * const_yr / time_units;          /* yr to code units */
+  tend = tend * const_yr / time_units;      /* yr to code units */
 
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
@@ -89,7 +83,8 @@ void run_grackle_cooling_test(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
 
   double T = 1e6; /* K */
-  double internal_energy_cgs = const_kboltz * T / ((const_adiabatic_index - 1.) * mu_init * const_mh);
+  double internal_energy_cgs =
+      const_kboltz * T / ((const_adiabatic_index - 1.) * mu_init * const_mh);
   double internal_energy = internal_energy_cgs / internal_energy_units;
 
   /* define the hydrogen number density */
@@ -121,10 +116,10 @@ void run_grackle_cooling_test(
   gr_float e_density = ne * (const_mh / mass_units);
 
   /* Store them all in a single array for simplicity. */
-  gr_float species_densities[12] = {
-      HI_density, HII_density, HeI_density, HeII_density, HeIII_density,
-      e_density,  TINY_NUMBER, TINY_NUMBER, TINY_NUMBER, TINY_NUMBER,
-      TINY_NUMBER, TINY_NUMBER};
+  gr_float species_densities[12] = {HI_density,   HII_density,   HeI_density,
+                                    HeII_density, HeIII_density, e_density,
+                                    TINY_NUMBER,  TINY_NUMBER,   TINY_NUMBER,
+                                    TINY_NUMBER,  TINY_NUMBER,   TINY_NUMBER};
 
   /* Grackle behaviour setup */
   /* ----------------------- */
@@ -206,10 +201,12 @@ void run_grackle_cooling_test(
                  &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units,
                  /*step=*/0);
 
-  if (verbose){
+  if (verbose) {
     /* Print to screen as well */
     write_header(stdout);
-    write_timestep(stdout, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units, /*step=*/0);
+    write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                   &grackle_chemistry_data, /*field_index=*/0, t, dt,
+                   time_units, /*step=*/0);
   }
 
   /*********************************************************************

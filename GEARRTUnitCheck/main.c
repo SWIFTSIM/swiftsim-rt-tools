@@ -36,7 +36,6 @@ double temperature_units;
 double energy_units;
 double internal_energy_units;
 
-
 /* Radiation variables */
 float c_reduced; /* in internal units */
 double *star_emission_rates;
@@ -86,7 +85,7 @@ long long npart;
               __FILE__, __FUNCTION__, __LINE__, v);                            \
       abort();                                                                 \
     }                                                                          \
-    if (v != 0. && (fabs(v) > 1e30 || fabs(v) < 1e-30)){                       \
+    if (v != 0. && (fabs(v) > 1e30 || fabs(v) < 1e-30)) {                      \
       fflush(stdout);                                                          \
       fprintf(stdout, "WARNING: %s:%s:%d: " #v " has large exponent: %.6e\n",  \
               __FILE__, __FUNCTION__, __LINE__, v);                            \
@@ -94,20 +93,19 @@ long long npart;
   })
 
 #define FLOAT_TOLERANCE 1e-5
-#define check_floats_equal(a, b)                                              \
-  ({                                                                          \
-    if (a == 0. && b == 0.) {                                                 \
-    }                                                                         \
-    else if (a == 0. && fabsf(b) > FLOAT_TOLERANCE) {                         \
-     error(#a " and " #b " are not equal: %.6e %.6e", a, b);                  \
-    }                                                                         \
-    else if (b == 0. && fabsf(a) > FLOAT_TOLERANCE) {                         \
-     error(#a " and " #b " are not equal: %.6e %.6e", a, b);                  \
-    } else {                                                                  \
-      if (1.f - fabsf(a/b) > FLOAT_TOLERANCE){                                \
-        error(#a " and " #b " are not equal: %.6e %.6e a/b=%.3e", a, b, a/b); \
-      }                                                                       \
-    }                                                                         \
+#define check_floats_equal(a, b)                                               \
+  ({                                                                           \
+    if (a == 0. && b == 0.) {                                                  \
+    } else if (a == 0. && fabsf(b) > FLOAT_TOLERANCE) {                        \
+      error(#a " and " #b " are not equal: %.6e %.6e", a, b);                  \
+    } else if (b == 0. && fabsf(a) > FLOAT_TOLERANCE) {                        \
+      error(#a " and " #b " are not equal: %.6e %.6e", a, b);                  \
+    } else {                                                                   \
+      if (1.f - fabsf(a / b) > FLOAT_TOLERANCE) {                              \
+        error(#a " and " #b " are not equal: %.6e %.6e a/b=%.3e", a, b,        \
+              a / b);                                                          \
+      }                                                                        \
+    }                                                                          \
   })
 
 /**
@@ -194,8 +192,7 @@ void read_ic_params(struct swift_params *params) {
       parser_get_param_float(params, "ParticleData:ParticleMass");
   const float av_density_ic =
       parser_get_param_float(params, "ParticleData:averageDensity");
-  const float boxsize_ic =
-      parser_get_param_float(params, "GlobalData:boxsize");
+  const float boxsize_ic = parser_get_param_float(params, "GlobalData:boxsize");
   npart = parser_get_param_longlong(params, "GlobalData:npart");
 
   /* Convert quantities from IC internal units to SWIFT internal units */
@@ -276,9 +273,12 @@ void print_params() {
   message("%22s: %.6e", "density_max", density_max);
   message("%22s: %.6e", "boxsize", boxsize);
   message("%22s: %.6e", "smoothing length", smoothing_length);
-  message("%22s: %.6e", "approx dt [internal units]", smoothing_length / c_reduced);
-  message("%22s: %.6e", "approx dt [s]             ", smoothing_length / c_reduced * time_units);
-  message("%22s: %.6e", "approx dt [kyr]           ", smoothing_length / c_reduced * time_units / const_yr * 1e-3);
+  message("%22s: %.6e", "approx dt [internal units]",
+          smoothing_length / c_reduced);
+  message("%22s: %.6e", "approx dt [s]             ",
+          smoothing_length / c_reduced * time_units);
+  message("%22s: %.6e", "approx dt [kyr]           ",
+          smoothing_length / c_reduced * time_units / const_yr * 1e-3);
 }
 
 /**
@@ -290,9 +290,9 @@ void print_params() {
  * @param float T temperature to deal with
  * @param verbose are we talkative?
  **/
-void check_gas_quantities(float density, char* name, float T, int verbose){
+void check_gas_quantities(float density, char *name, float T, int verbose) {
 
-  /* assume mean molecular weight of 1 for this test. While that isn't correct, 
+  /* assume mean molecular weight of 1 for this test. While that isn't correct,
    * it should do the trick for the purpose of this test. */
   message("Checking gas quantities for T=%.1f case=%s", T, name);
   verbose = 1;
@@ -301,39 +301,44 @@ void check_gas_quantities(float density, char* name, float T, int verbose){
   const float gamma_minus_one = gamma - 1.f;
 
   /* Get and check internal energy */
-  const float mu = 1.; 
-  const float internal_energy_cgs = const_kboltz * T / (gamma_minus_one * mu * const_mh);
+  const float mu = 1.;
+  const float internal_energy_cgs =
+      const_kboltz * T / (gamma_minus_one * mu * const_mh);
   const float internal_energy = internal_energy_cgs / internal_energy_units;
-  check_valid_float((double) internal_energy);
+  check_valid_float((double)internal_energy);
 
   /* Get and check other quantities from internal energy */
   const float pressure = gamma_minus_one * internal_energy * density;
-  check_valid_float((double) pressure);
+  check_valid_float((double)pressure);
 
   const float entropy = pressure * pow(density, -gamma);
-  check_valid_float((double) entropy);
+  check_valid_float((double)entropy);
 
   const float soundspeed = sqrtf(internal_energy * gamma * gamma_minus_one);
-  check_valid_float((double) soundspeed);
+  check_valid_float((double)soundspeed);
 
   /* Get and check quantities using entropy now */
-  const float internal_energy_from_entropy = entropy * powf(density, gamma_minus_one) / gamma_minus_one;
-  check_valid_float((double) internal_energy_from_entropy);
+  const float internal_energy_from_entropy =
+      entropy * powf(density, gamma_minus_one) / gamma_minus_one;
+  check_valid_float((double)internal_energy_from_entropy);
 
   const float pressure_from_entropy = entropy * powf(density, gamma);
-  check_valid_float((double) pressure_from_entropy);
+  check_valid_float((double)pressure_from_entropy);
 
-  const float entropy_from_internal_energy = gamma_minus_one * internal_energy * powf(density, -gamma_minus_one);
+  const float entropy_from_internal_energy =
+      gamma_minus_one * internal_energy * powf(density, -gamma_minus_one);
   check_valid_float(entropy_from_internal_energy);
 
-  const float soundspeed_from_entropy = sqrtf(gamma * powf(density, gamma_minus_one) * entropy);
+  const float soundspeed_from_entropy =
+      sqrtf(gamma * powf(density, gamma_minus_one) * entropy);
   check_valid_float(soundspeed_from_entropy);
 
-  const float internal_energy_from_pressure = (pressure_from_entropy / density) / gamma_minus_one;
-  check_valid_float((double) internal_energy_from_pressure);
+  const float internal_energy_from_pressure =
+      (pressure_from_entropy / density) / gamma_minus_one;
+  check_valid_float((double)internal_energy_from_pressure);
 
   const float soundspeed_from_pressure = sqrtf(gamma * pressure / density);
-  check_valid_float((double) soundspeed_from_pressure);
+  check_valid_float((double)soundspeed_from_pressure);
 
   /* Compare obtained values */
   check_floats_equal(pressure, pressure_from_entropy);
@@ -349,13 +354,15 @@ void check_gas_quantities(float density, char* name, float T, int verbose){
   const double momentum = particle_mass * soundspeed;
   check_valid_float(momentum);
 
-  const double total_energy = particle_mass * (internal_energy + 0.5 * soundspeed * soundspeed);
+  const double total_energy =
+      particle_mass * (internal_energy + 0.5 * soundspeed * soundspeed);
   check_valid_float(total_energy);
 
-  if (verbose){
-    message("rho=%.3e u=%.3e P=%.3e A=%.3e cs=%.3e | mass=%.3e momentum=%.3e E=%.3e", 
-        density, internal_energy, pressure, entropy, soundspeed, particle_mass, momentum, total_energy
-        );
+  if (verbose) {
+    message("rho=%.3e u=%.3e P=%.3e A=%.3e cs=%.3e | mass=%.3e momentum=%.3e "
+            "E=%.3e",
+            density, internal_energy, pressure, entropy, soundspeed,
+            particle_mass, momentum, total_energy);
   }
 }
 
@@ -422,13 +429,14 @@ int main(void) {
     check_gas_quantities(rho, name, /*T=*/100000., verbose);
   }
 
-
   /* Run Grackle cooling test */
   /* ------------------------ */
   for (int d = 0; d < 3; d++) {
     float rho = dens_arr[d];
     char *name = dens_names[d];
-    run_grackle_cooling_test(rho, name, mass_units, length_units, time_units, density_units, velocity_units, internal_energy_units, verbose);
+    run_grackle_cooling_test(rho, name, mass_units, length_units, time_units,
+                             density_units, velocity_units,
+                             internal_energy_units, verbose);
   }
 
   /* TODO: Luminosities check */
