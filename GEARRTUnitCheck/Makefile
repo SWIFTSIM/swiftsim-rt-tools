@@ -72,7 +72,7 @@ OBJECTS = main.o
 
 HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h cross_sections.h \
 		  my_grackle_utils.h blackbody.h cross_sections.h photon_interaction_rates.h \
-		  parser.h
+		  parser.h error.h grackle_checks.h grackle_cooling_test.h
 
 
 
@@ -89,8 +89,6 @@ $(EXEC): $(OBJECTS) $(HEADERS)
 
 main.o: main.c $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ -c $<
-#-c : compile and assemble, but do not link
-
 
 
 #==================================

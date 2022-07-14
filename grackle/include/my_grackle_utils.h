@@ -6,10 +6,12 @@
  * printouts, etc.
  *--------------------------------------------------- */
 
-#include "constants.h"
-#include "mean_molecular_weight.h"
 #include <grackle.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "constants.h"
+#include "mean_molecular_weight.h"
 
 /**
  * @brief Set up the units for grackle.

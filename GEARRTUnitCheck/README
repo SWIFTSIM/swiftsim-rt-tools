@@ -31,3 +31,6 @@ Instructions
     with at the top of the file `main.c`, e.g. `#define RT_NGROUPS 4`
 
 4)  Compile and run the test suite using `run.sh`
+
+5)  If at any point the code throws an error, it means that most likely your 
+    choice of units is not suitable for a run.
