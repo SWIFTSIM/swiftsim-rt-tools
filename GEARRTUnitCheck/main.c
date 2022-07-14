@@ -62,6 +62,38 @@ double smoothing_length;
 /* Number of gas particles in simulation */
 long long npart;
 
+/*! Check that the value is a valid float.
+ * Assume the argument given is positive and of type double. */
+#define check_valid_float(v)                                            \
+  ({                                                                    \
+   if (v < 0.) {                                                        \
+    fflush(stdout);                                                     \
+    fprintf(stderr, "%s %s:%d " #v " invalid float; negative: %.6e\n",  \
+        __FILE__, __FUNCTION__, __LINE__, v );                          \
+    abort();                                                            \
+   }                                                                    \
+   if (v > FLT_MAX) {                                                   \
+    fflush(stdout);                                                     \
+    fprintf(stderr, "%s %s:%d " #v " invalid float; > FLT_MAX: %.6e\n", \
+        __FILE__, __FUNCTION__, __LINE__, v);                           \
+    abort();                                                            \
+   }                                                                    \
+   if ((v != 0.) && (v < FLT_MIN)) {                                    \
+    fflush(stdout);                                                     \
+    fprintf(stderr, "%s %s:%d " #v " invalid float; < FLT_MIN: %.6e\n", \
+        __FILE__, __FUNCTION__, __LINE__, v);                           \
+    abort();                                                            \
+   }                                                                    \
+   float vfloat = (float) v;                                            \
+   if (isinf(vfloat) || isnan(vfloat)){                                 \
+    fflush(stdout);                                                     \
+    fprintf(stderr, "%s %s:%d " #v " invalid float; nan/inf %.6e\n",    \
+        __FILE__, __FUNCTION__, __LINE__, v);                           \
+    abort();                                                            \
+   }                                                                    \
+  })
+
+
 /**
  * @brief Read in the parameters relevant for this check.
  *
@@ -106,45 +138,17 @@ void read_swift_params(struct swift_params *params){
 
   /* Convert units */
   time_units = length_units / velocity_units;
+  check_valid_float(time_units);
   density_units = mass_units / (length_units * length_units * length_units);
+  check_valid_float(density_units);
   internal_energy_units = velocity_units * velocity_units;
+  check_valid_float(internal_energy_units);
   energy_units = mass_units * internal_energy_units;
+  check_valid_float(energy_units);
 
   /* Clean up */
   free(photon_groups_read);
 }
-
-/* Check that the value is a valid float.
- * Assume the argument given is positive and of type double. */
-#define check_valid_float(v)                                            \
-  ({                                                                    \
-   if (v < 0.) {                                                        \
-    fflush(stdout);                                                     \
-    fprintf(stderr, "%s %s:%d " #v " invalid float; negative: %.6e\n",  \
-        __FILE__, __FUNCTION__, __LINE__, v );                          \
-    abort();                                                            \
-   }                                                                    \
-   if (v > FLT_MAX) {                                                   \
-    fflush(stdout);                                                     \
-    fprintf(stderr, "%s %s:%d " #v " invalid float; > FLT_MAX: %.6e\n", \
-        __FILE__, __FUNCTION__, __LINE__, v);                           \
-    abort();                                                            \
-   }                                                                    \
-   if ((v != 0.) && (v < FLT_MIN)) {                                    \
-    fflush(stdout);                                                     \
-    fprintf(stderr, "%s %s:%d " #v " invalid float; < FLT_MIN: %.6e\n", \
-        __FILE__, __FUNCTION__, __LINE__, v);                           \
-    abort();                                                            \
-   }                                                                    \
-   float vfloat = (float) v;                                            \
-   if (isinf(vfloat) || isnan(vfloat)){                                 \
-    fflush(stdout);                                                     \
-    fprintf(stderr, "%s %s:%d " #v " invalid float; nan/inf %.6e\n",    \
-        __FILE__, __FUNCTION__, __LINE__, v);                           \
-    abort();                                                            \
-   }                                                                    \
-  })
-
 /**
  * @brief Read in the parameters from the ICs relevant for this check.
  *
@@ -189,10 +193,16 @@ void read_ic_params(struct swift_params *params){
   } 
   else {
     const double min_density_ic = parser_get_param_double(params, "ParticleData:minDensity");
+    if (min_density_ic > av_density_ic)
+      error("density min > average? %.6e %.6e", min_density_ic, av_density_ic);
+
+    const double max_density_ic = parser_get_param_double(params, "ParticleData:maxDensity");
+    if (max_density_ic < av_density_ic)
+      error("density max < average? %.6e %.6e", min_density_ic, av_density_ic);
+
     density_min = min_density_ic * density_units_ic / density_units;
     check_valid_float(density_min);
 
-    const double max_density_ic = parser_get_param_double(params, "ParticleData:maxDensity");
     density_max = max_density_ic * density_units_ic / density_units;
     check_valid_float(density_max);
   }
@@ -209,8 +219,31 @@ void read_ic_params(struct swift_params *params){
   }
 }
 
+/**
+ * @brief print out the used parameters for a visual inspection
+ **/
 
-int main() {
+void print_params(){
+
+  message("Units: [in cgs]");
+  message("%22s: %.6e", "mass units", mass_units);
+  message("%22s: %.6e", "length units", length_units);
+  message("%22s: %.6e", "time units", time_units);
+  message("%22s: %.6e", "density units", density_units);
+  message("%22s: %.6e", "velocity units", velocity_units);
+  message("%22s: %.6e", "temperature units", temperature_units);
+  message("%22s: %.6e", "energy units", energy_units);
+  message("%22s: %.6e", "internal energy units", internal_energy_units);
+
+}
+
+
+int main(void) {
+
+  /* ----------------------------------------- */
+  /* First things first: Read in required data */
+  /* ----------------------------------------- */
+
   /* TODO: make this a cmdline arg? */
   /* char *swift_param_filename = "swift_parameters.yml"; */
   char *swift_param_filename = "ilievTest0part3.yml";
@@ -227,6 +260,35 @@ int main() {
       (struct swift_params *)malloc(sizeof(struct swift_params));
   read_paramfile(sim_params, sim_param_filename);
   read_ic_params(sim_params);
+
+  /* Print out the units and parameters for a visual inspection */
+  print_params();
+
+  /* ------------------------------- */
+  /* Prepare to run grackle examples */
+  /* ------------------------------- */
+  /* If the min/max densities are too close to the average, re-size them
+   * by a factor 10 */
+
+  if (fabs(1. - density_min / density_average)  < 0.05) {
+    message("density_min too close to average. Resizing %.3e -> %.3e", density_min, 0.8 * density_average);
+    density_min  = 0.8 * density_average;
+  }
+  if (fabs(density_max / density_average - 1.) < 0.05) {
+    message("density_max too close to average. Resizing %.3e -> %.3e", density_max, 1.2 * density_average);
+    density_max  = 1.2 * density_average;
+  }
+
+  double dens_arr[3] = {density_average, density_min, density_max};
+  char *dens_names[3] = {"density_average", "density_min", "density_max"};
+
+
+  /* Run Grackle cooling test for different densities */
+  for (int d = 0; d < 3; d++){
+    double rho = dens_arr[d];
+    char *name = dens_names[d];
+    message("%s %.3e", name, rho);
+  }
 
   /* Clean up after yourself */
   free(swift_params);
