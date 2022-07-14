@@ -153,8 +153,9 @@ int main() {
 
   /* Set parameter values for chemistry. */
   setup_grackle_chemistry(&grackle_chemistry_data, primordial_chemistry,
-                          UVbackground, grackle_data_file, use_radiative_cooling,
-                          use_radiative_transfer, hydrogen_fraction_by_mass);
+                          UVbackground, grackle_data_file,
+                          use_radiative_cooling, use_radiative_transfer,
+                          hydrogen_fraction_by_mass);
 
   /* Initialize the chemistry_data_storage object to be able to use local
    * functions */
@@ -185,14 +186,19 @@ int main() {
   }
 
   write_header(stdout);
-  write_timestep(stdout, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units, /*step=*/0);
-
+  write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                 &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units,
+                 /*step=*/0);
 
   /* Now into a file as well. */
   /* also write down what ICs you used into file */
-  write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units, length_units, velocity_units, dt, hydrogen_fraction_by_mass, gas_density, internal_energy);
+  write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units,
+                 length_units, velocity_units, dt, hydrogen_fraction_by_mass,
+                 gas_density, internal_energy);
   write_header(fd);
-  write_timestep(fd, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units, /*step=*/0);
+  write_timestep(fd, &grackle_fields, &grackle_units_data,
+                 &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units,
+                 /*step=*/0);
 
   /*********************************************************************
   / Calling the chemistry solver
@@ -212,10 +218,14 @@ int main() {
       return EXIT_FAILURE;
     }
 
-    write_timestep(stdout, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units, step);
+    write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                   &grackle_chemistry_data, /*field_index=*/0, t, dt,
+                   time_units, step);
 
     if (step % output_frequency == 0)
-      write_timestep(fd, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units, step);
+      write_timestep(fd, &grackle_fields, &grackle_units_data,
+                     &grackle_chemistry_data, /*field_index=*/0, t, dt,
+                     time_units, step);
   }
 
   /* Clean up after yourself */

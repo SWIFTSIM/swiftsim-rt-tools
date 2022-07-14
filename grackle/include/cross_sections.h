@@ -5,9 +5,9 @@
 /* Functions related to the photoionizing cross sections. */
 /* ------------------------------------------------------ */
 
-#include <gsl/gsl_integration.h>
-#include "constants.h"
 #include "blackbody.h"
+#include "constants.h"
+#include <gsl/gsl_integration.h>
 
 /* HI, HeI, HeII */
 #define RT_NIONIZING_SPECIES 3
@@ -58,9 +58,9 @@ struct photoion_cs_parameters init_photoion_cs_params_cgs(void) {
   struct photoion_cs_parameters photoion_cs_params_cgs = {
       /* E_ion =         {13.60,     24.59,     54.42}          eV */
       /* E_zero =        {0.4298,    0.1361,    1.720},         eV */
-      /* E_ion =      */ {2.179e-11, 3.940e-11, 8.719e-11},  /* erg */
-      /* E_zero =     */ {6.886e-13, 2.181e-13, 2.756e-12},  /* erg */
-      /* sigma_zero = */ {5.475e-14, 9.492e-16, 1.369e-14},  /* cm^-2 */
+      /* E_ion =      */ {2.179e-11, 3.940e-11, 8.719e-11}, /* erg */
+      /* E_zero =     */ {6.886e-13, 2.181e-13, 2.756e-12}, /* erg */
+      /* sigma_zero = */ {5.475e-14, 9.492e-16, 1.369e-14}, /* cm^-2 */
       /* P =          */ {2.963, 3.188, 2.963},
       /* ya =         */ {32.88, 1.469, 32.88},
       /* yw =         */ {0., 2.039, 0.},
@@ -80,9 +80,9 @@ struct photoion_cs_parameters init_photoion_cs_params_cgs(void) {
  * @param species index of species, 0 < species < RT_NIONIZING_SPECIES
  * @param params cross section parameters struct
  */
-double photoionization_cross_section(
-    const double E, const int species,
-    const struct photoion_cs_parameters *params) {
+double
+photoionization_cross_section(const double E, const int species,
+                              const struct photoion_cs_parameters *params) {
 
   const double E0 = params->E_zero[species];
   const double E_ion = params->E_ion[species];
@@ -93,7 +93,8 @@ double photoionization_cross_section(
   const double P = params->P[species];
   const double sigma_0 = params->sigma_zero[species];
 
-  if (E < E_ion) return 0.;
+  if (E < E_ion)
+    return 0.;
 
   const double x = E / E0 - y0;
   const double y = sqrt(x * x + y1 * y1);
@@ -112,7 +113,8 @@ double photoionization_cross_section(
  * void* for GSL integrators.
  */
 double spectrum_integrand(double nu, void *params) {
-  struct spectrum_integration_params *pars = (struct spectrum_integration_params*) params;
+  struct spectrum_integration_params *pars =
+      (struct spectrum_integration_params *)params;
   const double T = pars->T;
   const double kB = pars->kB;
   const double h_planck = pars->h_planck;
@@ -184,7 +186,7 @@ double spectrum_times_sigma_over_hnu_integrand(double nu, void *params) {
       (struct spectrum_integration_params *)params;
   const double h_planck = p->h_planck;
   const double E = nu * p->h_planck;
-  if (E > 0.){
+  if (E > 0.) {
     const double sigma =
         photoionization_cross_section(E, p->species, p->cs_params);
     const double T = p->T;
@@ -205,9 +207,10 @@ double spectrum_times_sigma_over_hnu_integrand(double nu, void *params) {
  * @param nu_stop upper boundary of the integral
  * @param params spectrum integration params.
  * */
-double cross_sections_integrate_gsl(
-    double (*function)(double, void *), double nu_start, double nu_stop,
-    int npoints, struct spectrum_integration_params *params) {
+double
+cross_sections_integrate_gsl(double (*function)(double, void *),
+                             double nu_start, double nu_stop, int npoints,
+                             struct spectrum_integration_params *params) {
 
   gsl_function F;
   gsl_integration_workspace *w = gsl_integration_workspace_alloc(npoints);
@@ -238,7 +241,9 @@ double cross_sections_integrate_gsl(
  * @return csn: number weighted averaged cross sections.
  * @return mean_energy: mean photon energy in each photon frequency bin.
  **/
-void get_cross_sections(double T_blackbody, double frequency_bins[RT_NGROUPS], double **cse, double **csn, double mean_energy[RT_NGROUPS]) {
+void get_cross_sections(double T_blackbody, double frequency_bins[RT_NGROUPS],
+                        double **cse, double **csn,
+                        double mean_energy[RT_NGROUPS]) {
 
   double integral_E[RT_NGROUPS];
   double integral_N[RT_NGROUPS];
@@ -247,20 +252,18 @@ void get_cross_sections(double T_blackbody, double frequency_bins[RT_NGROUPS], d
 
   /* Prepare parameter struct for integration functions */
   /* -------------------------------------------------- */
-  struct spectrum_integration_params integration_params = {
-    /*species=*/0,  
-    /*T=*/0.,  
-    /*kB=*/0., 
-    /*h_planck=*/0., 
-    /*c=*/0., 
-    /*params=*/NULL};
+  struct spectrum_integration_params integration_params = {/*species=*/0,
+                                                           /*T=*/0.,
+                                                           /*kB=*/0.,
+                                                           /*h_planck=*/0.,
+                                                           /*c=*/0.,
+                                                           /*params=*/NULL};
   integration_params.T = T_blackbody;
   integration_params.kB = const_kboltz;
   integration_params.h_planck = const_planck_h;
   integration_params.c = const_speed_light_c;
   struct photoion_cs_parameters cs_params = init_photoion_cs_params_cgs();
   integration_params.cs_params = &cs_params;
-
 
   /* Compute integrals */
   /* ----------------- */
@@ -273,14 +276,16 @@ void get_cross_sections(double T_blackbody, double frequency_bins[RT_NGROUPS], d
     nu_stop[group] = frequency_bins[group + 1];
 
   /* don't start at exactly 0 to avoid unlucky divisions */
-  if (nu_start[0] == 0.) nu_start[0] = nu_start[1] * TINY_NUMBER;
+  if (nu_start[0] == 0.)
+    nu_start[0] = nu_start[1] * TINY_NUMBER;
   if (RT_NGROUPS == 1) {
     /* If we only have one group, start integrating from the Hydrogen
      * ionization frequency, not from zero. */
     nu_start[0] = cs_params.E_ion[0] / const_planck_h;
   }
   /* Stop at 10 times the frequency of the blackbody peak */
-  nu_stop[RT_NGROUPS - 1] = 10. * blackbody_peak_frequency(T_blackbody, const_kboltz, const_planck_h);
+  nu_stop[RT_NGROUPS - 1] =
+      10. * blackbody_peak_frequency(T_blackbody, const_kboltz, const_planck_h);
 
   for (int group = 0; group < RT_NGROUPS; group++) {
     /* This is independent of species. */
@@ -296,10 +301,9 @@ void get_cross_sections(double T_blackbody, double frequency_bins[RT_NGROUPS], d
       integral_sigma_E[group][species] = cross_sections_integrate_gsl(
           spectrum_times_sigma_integrand, nu_start[group], nu_stop[group],
           RT_INTEGRAL_NPOINTS, &integration_params);
-      integral_sigma_E_over_hnu[group][species] =
-          cross_sections_integrate_gsl(
-              spectrum_times_sigma_over_hnu_integrand, nu_start[group],
-              nu_stop[group], RT_INTEGRAL_NPOINTS, &integration_params);
+      integral_sigma_E_over_hnu[group][species] = cross_sections_integrate_gsl(
+          spectrum_times_sigma_over_hnu_integrand, nu_start[group],
+          nu_stop[group], RT_INTEGRAL_NPOINTS, &integration_params);
     }
   }
 
