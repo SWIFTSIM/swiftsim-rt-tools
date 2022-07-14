@@ -232,6 +232,7 @@ int main() {
 
   fclose(fd);
   clean_up_fields(&grackle_fields);
+  _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
 
   return EXIT_SUCCESS;
 }

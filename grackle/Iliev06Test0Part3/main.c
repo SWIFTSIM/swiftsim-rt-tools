@@ -272,40 +272,6 @@ int main() {
   int step = 0;
   while (t < tend) {
 
-    /* double dens_sum = grackle_fields.HI_density[0] +  */
-    /*                   grackle_fields.HII_density[0] + */
-    /*                   grackle_fields.HeI_density[0] + */
-    /*                   grackle_fields.HeII_density[0] + */
-    /*                   grackle_fields.HeIII_density[0] + */
-    /*                   [> grackle_fields.e_density[0] + <] */
-    /*                   grackle_fields.HM_density[0] + */
-    /*                   grackle_fields.H2I_density[0] + */
-    /*                   grackle_fields.H2II_density[0] + */
-    /*                   grackle_fields.DI_density[0] + */
-    /*                   grackle_fields.DII_density[0] + */
-    /*                   grackle_fields.HDI_density[0]; */
-    /*  */
-    /* printf("Density check: fields.dens=%.3e sum=%.3e ratio=%.3e\n", */
-    /*           grackle_fields.density[0], */
-    /*           dens_sum,  */
-    /*           grackle_fields.density[0] / dens_sum); */
-    /*  */
-    /* printf("HI=%.3e HII=%.3e HeI=%.3e HeII=%.3e HeIII=%.3e e=%.3e HM=%.3e
-     * H2I=%.3e H2II=%.3e DI=%.3e DII=%.3e DHI=%.3e\n", */
-    /*           grackle_fields.HI_density[0], */
-    /*           grackle_fields.HII_density[0], */
-    /*           grackle_fields.HeI_density[0], */
-    /*           grackle_fields.HeII_density[0], */
-    /*           grackle_fields.HeIII_density[0], */
-    /*           grackle_fields.e_density[0], */
-    /*           grackle_fields.HM_density[0], */
-    /*           grackle_fields.H2I_density[0], */
-    /*           grackle_fields.H2II_density[0], */
-    /*           grackle_fields.DI_density[0], */
-    /*           grackle_fields.DII_density[0], */
-    /*           grackle_fields.HDI_density[0] */
-    /*       ); */
-
     /* Set up radiation fields, and compute the resulting interaction
      * rates depending on the simulation time. */
 
@@ -387,6 +353,7 @@ int main() {
   /* Cleanup */
   fclose(fd);
   clean_up_fields(&grackle_fields);
+  _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
   for (int g = 0; g < RT_NGROUPS; g++) {
     free(cse[g]);
     free(csn[g]);
