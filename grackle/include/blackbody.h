@@ -14,7 +14,9 @@
  * @param h_planck Planck's constant
  * @param c speed of light
  */
-double blackbody_spectrum_intensity(const double nu, const double T, const double kB, const double h_planck, const double c) {
+double blackbody_spectrum_intensity(const double nu, const double T,
+                                    const double kB, const double h_planck,
+                                    const double c) {
 
   const double hnu = h_planck * nu;
   const double kT = kB * T;
@@ -41,7 +43,9 @@ double blackbody_spectrum_intensity(const double nu, const double T, const doubl
  * @param h_planck Planck's constant
  * @param c speed of light
  */
-double blackbody_spectrum_energy_density(const double nu, const double T, const double kB, const double h_planck, const double c) {
+double blackbody_spectrum_energy_density(const double nu, const double T,
+                                         const double kB, const double h_planck,
+                                         const double c) {
   return 4. * M_PI / c * blackbody_spectrum_intensity(nu, T, kB, h_planck, c);
 }
 
@@ -53,7 +57,8 @@ double blackbody_spectrum_energy_density(const double nu, const double T, const 
  * @param kB Boltzmann constant
  * @param h_planck Planck's constant
  */
-double blackbody_peak_frequency(const double T, const double kB, const double h_planck) {
+double blackbody_peak_frequency(const double T, const double kB,
+                                const double h_planck) {
   return 2.82144 * kB * T / h_planck;
 }
 
