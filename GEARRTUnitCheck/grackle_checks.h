@@ -14,7 +14,7 @@
  * @param density the initial density used in test
  * @param grackle_fields the struct containing the gas fields
  */
-void grackle_checks_density_sum(double density, grackle_field_data *grackle_fields){
+void grackle_checks_density_sum(float density, grackle_field_data *grackle_fields){
 
   double dens_sum = grackle_fields->HI_density[0] +
                     grackle_fields->HII_density[0] +
@@ -41,10 +41,5 @@ void grackle_checks_density_sum(double density, grackle_field_data *grackle_fiel
         "initial=%.6e current=%.6e ratio=%.3e",
         density, grackle_fields->density[0], grackle_fields->density[0] / density
         );
-
-  printf("Density check: fields.dens=%.3e sum=%.3e ratio=%.3e\n",
-            grackle_fields->density[0],
-            dens_sum,
-            grackle_fields->density[0] / dens_sum);
 }
 #endif
