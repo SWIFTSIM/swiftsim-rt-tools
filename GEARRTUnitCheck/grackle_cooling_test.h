@@ -30,7 +30,7 @@
  * For the units, I use the following convention:
  * quantity * units = quantity_in_cgs
  *
- * @param denstiy gas density to use
+ * @param density gas density to use
  * @param name name of the test case. NO SPACES.
  * @param mass_units the internal mass units to use. 
  * @param length_units the internal length units to use. 
@@ -40,7 +40,7 @@
  * @param verbose print time step data to screen?
  **/
 void run_grackle_cooling_test(
-    double density,
+    float density,
     char *name,
     double mass_units,
     double length_units,
@@ -88,7 +88,7 @@ void run_grackle_cooling_test(
   double mu_init = mean_molecular_weight_from_mass_fractions(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
 
-  double T = 1e4; /* K */
+  double T = 1e6; /* K */
   double internal_energy_cgs = const_kboltz * T / ((const_adiabatic_index - 1.) * mu_init * const_mh);
   double internal_energy = internal_energy_cgs / internal_energy_units;
 
@@ -246,6 +246,7 @@ void run_grackle_cooling_test(
 
   fclose(fd);
   clean_up_fields(&grackle_fields);
+  _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
 
   return;
 }
