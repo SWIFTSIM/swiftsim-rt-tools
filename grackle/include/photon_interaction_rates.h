@@ -20,6 +20,8 @@
  * @param energy_weighted_cross_sections: energy weighted averaged cross sections.
  * @param number_weighted_cross_sections: number weighted averaged cross sections.
  * @param mean_energy: mean photon energy in each photon frequency bin.
+ * @param time_units: internal time units conversion factor to cgs. 
+ *                    val * time_units = val in cgs
  * @param rates (return) Interaction rates for grackle. [0]: heating rate.
  * [1]: HI ionization. [2]: HeI ionization. [3]: HeII ionization.
  * [4]: H2 dissociation.
@@ -29,6 +31,7 @@ void get_interaction_rates( double radiation_energy_density[RT_NGROUPS],
                             double **energy_weighted_cross_sections,
                             double **number_weighted_cross_sections,
                             double mean_energy[RT_NGROUPS],
+                            double time_units, 
                             gr_float rates[5]){
 
   rates[0] = 0.; /* Needs to be in [erg / s / cm^3 / nHI] for grackle. */
@@ -51,9 +54,6 @@ void get_interaction_rates( double radiation_energy_density[RT_NGROUPS],
   species_number_densities[1] = 0.25 * species_densities[2] / const_mh;
   /* singly ionized helium */
   species_number_densities[2] = 0.25 * species_densities[3] / const_mh;
-
-  /* const double nHI = species_densities[0] / const_mh; */
-  /* const double nHI = species_number_densities_cgs[0]; */
 
   /* store photoionization rate for each species here */
   double ionization_rates_by_species[RT_NIONIZING_SPECIES];
@@ -84,6 +84,15 @@ void get_interaction_rates( double radiation_energy_density[RT_NGROUPS],
     /* rates[0] += heating_rate_group * Eic / nHI; */
     rates[0] += heating_rate_group * Nic;
   }
+
+  /* Unit conversions for grackle */
+  for (int spec = 0; spec < RT_NIONIZING_SPECIES; spec ++){
+    /* Grackle wants them in 1/internal_time_units */
+    ionization_rates_by_species[spec] /= (1./time_units);
+  }
+  /* const double nHI = species_densities[0] / const_mh; */
+  /* const double nHI = species_number_densities[0]; */
+  /* rates[0] /= nHI; */
 
   /* We're done. Write the results in correct place */
   rates[1] = ionization_rates_by_species[0];

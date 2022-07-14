@@ -8,8 +8,12 @@
 
 #include <stdio.h>
 #include <grackle.h>
+#include "constants.h"
+#include "mean_molecular_weight.h"
 
-/* Set up the units for grackle. */
+/**
+ * @brief Set up the units for grackle.
+ **/
 void setup_grackle_units(code_units *grackle_units_data, double density_units,
                          double length_units, double time_units) {
 
@@ -31,7 +35,9 @@ void setup_grackle_units(code_units *grackle_units_data, double density_units,
   /* 2); */
 }
 
-/* Set parameters for the grackle chemistry object */
+/**
+ * @brief Set parameters for the grackle chemistry object
+ **/
 void setup_grackle_chemistry(chemistry_data *grackle_chemistry_data,
                              int primordial_chemistry, int UVbackground,
                              char *grackle_data_file,
@@ -52,7 +58,9 @@ void setup_grackle_chemistry(chemistry_data *grackle_chemistry_data,
       const_adiabatic_index; /* defined in const.h */
 }
 
-/* Set up grackle gas fields. */
+/**
+ * @brief Set up grackle gas fields.
+ **/
 void setup_grackle_fields(grackle_field_data *grackle_fields,
                           gr_float species_densities[12],
                           gr_float interaction_rates[5], double gas_density,
@@ -166,7 +174,9 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
   }
 }
 
-/* Deallocate fields when you're done. */
+/**
+ * @brief Deallocate fields when you're done.
+ **/
 void clean_up_fields(grackle_field_data *grackle_fields) {
 
   free(grackle_fields->grid_dimension);
@@ -201,7 +211,9 @@ void clean_up_fields(grackle_field_data *grackle_fields) {
   free(grackle_fields->RT_heating_rate);
 }
 
-/* Dump the setup used to generate the example */
+/**
+ * @brief Dump the setup used to generate the example 
+ **/
 void write_my_setup(FILE* fd, grackle_field_data grackle_fields, chemistry_data grackle_chemistry_data, double mass_units, double length_units, double velocity_units, double dt, double hydrogen_fraction_by_mass, double gas_density, double internal_energy){
   fprintf(fd, "# Result file created using grackle standalone program.\n");
   fprintf(fd, "# mass units used: %.6g [g]\n", mass_units);
@@ -211,7 +223,7 @@ void write_my_setup(FILE* fd, grackle_field_data grackle_fields, chemistry_data 
   fprintf(fd, "# hydrogen mass fraction used: %.6g\n",
           hydrogen_fraction_by_mass);
   fprintf(fd, "# gas density used: %.6g [internal units]\n", gas_density);
-  fprintf(fd, "# inital internal density used: %.6g [internal units]\n",
+  fprintf(fd, "# inital internal energy used: %.6g [internal units]\n",
           internal_energy);
   fprintf(fd, "# Grackle parameters:\n");
   fprintf(fd, "# grackle_chemistry_data.use_grackle = %d\n",
@@ -295,5 +307,68 @@ void write_my_setup(FILE* fd, grackle_field_data grackle_fields, chemistry_data 
           grackle_fields.RT_heating_rate[0]);
 }
 
+/**
+ * @brief write header to a file/stdout
+ **/
+void write_header(FILE* fd){
 
+  fprintf(fd, "#%8s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s\n", 
+          "step",
+          "Time [yr]",
+          "dt [yr]", 
+          "Temperature [K]", 
+          "Mean M Wgt [1]", 
+          "Tot dens [IU]",
+          "HI dens [IU]", 
+          "HII dens [IU]", 
+          "HeI dens [IU]",
+          "HeII dens [IU]", 
+          "HeIII dens [IU]", 
+          "e- n. dens [IU]");
+}
+/**
+ * @brief write the current state of a field with index i to a file/stdout
+ **/
+void write_timestep(FILE* fd, grackle_field_data *grackle_fields, code_units *grackle_units_data, 
+    chemistry_data *grackle_chemistry_data, int field_index, double t, double dt, double time_units, int step){
+
+  /* Additional arrays to store temperature and mean molecular weights
+   * of each cell. */
+  gr_float temperature[FIELD_SIZE];
+  gr_float mu[FIELD_SIZE];
+  for (int i = 0; i < FIELD_SIZE; i++){
+    temperature[i] = 0;
+    mu[i] = 0;
+  }
+
+  /* Grab temperature and mean molecular weights. */
+  /* Calculate temperature. */
+  if (calculate_temperature(grackle_units_data, grackle_fields,
+                            temperature) == 0) {
+    fprintf(stderr, "Error in calculate_temperature.\n");
+    abort();
+  }
+
+  if (mean_weight_local_like_grackle(grackle_chemistry_data, grackle_fields,
+                                     mu) != SUCCESS) {
+    fprintf(stderr, "Error in local_calculate_mean_weight.\n");
+    abort();
+  }
+
+  fprintf(
+      fd,
+      "%9d %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e\n",
+      step,
+      t / const_yr * time_units, 
+      dt / const_yr * time_units, 
+      temperature[field_index], 
+      mu[field_index],
+      grackle_fields->density[field_index], 
+      grackle_fields->HI_density[field_index],
+      grackle_fields->HII_density[field_index], 
+      grackle_fields->HeI_density[field_index],
+      grackle_fields->HeII_density[field_index], 
+      grackle_fields->HeIII_density[field_index],
+      grackle_fields->e_density[field_index]);
+}
 #endif

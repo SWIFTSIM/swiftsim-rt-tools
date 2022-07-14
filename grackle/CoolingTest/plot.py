@@ -41,18 +41,18 @@ density_units = mass_units / length_units ** 3
 # Read in all other data 
 data = np.loadtxt("out.dat")
 
-Time = data[:, 0]
+Time = data[:, 1]
 Time_Myr = Time * 1e-6
-dt = data[:, 1]
-Temperature = data[:, 2]
-mu = data[:, 3]
-tot_density = data[:, 4]  # mass density
-HI_density = data[:, 5]
-HII_density = data[:, 6]
-HeI_density = data[:, 7]
-HeII_density = data[:, 8]
-HeIII_density = data[:, 9]
-ne = data[:, 10]  # number density
+dt = data[:, 2]
+Temperature = data[:, 3]
+mu = data[:, 4]
+tot_density = data[:, 5]  # mass density
+HI_density = data[:, 6]
+HII_density = data[:, 7]
+HeI_density = data[:, 8]
+HeII_density = data[:, 9]
+HeIII_density = data[:, 10]
+e_density = data[:, 11]  # number density
 
 
 # compute number density for all species
@@ -65,8 +65,9 @@ nHeI = HeI_density * density_units / (4 * mh)
 nHeII = HeII_density * density_units / (4 * mh)
 # in part per cc
 nHeIII = HeIII_density * density_units / (4 * mh)
-# in part per cc
-ne = ne * density_units / (mh / mass_units)
+# in part per cc. Grackle Convention: electron density is 
+# electron number density multiplied by proton mass
+ne = e_density * density_units / mh
 # in part per cc
 n = nHI + nHII + nHeI + nHeII + nHeIII
 

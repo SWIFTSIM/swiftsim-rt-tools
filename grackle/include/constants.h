@@ -24,6 +24,10 @@
  * ------------------------------- */
 #define SUCCESS 1
 #define TINY_NUMBER 1.0e-20
+
+/* Extra check just in case some program already defined this macro */
+#ifndef RT_NGROUPS
 #define RT_NGROUPS 1
+#endif
 
 #endif /* define CONSTANTS_H */
