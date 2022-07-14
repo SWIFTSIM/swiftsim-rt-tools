@@ -5,7 +5,6 @@
 #include <grackle.h>
 #include <stdlib.h>
 
-
 /*********************************************************************
 / Simple function to estimate the mean molecular weight
 *********************************************************************/
