@@ -28,7 +28,7 @@
 #define SWIFT_PARSER_H
 
 /* Config parameters. */
-/* #include "../config.h" */
+#include "error.h"
 
 /* Standard headers */
 /* Needs to be included so that strtok returns char * instead of a int *. */
@@ -161,17 +161,6 @@ int parser_compare_params(const struct swift_params *refparams,
 char *trim_leading(char *s);
 char *trim_trailing(char *s);
 char *trim_both(char *s);
-
-/* Macros from error.h */
-#define message(s, ...) ({ printf("%s: " s "\n", __func__, ##__VA_ARGS__); })
-
-#define error(s, ...)                                                          \
-  ({                                                                           \
-    fflush(stdout);                                                            \
-    fprintf(stderr, "%s:%s():%i: " s "\n", __FILE__, __func__, __LINE__,       \
-            ##__VA_ARGS__);                                                    \
-    abort();                                                                   \
-  })
 
 /**
  * @brief parse a YAML list of strings returning a set of pointers to

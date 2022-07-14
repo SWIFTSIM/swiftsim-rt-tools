@@ -9,6 +9,7 @@
 /* Grackle related macros */
 #define FIELD_SIZE 1
 #define GRIDDIM 1
+#include "my_grackle_utils.h"
 
 #include <float.h>
 #include <math.h>
@@ -16,18 +17,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "constants.h"
+#include "grackle_cooling_test.h"
 #include "parser.h"
 
-/* #include <grackle.h> */
-/*  */
-#include "constants.h"
 /* #include "cross_sections.h" */
-/* #include "ionization_equilibrium.h" */
-/* #include "mean_molecular_weight.h" */
-/* #include "my_grackle_utils.h" */
 /* #include "photon_interaction_rates.h" */
-/*  */
-
 /* Some global variables */
 /* --------------------- */
 
@@ -263,6 +258,9 @@ int main(void) {
   char *swift_param_filename = "ilievTest0part3.yml";
   char *sim_param_filename = "simulation_parameters.yml";
 
+  /* Print a lot of information to the screen? */
+  int verbose = 1;
+
   /* Read the SWIFT parameter file, and the parameters */
   struct swift_params *swift_params =
       (struct swift_params *)malloc(sizeof(struct swift_params));
@@ -302,7 +300,7 @@ int main(void) {
   for (int d = 0; d < 3; d++) {
     double rho = dens_arr[d];
     char *name = dens_names[d];
-    message("%s %.3e", name, rho);
+    run_grackle_cooling_test(rho, name, mass_units, length_units, time_units, density_units, velocity_units, internal_energy_units, verbose);
   }
 
   /* Clean up after yourself */
