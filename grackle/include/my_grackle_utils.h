@@ -317,10 +317,12 @@ void write_my_setup(FILE *fd, grackle_field_data grackle_fields,
  **/
 void write_header(FILE *fd) {
 
-  fprintf(fd, "#%8s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s\n",
+  fprintf(fd,
+          "#%8s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s\n",
           "step", "Time [yr]", "dt [yr]", "Temperature [K]", "Mean M Wgt [1]",
           "Tot dens [IU]", "HI dens [IU]", "HII dens [IU]", "HeI dens [IU]",
-          "HeII dens [IU]", "HeIII dens [IU]", "e- n. dens [IU]");
+          "HeII dens [IU]", "HeIII dens [IU]", "e- n. dens [IU]",
+          "IntrnEnerg [IU]");
 }
 /**
  * @brief write the current state of a field with index i to a file/stdout
@@ -355,6 +357,7 @@ void write_timestep(FILE *fd, grackle_field_data *grackle_fields,
 
   fprintf(fd,
           "%9d %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e "
+          "%15.3e "
           "%15.3e %15.3e\n",
           step, t / const_yr * time_units, dt / const_yr * time_units,
           temperature[field_index], mu[field_index],
@@ -364,6 +367,7 @@ void write_timestep(FILE *fd, grackle_field_data *grackle_fields,
           grackle_fields->HeI_density[field_index],
           grackle_fields->HeII_density[field_index],
           grackle_fields->HeIII_density[field_index],
-          grackle_fields->e_density[field_index]);
+          grackle_fields->e_density[field_index],
+          grackle_fields->internal_energy[field_index]);
 }
 #endif

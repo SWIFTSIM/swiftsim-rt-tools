@@ -19,10 +19,9 @@
 
 #include "constants.h"
 #include "grackle_cooling_test.h"
+#include "grackle_heating_test.h"
 #include "parser.h"
 
-/* #include "cross_sections.h" */
-/* #include "photon_interaction_rates.h" */
 /* Some global variables */
 /* --------------------- */
 
@@ -295,6 +294,8 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
   /* assume mean molecular weight of 1 for this test. While that isn't correct,
    * it should do the trick for the purpose of this test. */
   message("Checking gas quantities for T=%.1f case=%s", T, name);
+
+  /* TODO MLADEN: this override here */
   verbose = 1;
 
   const float gamma = const_adiabatic_index;
@@ -439,7 +440,18 @@ int main(void) {
                              internal_energy_units, verbose);
   }
 
+  /* Run Grackle heating test */
+  /* ------------------------ */
+  for (int d = 0; d < 3; d++) {
+    float rho = dens_arr[d];
+    char *name = dens_names[d];
+    run_grackle_heating_test(rho, name, mass_units, length_units, time_units,
+                             density_units, velocity_units,
+                             internal_energy_units, verbose);
+  }
+
   /* TODO: Luminosities check */
+  /* TODO: number densities check (as doubles tho) */
 
   /* Clean up after yourself */
   free(swift_params);

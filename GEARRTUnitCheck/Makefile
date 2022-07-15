@@ -5,9 +5,7 @@
 # executable name
 EXEC   = GEARRT_unit_checks
 # source directory
-SRCDIR = .
-# include directory
-IDIR = ../grackle/include
+SRCDIR = src
 # manual definitions
 DEFINES=
 
@@ -47,7 +45,8 @@ DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror -fsanitize=addres
 LIBS = $(GRACKLE_LIBS)
 LIBS += $(GSL_LIBS)
 # Additional header files
-INCLUDES = -I$(IDIR) -I.
+INCLUDES = -I. -I./include/
+INCLUDES += -I../grackle/include
 INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
 # linking flags
@@ -64,15 +63,14 @@ CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS) $(LDFLAGS)
 
 #include paths. Will be followed in that order.
 
-VPATH=$(IDIR):$(SRCDIR)
-
+VPATH=$(SRCDIR):./include:../grackle/include
 
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
 OBJECTS = main.o
 
 HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h cross_sections.h \
 		  my_grackle_utils.h blackbody.h cross_sections.h photon_interaction_rates.h \
-		  parser.h error.h grackle_checks.h grackle_cooling_test.h
+		  parser.h error.h grackle_checks.h grackle_cooling_test.h grackle_heating_test.h
 
 
 

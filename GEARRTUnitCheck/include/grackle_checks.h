@@ -26,13 +26,13 @@ void grackle_checks_density_sum(float density,
       grackle_fields->H2II_density[0] + grackle_fields->DI_density[0] +
       grackle_fields->DII_density[0] + grackle_fields->HDI_density[0];
 
-  if (fabs(grackle_fields->density[0] / dens_sum - 1.) > 0.001)
+  if (fabs(grackle_fields->density[0] / dens_sum - 1.) > 0.0001)
     error("Error: Density sum does not correspond to total density; "
           "total=%.6e sum=%.6e ratio=%.3e",
           grackle_fields->density[0], dens_sum,
           grackle_fields->density[0] / dens_sum);
 
-  if (fabs(grackle_fields->density[0] / density - 1.) > 0.0001)
+  if (fabsf((float)grackle_fields->density[0] / density - 1.f) > 0.0001)
     error("Error: initial and current density not equal; "
           "initial=%.6e current=%.6e ratio=%.3e",
           density, grackle_fields->density[0],

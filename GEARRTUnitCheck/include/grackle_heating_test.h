@@ -1,12 +1,12 @@
+#ifndef GRACKLE_HEATING_TEST_H
+#define GRACKLE_HEATING_TEST_H
+
 /* ---------------------------------------------
  * Reproduce the Iliev06 Test 0 part 3 example:
  * Heat the gas with radiation for 0.5 Myr, then
  * let it cool for 5 more Myrs
+ * Except we vary the initial density here.
  * --------------------------------------------- */
-
-/* define these before including local headers like my_grackle_utils.h */
-#define FIELD_SIZE 1
-#define GRIDDIM 1
 
 #include <math.h>
 #include <stdio.h>
@@ -15,52 +15,62 @@
 
 #include <grackle.h>
 
-#include "constants.h"
-#include "cross_sections.h"
+/* #include "cross_sections.h" */
+#include "grackle_checks.h"
 #include "ionization_equilibrium.h"
 #include "mean_molecular_weight.h"
-#include "my_grackle_utils.h"
 #include "photon_interaction_rates.h"
 
-int main() {
+/* NOTE: don't include my_grackle_utils here to make sure you've
+ * got the correct FIELD_SIZE etc definitions. */
+#ifndef MY_GRACKLE_UTILS_H
+#error This file needs my_grackle_utils.h to be included already, \
+  but not from within the file itself.
+#endif
+
+/**
+ * @brief Run a test with an initially high temperature gas
+ * that cools down.
+ * For the units, I use the following convention:
+ * quantity * units = quantity_in_cgs
+ *
+ * @param density gas density to use
+ * @param name name of the test case. NO SPACES.
+ * @param mass_units the internal mass units to use.
+ * @param length_units the internal length units to use.
+ * @param density_units the internal density units to use.
+ * @param velocity_units the internal velocity units to use.
+ * @param internal_energy_units the internal specific internal energy units
+ * @param verbose print time step data to screen?
+ **/
+void run_grackle_heating_test(float density, char *name, double mass_units,
+                              double length_units, double time_units,
+                              double density_units, double velocity_units,
+                              double internal_energy_units, int verbose) {
 
   /******************************************************************
    * Set up initial conditions and runtime parameters.
    *****************************************************************/
 
-  /* Print some extra data to screen? */
-  int verbose = 1;
-  grackle_verbose = 0;
+  message("Running grackle heating test for case %s", name);
+
   /* output file */
-  FILE *fd = fopen("out.dat", "w");
+  char filename[200];
+  sprintf(filename, "heating_test-%s.dat", name);
+  FILE *fd = fopen(filename, "w");
   /* output frequency  in number of steps */
   int output_frequency_cool = 64; /* output frequency while cooling */
   int output_frequency_heat = 2;  /* output frequency while heating */
 
-  /* Define units  */
-  /* --------------*/
-  /* Stick with cgs for now. */
-  /* double mass_units = const_mh; */
-  double mass_units = 1.67262171e-24;
-  /* double length_units = 1e3; */
-  /* double velocity_units = 1e-6; */
-  /* double mass_units = 1.e-10; */
-  double length_units = 1.;
-  double velocity_units = 1.;
-
-  double density_units =
-      mass_units / length_units / length_units / length_units;
-  double time_units = length_units / velocity_units;
-
   /* Time integration variables */
   /* -------------------------- */
-  double dt_max_cool =
-      1000.; /* max dt while cooling. in yr. Will be converted later */
-  double dt_max_heat =
-      2.; /* max dt while heating. in yr. Will be converted later */
+  /* max dt while cooling. in yr. Will be converted later */
+  double dt_max_cool = 2000.;
+  /* max dt while heating. in yr. Will be converted later */
+  double dt_max_heat = 100.;
   double tinit = 1e-5; /* in yr; will be converted later */
   double tend = 5.5e6; /* in yr; will be converted later */
-  /* Convert times to internal units. */
+
   double t = tinit * const_yr / time_units;          /* yr to code units */
   tend = tend * const_yr / time_units;               /* yr to code units */
   dt_max_cool = dt_max_cool * const_yr / time_units; /* yr to code units */
@@ -69,26 +79,26 @@ int main() {
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
   double hydrogen_fraction_by_mass = 1.00;
-  double gas_density = const_mh; /* in cgs, will be converted later.
-                                    Corresponds to number density 1 cm^-3 */
-  double T = 100.;               /* K */
-
-  gas_density /= density_units;
+  double gas_density = density;
 
   /* Initial conditions for radiation */
-  /* See README for details */
-  double T_blackbody = 1e5; /* K */
+  /* Blackbody temperature is not needed when we're not computing
+   * the cross sections on-the-fly. */
+  /* double T_blackbody = 1e5; [> K <] */
 #if RT_NGROUPS == 4
-  double frequency_bins_Hz[4] = {0., 3.288e15, 5.945e15, 13.157e15}; /* Hz */
-  double fixed_luminosity_cgs[4] = {0., 1.350e+01, 2.779e+01,
-                                    6.152e+00}; /* erg / cm^2 / s */
+  /* frequency bins are not needed when we're not computing
+   * the cross sections on-the-fly. */
+  /* double frequency_bins_Hz[4] = {0., 3.288e15, 5.945e15, 13.157e15}; [> Hz <]
+   */
+  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
+  double fixed_luminosity_cgs[4] = {0., 1.350e+01, 2.779e+01, 6.152e+00};
 #elif RT_NGROUPS == 1
-  double frequency_bins_Hz[1] = {3.288e15};     /* Hz */
-  double fixed_luminosity_cgs[1] = {4.774e+01}; /* erg / cm^2 / s */
+  /* double frequency_bins_Hz[1] = {3.288e15};     [> Hz <] */
+  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
+  double fixed_luminosity_cgs[1] = {4.774e+01};
 #else
-  printf("You need to set up the correct frequency bins and luminosities "
-         "for " RT_NGROUPS " groups used");
-  return EXIT_FAILURE;
+  error("You need to set up the correct frequency bins and luminosities "
+        "for " RT_NGROUPS " groups used");
 #endif
   double fixed_radiation_density_field_cgs[4] = {0., 0., 0., 0.};
   for (int g = 0; g < RT_NGROUPS; g++) {
@@ -101,8 +111,10 @@ int main() {
 
   /* Assuming fully neutral hydrogen gas */
   double mu_init = 1.;
-  double internal_energy =
+  double T = 100.; /* K */
+  double internal_energy_cgs =
       T * const_kboltz / (const_mh * mu_init * (const_adiabatic_index - 1.));
+  double internal_energy = internal_energy_cgs / internal_energy_units;
 
   /* define the hydrogen number density */
   /* use `gr_float` to use the same type of floats that grackle
@@ -144,24 +156,42 @@ int main() {
   /* Get photon cross sections and mean energies */
   /* ------------------------------------------- */
   /* Note that the result is always in cgs. */
-  double **cse = malloc(RT_NGROUPS * sizeof(double *));
-  double **csn = malloc(RT_NGROUPS * sizeof(double *));
-  double mean_photon_energies[RT_NGROUPS];
-  for (int group = 0; group < RT_NGROUPS; group++) {
-    cse[group] = malloc(RT_NIONIZING_SPECIES * sizeof(double));
-    csn[group] = malloc(RT_NIONIZING_SPECIES * sizeof(double));
-    mean_photon_energies[group] = 0.;
-  }
+  /* TODO: DOUBLE CHECK-CONSISTENCY !!! */
+  /* double **cse = malloc(RT_NGROUPS * sizeof(double *)); */
+  /* double **csn = malloc(RT_NGROUPS * sizeof(double *)); */
+  /* double mean_photon_energies[RT_NGROUPS]; */
+  /* for (int group = 0; group < RT_NGROUPS; group++) { */
+  /*   cse[group] = malloc(RT_NIONIZING_SPECIES * sizeof(double)); */
+  /*   csn[group] = malloc(RT_NIONIZING_SPECIES * sizeof(double)); */
+  /*   mean_photon_energies[group] = 0.; */
+  /* } */
+  /* get_cross_sections(T_blackbody, frequency_bins_Hz, cse, csn, */
+  /*                    mean_photon_energies); */
 
-  get_cross_sections(T_blackbody, frequency_bins_Hz, cse, csn,
-                     mean_photon_energies);
-
-  const double eV_per_erg = 6.242e+11;
-  for (int g = 0; g < RT_NGROUPS; g++) {
-    printf("group %d cse=%.3e csn=%.3e mean=%.3e erg %.3e eV\n", g, cse[g][0],
-           csn[g][0], mean_photon_energies[g],
-           mean_photon_energies[g] * eV_per_erg);
-  }
+#if RT_NGROUPS == 4
+  /* Just store the solutions, don't mind the computation for this test.
+   * It's always done in cgs, so that shouldn't fail regardless of user
+   * chosen units. */
+  /* Cross sections are in cm^-2, mean photon energies in erg. */
+  double cse_0[3] = {0., 0., 0.};
+  double cse_1[3] = {2.782672e-18, 0., 0.};
+  double cse_2[3] = {5.043639e-19, 6.020192e-24, 0.};
+  double cse_3[3] = {7.459092e-20, 6.515781e-25, 1.002143e-18};
+  double *cse[RT_NGROUPS] = {cse_0, cse_1, cse_2, cse_3};
+  double csn_0[3] = {0., 0., 0.};
+  double csn_1[3] = {3.007890e-18, 0., 0.};
+  double csn_2[3] = {5.688884e-19, 6.901561e-24, 0.};
+  double csn_3[3] = {7.893315e-20, 6.929928e-25, 1.056205e-18};
+  double *csn[RT_NGROUPS] = {csn_0, csn_1, csn_2, csn_3};
+  double mean_photon_energies[RT_NGROUPS] = {1.337e-11, 3.020e-11, 5.619e-11,
+                                             1.052e-10};
+#elif RT_NGROUPS == 1
+  double cse_0[3] = {1.096971e-18, 2.303147e-24, 1.298503e-19};
+  double *cse[RT_NGROUPS] = {cse_0};
+  double csn_0[3] = {1.630511e-18, 3.450498e-24, 6.171427e-20};
+  double *csn[RT_NGROUPS] = {csn_0};
+  double mean_photon_energies[RT_NGROUPS] = {4.744e-11};
+#endif
 
   double radiation_energy_density_cgs[RT_NGROUPS];
   for (int g = 0; g < RT_NGROUPS; g++) {
@@ -182,9 +212,6 @@ int main() {
   get_interaction_rates(radiation_energy_density_cgs, ion_densities_cgs, cse,
                         csn, mean_photon_energies, time_units,
                         interaction_rates);
-  printf("Mladen's rates %12.3e %12.3e %12.3e %12.3e %12.3e\n",
-         interaction_rates[0], interaction_rates[1], interaction_rates[2],
-         interaction_rates[3], interaction_rates[4]);
 
   /* Grackle behaviour setup */
   /* ----------------------- */
@@ -192,7 +219,7 @@ int main() {
   int UVbackground = 0;         /* toogle on/off the UV background */
   int primordial_chemistry = 1; /* choose the chemical network */
   int use_radiative_cooling = 1;
-  int use_radiative_transfer = 1; // YR: was 0
+  int use_radiative_transfer = 1;
   char *grackle_data_file = "";
 
   /*********************************************************************
@@ -216,8 +243,7 @@ int main() {
 
   chemistry_data grackle_chemistry_data;
   if (set_default_chemistry_parameters(&grackle_chemistry_data) == 0) {
-    fprintf(stderr, "Error in set_default_chemistry_parameters");
-    return EXIT_FAILURE;
+    error("Error in set_default_chemistry_parameters");
   }
 
   /* Set parameter values for chemistry. */
@@ -227,8 +253,7 @@ int main() {
                           hydrogen_fraction_by_mass);
 
   if (initialize_chemistry_data(&grackle_units_data) == 0) {
-    fprintf(stderr, "Error in initialize_chemistry_data.\n");
-    return EXIT_FAILURE;
+    error("Error in initialize_chemistry_data.");
   }
 
   /* Gas Data */
@@ -243,20 +268,13 @@ int main() {
   /* ------------- */
 
   if (verbose) {
-    printf("%15s%15s%15s%15s%15s%15s%15s%15s\n",
-           "Initial setup: ", "Temperature", "nHI", "nHII", "nHeI", "nHeII",
-           "nHeIII", "ne");
-    printf("%15s%15g%15g%15g%15g%15g%15g%15g\n\n", "Initial setup: ", T, nHI,
-           nHII, nHeI, nHeII, nHeIII, ne);
+    write_header(stdout);
+    write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                   &grackle_chemistry_data, /*field_index=*/0, t, dt_max_heat,
+                   time_units, /*step=*/0);
   }
 
-  write_header(stdout);
-  write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                 &grackle_chemistry_data, /*field_index=*/0, t, dt_max_heat,
-                 time_units, /*step=*/0);
-
   /* write down what ICs you used into file */
-  /* TODO: dt is wrong here */
   write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units,
                  length_units, velocity_units, dt_max_heat,
                  hydrogen_fraction_by_mass, gas_density, internal_energy);
@@ -271,13 +289,14 @@ int main() {
   *********************************************************************/
 
   int step = 0;
+  int completion = 0;
+  int completion_fractions = 5;
   while (t < tend) {
 
     /* Set up radiation fields, and compute the resulting interaction
      * rates depending on the simulation time. */
-
     gr_float iact_rates[5] = {0., 0., 0., 0., 0.};
-    double dt = dt_max_cool;
+    double dt_max = dt_max_cool;
     int output_frequency_to_use = output_frequency_cool;
     if (t / const_yr * time_units < 0.5e6) {
       /* below 0.5 Myr, we heat. */
@@ -286,41 +305,12 @@ int main() {
       iact_rates[2] = interaction_rates[2];
       iact_rates[3] = interaction_rates[3];
       iact_rates[4] = interaction_rates[4];
-      dt = dt_max_heat;
+      dt_max = dt_max_heat;
       output_frequency_to_use = output_frequency_heat;
     }
 
-    /* printf("heating\n"); */
-
-    //      double radiation_energy_density[RT_NGROUPS];
-    //      radiation_energy_density[0] = fixed_radiation_density_field[0];
-    //      radiation_energy_density[1] = fixed_radiation_density_field[1];
-    //      radiation_energy_density[2] = fixed_radiation_density_field[2];
-    //      radiation_energy_density[3] = fixed_radiation_density_field[3];
-
-    //      gr_float species_densities[6];
-    //      species_densities[0] = grackle_fields.HI_density[0];
-    //      species_densities[1] = grackle_fields.HII_density[0];
-    //      species_densities[2] = grackle_fields.HeI_density[0];
-    //      species_densities[3] = grackle_fields.HeII_density[0];
-    //      species_densities[4] = grackle_fields.HeIII_density[0];
-    //      species_densities[5] = grackle_fields.e_density[0];
-
-    //     get_interaction_rates(radiation_energy_density,
-    //                           species_densities,
-    //                           cse, csn, mean_photon_energies,
-    //                           interaction_rates);
-    /* } */
-
+    /* Tell grackle about the rates */
     for (int i = 0; i < FIELD_SIZE; i++) {
-      /* grackle_fields.RT_heating_rate[i] = interaction_rates_yves[0]; */
-      /* grackle_fields.RT_HI_ionization_rate[i] = interaction_rates_yves[1]; */
-      /* grackle_fields.RT_HeI_ionization_rate[i] = interaction_rates_yves[2];
-       */
-      /* grackle_fields.RT_HeII_ionization_rate[i] = interaction_rates_yves[3];
-       */
-      /* grackle_fields.RT_H2_dissociation_rate[i] = interaction_rates_yves[4];
-       */
       grackle_fields.RT_heating_rate[i] = iact_rates[0];
       grackle_fields.RT_HI_ionization_rate[i] = iact_rates[1];
       grackle_fields.RT_HeI_ionization_rate[i] = iact_rates[2];
@@ -328,22 +318,36 @@ int main() {
       grackle_fields.RT_H2_dissociation_rate[i] = iact_rates[4];
     }
 
+    /* Get cooling time */
+    gr_float tchem_time;
+    if (local_calculate_cooling_time(&grackle_chemistry_data, &grackle_rates,
+                                     &grackle_units_data, &grackle_fields,
+                                     &tchem_time) == 0)
+      error("Error in calculate_cooling_time.");
+    double dt = fmin(fabs(tchem_time), dt_max);
+
     t += dt;
     step += 1;
 
-    /* if (solve_chemistry(&grackle_units_data, &grackle_fields, dt) == 0) { */
     if (local_solve_chemistry(&grackle_chemistry_data, &grackle_rates,
                               &grackle_units_data, &grackle_fields, dt) == 0) {
-      /* if (local_solve_chemistry(&grackle_chemistry_data,
-       * grackle_chemistry_rates, &grackle_units_data, &grackle_fields, dt) ==
-       * 0) { */
-      fprintf(stderr, "Error in solve_chemistry.\n");
-      return EXIT_FAILURE;
+      error("Error in solve_chemistry.");
     }
 
-    write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, /*field_index=*/0, t, dt,
-                   time_units, step);
+    grackle_checks_density_sum(density, &grackle_fields);
+
+    if (verbose) {
+      write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                     &grackle_chemistry_data, /*field_index=*/0, t, dt,
+                     time_units, step);
+    } else {
+      if (t / tend >
+          ((double)(completion + 1) / (double)completion_fractions)) {
+        message("Completed %.1f %%",
+                (float)(completion + 1) / (float)completion_fractions * 100.f);
+        completion++;
+      }
+    }
 
     if (step % output_frequency_to_use == 0)
       write_timestep(fd, &grackle_fields, &grackle_units_data,
@@ -355,12 +359,13 @@ int main() {
   fclose(fd);
   clean_up_fields(&grackle_fields);
   _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
-  for (int g = 0; g < RT_NGROUPS; g++) {
-    free(cse[g]);
-    free(csn[g]);
-  }
-  free(cse);
-  free(csn);
+  /* for (int g = 0; g < RT_NGROUPS; g++) { */
+  /*   free(cse[g]); */
+  /*   free(csn[g]); */
+  /* } */
+  /* free(cse); */
+  /* free(csn); */
 
-  return EXIT_SUCCESS;
+  return;
 }
+#endif /* GRACKLE_HEATING_TEST_H */

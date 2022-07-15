@@ -1,6 +1,7 @@
 #ifndef IONIZATION_EQUILIBRIUM_H
 #define IONIZATION_EQUILIBRIUM_H
 
+#include "constants.h"
 #include <grackle.h> /* needed for float type */
 
 /*********************************************************************
@@ -78,10 +79,10 @@ void ionization_equilibrium_calculate_densities(gr_float T, gr_float nH,
      * would otherwise not be safe and lead to problems
      * if we don't exception handle it here. */
     *nH0 = nH;
-    *nHp = 0.;
+    *nHp = TINY_NUMBER;
     *nHe0 = y * nH;
-    *nHep = 0.;
-    *nHepp = 0.;
+    *nHep = TINY_NUMBER;
+    *nHepp = TINY_NUMBER;
     *ne = *nHp;
   } else {
 
@@ -95,6 +96,14 @@ void ionization_equilibrium_calculate_densities(gr_float T, gr_float nH,
     *nHepp = *nHep * G_Hep(T) / A_Hepp(T);
     *ne = *nHp + *nHep + 2. * *nHepp;
   }
+
+  /* Don't use exact zeros, the equation solver might not like it too much */
+  *nH0 = fmax(*nH0, TINY_NUMBER);
+  *nHp = fmax(*nHp, TINY_NUMBER);
+  *nHe0 = fmax(*nHe0, TINY_NUMBER);
+  *nHep = fmax(*nHep, TINY_NUMBER);
+  *nHepp = fmax(*nHepp, TINY_NUMBER);
+  *ne = fmax(*ne, TINY_NUMBER);
 }
 
 #endif /* IONIZATION_EQUILIBRIUM_H */

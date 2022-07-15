@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # --------------------------------------------------------------------------
-# Plot the results of the cooling test. Plots temperature, mean molecular
+# Plot the results of the heating test. Plots temperature, mean molecular
 # weight, and mass fractions of Hydrogen, and internal energy.
 # --------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ colors = ["C0", "C4", "C3"]
 
 for i, sim in enumerate(["average", "min", "max"]):
 
-    resultfile = "cooling_test-density_"+sim+".dat"
+    resultfile = "heating_test-density_"+sim+".dat"
 
     # Read in units.
     f = open(resultfile, "r")
@@ -58,15 +58,14 @@ for i, sim in enumerate(["average", "min", "max"]):
     tot_density = data[:, 5]  # mass density
     HI_density = data[:, 6]
     HII_density = data[:, 7]
-    HeI_density = data[:, 8]
-    HeII_density = data[:, 9]
-    HeIII_density = data[:, 10]
+    #  HeI_density = data[:, 8]
+    #  HeII_density = data[:, 9]
+    #  HeIII_density = data[:, 10]
     #  e_density = data[:, 11]
-    internal_energy = data[:, 12]
+    internal_energy = data[:, 11]
 
     XHI = HI_density / tot_density
-    XHeI = HeI_density / tot_density
-    XHeII = HeII_density / tot_density
+    XHII = HII_density / tot_density
     internal_energy_cgs = internal_energy * internal_energy_units
 
     ax1.semilogy(Time_Myr, Temperature, label=sim+" density", c=colors[i], **plotkwargs)
@@ -74,11 +73,9 @@ for i, sim in enumerate(["average", "min", "max"]):
     ax2.plot(Time_Myr, mu, label=sim, c=colors[i], **plotkwargs)
 
     ax3.semilogy(Time_Myr, XHI, linestyle="--", c=colors[i], label=sim+" density $XH_{I}$", **plotkwargs)
-    ax3.semilogy(Time_Myr, XHeI, linestyle=":", c=colors[i], label=sim+" density $XHe_{I}$", **plotkwargs)
-    ax3.semilogy(Time_Myr, XHeII, linestyle="-.", c=colors[i], label=sim+" density $XHe_{II}$", **plotkwargs)
+    ax3.semilogy(Time_Myr, XHII, linestyle=":", c=colors[i], label=sim+" density $XH_{II}$", **plotkwargs)
 
     ax4.semilogy(Time_Myr, internal_energy_cgs, label=sim+" density $XH_{II}$", c=colors[i], **plotkwargs)
-
 
 ax1.set_ylabel(r"$\rm{Temperature\,\,[K]}$")
 ax2.set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
@@ -92,4 +89,4 @@ for ax in fig.axes:
     #  ax.set_xscale("log")
 
 plt.tight_layout()
-plt.savefig("cooling_test_output.png", dpi=200)
+plt.savefig("heating_test_output.png", dpi=200)
