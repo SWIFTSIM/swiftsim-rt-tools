@@ -107,6 +107,41 @@ long long npart;
     }                                                                          \
   })
 
+/*! Check that the value is a valid double.
+ * Assume the argument given is positive and of type double. */
+#define check_valid_double(v)                                                  \
+  ({                                                                           \
+    if (v < 0.) {                                                              \
+      fflush(stdout);                                                          \
+      fprintf(stderr, "%s:%s:%d: " #v " invalid double; negative: %.6e\n",     \
+              __FILE__, __FUNCTION__, __LINE__, v);                            \
+      abort();                                                                 \
+    }                                                                          \
+    if (isinf(v) || isnan(v)) {                                                \
+      fflush(stdout);                                                          \
+      fprintf(stderr, "%s:%s:%d: " #v " invalid double; nan/inf %.6e\n",       \
+              __FILE__, __FUNCTION__, __LINE__, v);                            \
+      abort();                                                                 \
+    }                                                                          \
+    if (v > DBL_MAX) {                                                         \
+      fflush(stdout);                                                          \
+      fprintf(stderr, "%s:%s:%d: " #v " invalid double; > DBL_MAX: %.6e\n",    \
+              __FILE__, __FUNCTION__, __LINE__, v);                            \
+      abort();                                                                 \
+    }                                                                          \
+    if ((v != 0.) && (v < DBL_MIN)) {                                          \
+      fflush(stdout);                                                          \
+      fprintf(stderr, "%s:%s:%d: " #v " invalid float; < DBL_MIN: %.6e\n",     \
+              __FILE__, __FUNCTION__, __LINE__, v);                            \
+      abort();                                                                 \
+    }                                                                          \
+    if (v != 0. && (fabs(v) > 1e290 || fabs(v) < 1e-290)) {                    \
+      fflush(stdout);                                                          \
+      fprintf(stdout, "WARNING: %s:%s:%d: " #v " has large exponent: %.6e\n",  \
+              __FILE__, __FUNCTION__, __LINE__, v);                            \
+    }                                                                          \
+  })
+
 /**
  * @brief Read in the parameters relevant for this check.
  *
@@ -295,9 +330,6 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
    * it should do the trick for the purpose of this test. */
   message("Checking gas quantities for T=%.1f case=%s", T, name);
 
-  /* TODO MLADEN: this override here */
-  verbose = 1;
-
   const float gamma = const_adiabatic_index;
   const float gamma_minus_one = gamma - 1.f;
 
@@ -365,6 +397,24 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
             density, internal_energy, pressure, entropy, soundspeed,
             particle_mass, momentum, total_energy);
   }
+
+  /* Check that the number densities are well behaved.
+   * The assumption here is that we never use the number densities
+   * as floats. Assume pure hydrogen gas. */
+
+  const double n = density / (const_mh / mass_units);
+  check_valid_double(n);
+  const double n_cgs = density * density_units / const_mh;
+  check_valid_double(n_cgs);
+  /* Make sure the number density is within the limit of what grackle can do */
+  if (n_cgs < 1e-10)
+    error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
+          "below lower limit of 1e-10",
+          name, density, n_cgs);
+  if (n_cgs > 1e16)
+    error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
+          "above upper limit of 1e16",
+          name, density, n_cgs);
 }
 
 int main(void) {
@@ -428,6 +478,8 @@ int main(void) {
     check_gas_quantities(rho, name, /*T=*/1000., verbose);
     check_gas_quantities(rho, name, /*T=*/10000., verbose);
     check_gas_quantities(rho, name, /*T=*/100000., verbose);
+    check_gas_quantities(rho, name, /*T=*/1000000., verbose);
+    check_gas_quantities(rho, name, /*T=*/10000000., verbose);
   }
 
   /* Run Grackle cooling test */
@@ -451,7 +503,6 @@ int main(void) {
   }
 
   /* TODO: Luminosities check */
-  /* TODO: number densities check (as doubles tho) */
 
   /* Clean up after yourself */
   free(swift_params);

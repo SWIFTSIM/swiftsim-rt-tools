@@ -335,6 +335,7 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
     }
 
     grackle_checks_density_sum(density, &grackle_fields);
+    grackle_checks_ion_sum(&grackle_fields, mass_units);
 
     if (verbose) {
       write_timestep(stdout, &grackle_fields, &grackle_units_data,

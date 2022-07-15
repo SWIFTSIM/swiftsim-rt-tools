@@ -6,6 +6,9 @@ Run a couple of tests to verify whether your choice of units for a simulation
 might be incompatible with the precision limits for the internal thermochemistry 
 computations.
 
+This program assumes that we're running with Grackle and primordial chemistry = 1,
+which is the non-equilibrium 6 species network (H0, Hp, He0, Hep, Hepp, e-).
+
 
 Instructions
 -------------
