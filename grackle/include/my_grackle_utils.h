@@ -67,24 +67,30 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
                           gr_float interaction_rates[5], double gas_density,
                           double internal_energy) {
 
+  int *dimension = malloc(3 * sizeof(int));
+  int *start = malloc(3 * sizeof(int));
+  int *end = malloc(3 * sizeof(int));
+
   /* Set grid dimension and size.
    * grid_start and grid_end are used to ignore ghost zones. */
-  grackle_fields->grid_rank = GRIDDIM;
-  grackle_fields->grid_dimension =
-      malloc(grackle_fields->grid_rank * sizeof(int));
-  grackle_fields->grid_start = malloc(grackle_fields->grid_rank * sizeof(int));
-  grackle_fields->grid_end = malloc(grackle_fields->grid_rank * sizeof(int));
+  grackle_fields->grid_rank = 3;
+  grackle_fields->grid_dimension = dimension;
+  grackle_fields->grid_start = start;
+  grackle_fields->grid_end = end;
   /* used only for H2 self-shielding approximation */
   /* grackle_fields->grid_dx = 0.0; */
 
-  /* for (int i = 0; i < GRIDDIM; i++) { */
-  /*   [> the active dimension not including ghost zones. <] */
-  /*   grackle_fields->grid_dimension[i] = FIELD_SIZE;  */
-  /*   grackle_fields->grid_start[i] = 0; */
-  /*   grackle_fields->grid_end[i] = 0; */
-  /* } */
+  /* NOTE: if you're trying to simplify this, you MUST allocate GRIDDIM = 3
+   * and grid_dimension, grid_start, grid_end with at least 3D as well.
+   * Otherwise, grackle will cause segfaults because they do pointer arithmetics
+   * assuming 3 dimensions internally. */
+  for (int i = 0; i < 3; i++) {
+    /* the active dimension not including ghost zones. */
+    grackle_fields->grid_dimension[i] = 1;
+    grackle_fields->grid_start[i] = 0;
+    grackle_fields->grid_end[i] = 0;
+  }
   grackle_fields->grid_dimension[0] = FIELD_SIZE;
-  grackle_fields->grid_start[0] = 0;
   grackle_fields->grid_end[0] = FIELD_SIZE - 1;
 
   /* Set initial quantities */
@@ -157,7 +163,7 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
 
     /* solar metallicity */
     grackle_fields->metal_density[i] = 0.0;
-    /* grackle_chemistry_data.SolarMetalFractionByMass *
+    /* grackle_chemistry_data.SolarMetalFractionByMass * 
      * grackle_fields->density[i]; */
 
     grackle_fields->x_velocity[i] = 0.0;
@@ -181,9 +187,9 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
 void clean_up_fields(grackle_field_data *grackle_fields) {
 
   free(grackle_fields->grid_dimension);
-
   free(grackle_fields->grid_start);
   free(grackle_fields->grid_end);
+
   free(grackle_fields->density);
   free(grackle_fields->internal_energy);
   free(grackle_fields->x_velocity);
@@ -337,12 +343,11 @@ void write_timestep(FILE *fd, grackle_field_data *grackle_fields,
   gr_float temperature[FIELD_SIZE];
   gr_float mu[FIELD_SIZE];
   for (int i = 0; i < FIELD_SIZE; i++) {
-    temperature[i] = 0;
-    mu[i] = 0;
+    temperature[i] = 0.;
+    mu[i] = 0.;
   }
 
   /* Grab temperature and mean molecular weights. */
-  /* Calculate temperature. */
   if (calculate_temperature(grackle_units_data, grackle_fields, temperature) ==
       0) {
     fprintf(stderr, "Error in calculate_temperature.\n");

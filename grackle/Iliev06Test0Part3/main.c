@@ -6,7 +6,6 @@
 
 /* define these before including local headers like my_grackle_utils.h */
 #define FIELD_SIZE 1
-#define GRIDDIM 1
 
 #include <math.h>
 #include <stdio.h>
