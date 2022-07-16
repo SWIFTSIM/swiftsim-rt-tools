@@ -4,9 +4,8 @@
  * let it cool without any RT.
  * --------------------------------------------- */
 
-/* define these before including my_grackle_utils.h */
+/* define this before including my_grackle_utils.h */
 #define FIELD_SIZE 1
-#define GRIDDIM 1
 
 #include <math.h>
 #include <stdio.h>
