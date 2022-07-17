@@ -37,7 +37,8 @@ OPTIONS = -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror -fsanitize=address
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror  
+# -fsanitize=address
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
@@ -52,7 +53,7 @@ INCLUDES += $(GSL_INCL)
 # linking flags
 LDFLAGS  = -lm -lgrackle -lgfortran -lgsl
 
-CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS) $(LDFLAGS)
+CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS)
 
 
 
@@ -86,7 +87,7 @@ $(EXEC): $(OBJECTS) $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 main.o: main.c $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS)
 
 
 #==================================

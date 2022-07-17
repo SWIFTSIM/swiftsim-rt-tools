@@ -89,12 +89,12 @@ ax1.plot(Time_Myr, Temperature, **plotkwargs)
 ax1.semilogy()
 ax1.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 ax1.set_ylabel(r"$\rm{Temperature\,\,[K]}$")
-#  ax1.set_xscale("log")
+ax1.set_xscale("log")
 
 ax2.plot(Time_Myr, mu)
 ax2.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 ax2.set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
-#  ax2.set_xscale("log")
+ax2.set_xscale("log")
 
 ax3.plot(Time_Myr, nHI, ls=":", label=r"$\rm{HI}$", **plotkwargs)
 ax3.plot(Time_Myr, nHII, ls="-.", label=r"$\rm{HII}$", **plotkwargs)
@@ -106,7 +106,7 @@ ax3.plot(Time_Myr, n, label=r"$\rm{Tot}$", alpha=1)
 
 ax3.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 ax3.set_ylabel(r"$\rm{Number\,\,Densities}\ [\rm{cm}^{-3}]$")
-#  ax3.set_xscale("log")
+ax3.set_xscale("log")
 ax3.legend()
 
 Xtot = XHI + XHII + XHeI + XHeII + XHeIII
@@ -120,7 +120,7 @@ ax4.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 ax4.set_ylabel(r"$\rm{HeI,HeII,HeIII\,\,mass fraction}$")
 ax4.legend()
 ax4.grid()
-#  ax4.set_xscale("log")
+ax4.set_xscale("log")
 
 
 plt.tight_layout()
