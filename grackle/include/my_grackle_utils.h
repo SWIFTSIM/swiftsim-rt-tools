@@ -23,18 +23,11 @@ void setup_grackle_units(code_units *grackle_units_data, double density_units,
   grackle_units_data->density_units = density_units;
   grackle_units_data->length_units = length_units;
   grackle_units_data->time_units = time_units;
-  grackle_units_data->velocity_units =
-      grackle_units_data->length_units / grackle_units_data->time_units;
-  grackle_units_data->a_units = 1.0; /* units for the expansion factor */
-  /* Set expansion factor to 1 for non-cosmological simulation-> */
+  grackle_units_data->a_units = 1.0;
   grackle_units_data->a_value = 1.;
 
-  /* set temperature units */
-  /* double temperature_units = */
-  /*     const_mh / const_kboltz * */
-  /*     pow(grackle_units_data.a_units * grackle_units_data.length_units / */
-  /*             grackle_units_data.time_units, */
-  /* 2); */
+  /* Set velocity units */
+  set_velocity_units(grackle_units_data);
 }
 
 /**
@@ -45,6 +38,7 @@ void setup_grackle_chemistry(chemistry_data *grackle_chemistry_data,
                              char *grackle_data_file, int use_radiative_cooling,
                              int use_radiative_transfer,
                              float hydrogen_fraction_by_mass) {
+
   /* Set parameter values for chemistry. */
   grackle_chemistry_data->use_grackle = 1; /* chemistry on */
   grackle_chemistry_data->with_radiative_cooling = use_radiative_cooling;
@@ -163,7 +157,7 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
 
     /* solar metallicity */
     grackle_fields->metal_density[i] = 0.0;
-    /* grackle_chemistry_data.SolarMetalFractionByMass * 
+    /* grackle_chemistry_data.SolarMetalFractionByMass *
      * grackle_fields->density[i]; */
 
     grackle_fields->x_velocity[i] = 0.0;

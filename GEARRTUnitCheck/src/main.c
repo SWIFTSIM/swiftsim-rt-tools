@@ -1,14 +1,17 @@
-/* ---------------------------------------------
- * In this example, we start with high internal
- * energies and a fully ionized gas, and just
- * let it cool without any RT.
- * --------------------------------------------- */
+/* -------------------------------------------------
+ * A suite of tests both with and without grackle
+ * to check whether your choice of units may produce
+ * bad results.
+ * ------------------------------------------------- */
+
+/* FPE stuff. Link with -lm */
+/* #define _GNU_SOURCE  */
+/* #include <fenv.h>  */
 
 /* define these before including local headers like my_grackle_utils.h */
 #define RT_NGROUPS 4
 /* Grackle related macros */
 #define FIELD_SIZE 1
-#define GRIDDIM 1
 #include "my_grackle_utils.h"
 
 #include <float.h>
@@ -419,6 +422,11 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
 
 int main(void) {
 
+  /* FPE's, here we come! */
+  /* Note: Grackle may have severe issues with these... And that's apparently
+   * ok? I gave up. */
+  /* feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW); */
+
   /* ----------------------------------------- */
   /* First things first: Read in required data */
   /* ----------------------------------------- */
@@ -449,8 +457,7 @@ int main(void) {
   /* ------------------------*/
   /* Prepare to run examples */
   /* ------------------------*/
-  /* If the min/max densities are too close to the average, re-size them
-   * by a factor 10 */
+  /* If the min/max densities are too close to the average, re-size them */
 
   if (fabs(1. - density_min / density_average) < 0.05) {
     message("density_min too close to average. Resizing %.3e -> %.3e",
