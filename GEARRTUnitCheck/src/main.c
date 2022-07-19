@@ -149,6 +149,22 @@ int warnings = 0;
     }                                                                          \
   })
 
+#define DOUBLE_TOLERANCE 1e-15
+#define check_doubles_equal(a, b)                                               \
+  ({                                                                           \
+    if (a == 0. && b == 0.) {                                                  \
+    } else if (a == 0. && fabs(b) > DOUBLE_TOLERANCE) {                        \
+      error(#a " and " #b " are not equal: %.6e %.6e", a, b);                  \
+    } else if (b == 0. && fabs(a) > DOUBLE_TOLERANCE) {                        \
+      error(#a " and " #b " are not equal: %.6e %.6e", a, b);                  \
+    } else {                                                                   \
+      if (1.f - fabs(a / b) > DOUBLE_TOLERANCE) {                              \
+        error(#a " and " #b " are not equal: %.6e %.6e a/b=%.3e", a, b,        \
+              a / b);                                                          \
+      }                                                                        \
+    }                                                                          \
+  })
+
 /**
  * @brief Read in the parameters relevant for this check.
  *
@@ -422,6 +438,52 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
     error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
           "above upper limit of 1e16",
           name, density, n_cgs);
+
+  /* Check for heating rates divided by number density, which is a parameter 
+   * that grackle requires. Pretend we have hydrogen only gas, and only 1 
+   * radiation group.  Then try with "fully neutral" and "fully ionized" gas,
+   * where we assume that "fully ionized" is taken to mean that the number
+   * density of neutral hydrogen is multiplied by a factor of 1e-9. 
+   * The cross sections assume a blackbody spectrum of T = 1e5K.
+   * */
+
+  const double cse = 1.096971e-18;
+  const double csn = 1.630511e-18;
+  const double mean_photon_energy = 4.744e-11;
+  const double fixed_luminosity_cgs = 4.774e+01; /* erg/s/cm^2 */
+  const double E_ion = 2.179e-11; /* erg, ionization energy of hydrogen */
+
+  const double fixed_radiation_density_cgs = fixed_luminosity_cgs / const_speed_light_c;
+  const double Eic = fixed_radiation_density_cgs * const_speed_light_c;
+  const double Nic = Eic / mean_photon_energy;
+
+  double ionization_factor[2] = {1., 1.e-9};
+  double heating_rates[2] = {0., 0.};
+
+  for (int i = 0; i < 2; i++) {
+    const double f = ionization_factor[i];
+    const double HI_heating_rate = (cse * mean_photon_energy - E_ion * csn) * Nic * (n_cgs * f);
+    const double HI_ionization_rate = csn * (n_cgs * f) * Nic;
+
+    check_valid_double(HI_heating_rate);
+    check_valid_double(HI_ionization_rate);
+    /* heating rate is expected to be in erg/s/cm^3 / nHI*/
+    const double HI_heating_rate_for_grackle = HI_heating_rate / (n * f);
+    /* ion. rate is expected to be in 1/time_units, so divide by (1/time_units) */
+    const double HI_ionization_rate_for_grackle = HI_ionization_rate * time_units;
+
+    if (verbose) {
+      message("Heating rate: %.4e Ionization rate: %.4e", 
+          HI_heating_rate, HI_ionization_rate);
+      message("Heating rate GR: %.4e Ionization rate GR: %.4e", 
+          HI_heating_rate_for_grackle, HI_ionization_rate_for_grackle);
+    }
+
+    check_valid_double(HI_heating_rate_for_grackle);
+    check_valid_double(HI_ionization_rate_for_grackle);
+    heating_rates[i] = HI_heating_rate_for_grackle;
+  }
+  check_doubles_equal(heating_rates[0], heating_rates[1]);
 }
 
 int main(void) {
