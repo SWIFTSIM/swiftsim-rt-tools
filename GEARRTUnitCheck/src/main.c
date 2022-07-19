@@ -58,6 +58,8 @@ float smoothing_length;
 /* Number of gas particles in simulation */
 long long npart;
 
+int warnings = 0;
+
 /*! Check that the value is a valid float.
  * Assume the argument given is positive and of type double. */
 #define check_valid_float(v)                                                   \
@@ -91,6 +93,7 @@ long long npart;
       fflush(stdout);                                                          \
       fprintf(stdout, "WARNING: %s:%s:%d: " #v " has large exponent: %.6e\n",  \
               __FILE__, __FUNCTION__, __LINE__, v);                            \
+      warnings++;                                                              \
     }                                                                          \
   })
 
@@ -142,6 +145,7 @@ long long npart;
       fflush(stdout);                                                          \
       fprintf(stdout, "WARNING: %s:%s:%d: " #v " has large exponent: %.6e\n",  \
               __FILE__, __FUNCTION__, __LINE__, v);                            \
+      warnings++;                                                              \
     }                                                                          \
   })
 
@@ -516,5 +520,8 @@ int main(void) {
   free(sim_params);
   free(star_emission_rates);
   free(photon_groups_Hz);
+
+  message("Check completed with %d warning(s).", warnings);
+  message("Bye, and good luck.");
   return 0;
 }

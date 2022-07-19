@@ -214,6 +214,17 @@ void clean_up_fields(grackle_field_data *grackle_fields) {
 
 /**
  * @brief Dump the setup used to generate the example
+ *
+ * @param fp FILE pointer to write into.
+ * @param grackle_fields grackle field data
+ * @param grackle_chemistry_data grackle chemistry data.
+ * @param mass_units mass units that convert internal units to cgs
+ * @param length_units length units that convert internal units to cgs
+ * @param velocity_units velocity units that convert internal units to cgs
+ * @param dt current time step
+ * @param hydrogen_fraction_by_mass hydrogen fraction by mass used.
+ * @param gas_density gas density used. In internal units.
+ * @param internal_energy internal energy used. In internal units.
  **/
 void write_my_setup(FILE *fd, grackle_field_data grackle_fields,
                     chemistry_data grackle_chemistry_data, double mass_units,
@@ -253,63 +264,35 @@ void write_my_setup(FILE *fd, grackle_field_data grackle_fields,
           grackle_chemistry_data.Gamma);
   fprintf(fd, "# Grackle field data:\n");
 
-  fprintf(fd, "# grackle_fields.density = %.6g\n", grackle_fields.density[0]);
+#define write_grackle_field(v)                                                 \
+  if (grackle_fields.v != NULL)                                                \
+  fprintf(fd, "# grackle_fields." #v " = %g\n", grackle_fields.v[0])
 
-  fprintf(fd, "# grackle_fields.internal_energy = %.6g\n",
-          grackle_fields.internal_energy[0]);
-
-  fprintf(fd, "# grackle_fields.HI_density = %.6g\n",
-          grackle_fields.HI_density[0]);
-
-  fprintf(fd, "# grackle_fields.HII_density = %.6g\n",
-          grackle_fields.HII_density[0]);
-  fprintf(fd, "# grackle_fields.HeI_density = %.6g\n",
-          grackle_fields.HeI_density[0]);
-  fprintf(fd, "# grackle_fields.HeII_density = %.6g\n",
-          grackle_fields.HeII_density[0]);
-  fprintf(fd, "# grackle_fields.HeIII_density = %.6g\n",
-          grackle_fields.HeIII_density[0]);
-  fprintf(fd, "# grackle_fields.e_density = %.6g\n",
-          grackle_fields.e_density[0]);
-
-  fprintf(fd, "# grackle_fields.HM_density  = %.6g\n",
-          grackle_fields.HM_density[0]);
-  fprintf(fd, "# grackle_fields.H2I_density = %.6g\n",
-          grackle_fields.H2I_density[0]);
-  fprintf(fd, "# grackle_fields.H2II_density = %.6g\n",
-          grackle_fields.H2II_density[0]);
-  fprintf(fd, "# grackle_fields.DI_density = %.6g\n",
-          grackle_fields.DI_density[0]);
-  fprintf(fd, "# grackle_fields.DII_density = %.6g\n",
-          grackle_fields.DII_density[0]);
-  fprintf(fd, "# grackle_fields.HDI_density = %.6g\n",
-          grackle_fields.HDI_density[0]);
-
-  fprintf(fd, "# grackle_fields.metal_density = %.6g\n",
-          grackle_fields.metal_density[0]);
-
-  fprintf(fd, "# grackle_fields.x_velocity = %.6g\n",
-          grackle_fields.x_velocity[0]);
-  fprintf(fd, "# grackle_fields.y_velocity = %.6g\n",
-          grackle_fields.y_velocity[0]);
-  fprintf(fd, "# grackle_fields.z_velocity = %.6g\n",
-          grackle_fields.z_velocity[0]);
-
-  fprintf(fd, "# grackle_fields.volumetric_heating_rate = %.6g\n",
-          grackle_fields.volumetric_heating_rate[0]);
-  fprintf(fd, "# grackle_fields.specific_heating_rate = %.6g\n",
-          grackle_fields.specific_heating_rate[0]);
-
-  fprintf(fd, "# grackle_fields.RT_HI_ionization_rate = %.6g\n",
-          grackle_fields.RT_HI_ionization_rate[0]);
-  fprintf(fd, "# grackle_fields.RT_HeI_ionization_rate = %.6g\n",
-          grackle_fields.RT_HeI_ionization_rate[0]);
-  fprintf(fd, "# grackle_fields.RT_HeII_ionization_rate = %.6g\n",
-          grackle_fields.RT_HeII_ionization_rate[0]);
-  fprintf(fd, "# grackle_fields.RT_H2_dissociation_rate = %.6g\n",
-          grackle_fields.RT_H2_dissociation_rate[0]);
-  fprintf(fd, "# grackle_fields.RT_heating_rate = %.6g\n",
-          grackle_fields.RT_heating_rate[0]);
+  write_grackle_field(density);
+  write_grackle_field(internal_energy);
+  write_grackle_field(HI_density);
+  write_grackle_field(HII_density);
+  write_grackle_field(HeI_density);
+  write_grackle_field(HeII_density);
+  write_grackle_field(HeIII_density);
+  write_grackle_field(e_density);
+  write_grackle_field(HM_density);
+  write_grackle_field(H2I_density);
+  write_grackle_field(H2II_density);
+  write_grackle_field(DI_density);
+  write_grackle_field(DII_density);
+  write_grackle_field(HDI_density);
+  write_grackle_field(metal_density);
+  write_grackle_field(x_velocity);
+  write_grackle_field(y_velocity);
+  write_grackle_field(z_velocity);
+  write_grackle_field(volumetric_heating_rate);
+  write_grackle_field(specific_heating_rate);
+  write_grackle_field(RT_HI_ionization_rate);
+  write_grackle_field(RT_HeI_ionization_rate);
+  write_grackle_field(RT_HeII_ionization_rate);
+  write_grackle_field(RT_H2_dissociation_rate);
+  write_grackle_field(RT_heating_rate);
 }
 
 /**
@@ -369,4 +352,162 @@ void write_timestep(FILE *fd, grackle_field_data *grackle_fields,
           grackle_fields->e_density[field_index],
           grackle_fields->internal_energy[field_index]);
 }
-#endif
+
+/**
+ * @brief Write out all available grackle field data for a given index
+ * and setup to a file.
+ *
+ * @param fp FILE pointer to write into.
+ * @param grackle_fields grackle field data
+ * @param grackle_chemistry_data grackle chemistry data.
+ * @param grackle_units units used by grackle
+ * @param field_index grackle field index to print out.
+ **/
+void print_grackle_setup_and_field(FILE *fp, grackle_field_data grackle_fields,
+                                   chemistry_data *grackle_chemistry_data,
+                                   code_units grackle_units, int field_index) {
+
+  fprintf(fp, "Grackle chemistry parameters:\n");
+
+  fprintf(fp, "use_grackle                       = %d\n",
+          grackle_chemistry_data->use_grackle);
+  fprintf(fp, "with_radiative_cooling            = %d\n",
+          grackle_chemistry_data->with_radiative_cooling);
+  fprintf(fp, "primordial_chemistry              = %d\n",
+          grackle_chemistry_data->primordial_chemistry);
+  fprintf(fp, "dust_chemistry                    = %d\n",
+          grackle_chemistry_data->dust_chemistry);
+  fprintf(fp, "metal_cooling                     = %d\n",
+          grackle_chemistry_data->metal_cooling);
+  fprintf(fp, "UVbackground                      = %d\n",
+          grackle_chemistry_data->UVbackground);
+  fprintf(fp, "grackle_data_file                 = %s\n",
+          grackle_chemistry_data->grackle_data_file);
+  fprintf(fp, "cmb_temperature_floor             = %d\n",
+          grackle_chemistry_data->cmb_temperature_floor);
+  fprintf(fp, "Gamma                             = %g\n",
+          grackle_chemistry_data->Gamma);
+  fprintf(fp, "h2_on_dust                        = %d\n",
+          grackle_chemistry_data->h2_on_dust);
+  fprintf(fp, "use_dust_density_field            = %d\n",
+          grackle_chemistry_data->use_dust_density_field);
+  fprintf(fp, "dust_recombination_cooling        = %d\n",
+          grackle_chemistry_data->dust_recombination_cooling);
+  fprintf(fp, "photoelectric_heating             = %d\n",
+          grackle_chemistry_data->photoelectric_heating);
+  fprintf(fp, "photoelectric_heating_rate        = %g\n",
+          grackle_chemistry_data->photoelectric_heating_rate);
+  fprintf(fp, "use_isrf_field                    = %d\n",
+          grackle_chemistry_data->use_isrf_field);
+  fprintf(fp, "interstellar_radiation_field      = %g\n",
+          grackle_chemistry_data->interstellar_radiation_field);
+  fprintf(fp, "use_volumetric_heating_rate       = %d\n",
+          grackle_chemistry_data->use_volumetric_heating_rate);
+  fprintf(fp, "use_specific_heating_rate         = %d\n",
+          grackle_chemistry_data->use_specific_heating_rate);
+  fprintf(fp, "three_body_rate                   = %d\n",
+          grackle_chemistry_data->three_body_rate);
+  fprintf(fp, "cie_cooling                       = %d\n",
+          grackle_chemistry_data->cie_cooling);
+  fprintf(fp, "h2_optical_depth_approximation    = %d\n",
+          grackle_chemistry_data->h2_optical_depth_approximation);
+  fprintf(fp, "ih2co                             = %d\n",
+          grackle_chemistry_data->ih2co);
+  fprintf(fp, "ipiht                             = %d\n",
+          grackle_chemistry_data->ipiht);
+  fprintf(fp, "HydrogenFractionByMass            = %g\n",
+          grackle_chemistry_data->HydrogenFractionByMass);
+  fprintf(fp, "DeuteriumToHydrogenRatio          = %g\n",
+          grackle_chemistry_data->DeuteriumToHydrogenRatio);
+  fprintf(fp, "SolarMetalFractionByMass          = %g\n",
+          grackle_chemistry_data->SolarMetalFractionByMass);
+  fprintf(fp, "local_dust_to_gas_ratio           = %g\n",
+          grackle_chemistry_data->local_dust_to_gas_ratio);
+  fprintf(fp, "NumberOfTemperatureBins           = %d\n",
+          grackle_chemistry_data->NumberOfTemperatureBins);
+  fprintf(fp, "CaseBRecombination                = %d\n",
+          grackle_chemistry_data->CaseBRecombination);
+  fprintf(fp, "TemperatureStart                  = %g\n",
+          grackle_chemistry_data->TemperatureStart);
+  fprintf(fp, "TemperatureEnd                    = %g\n",
+          grackle_chemistry_data->TemperatureEnd);
+  fprintf(fp, "NumberOfDustTemperatureBins       = %d\n",
+          grackle_chemistry_data->NumberOfDustTemperatureBins);
+  fprintf(fp, "DustTemperatureStart              = %g\n",
+          grackle_chemistry_data->DustTemperatureStart);
+  fprintf(fp, "DustTemperatureEnd                = %g\n",
+          grackle_chemistry_data->DustTemperatureEnd);
+  fprintf(fp, "Compton_xray_heating              = %d\n",
+          grackle_chemistry_data->Compton_xray_heating);
+  fprintf(fp, "LWbackground_sawtooth_suppression = %d\n",
+          grackle_chemistry_data->LWbackground_sawtooth_suppression);
+  fprintf(fp, "LWbackground_intensity            = %g\n",
+          grackle_chemistry_data->LWbackground_intensity);
+  fprintf(fp, "UVbackground_redshift_on          = %g\n",
+          grackle_chemistry_data->UVbackground_redshift_on);
+  fprintf(fp, "UVbackground_redshift_off         = %g\n",
+          grackle_chemistry_data->UVbackground_redshift_off);
+  fprintf(fp, "UVbackground_redshift_fullon      = %g\n",
+          grackle_chemistry_data->UVbackground_redshift_fullon);
+  fprintf(fp, "UVbackground_redshift_drop        = %g\n",
+          grackle_chemistry_data->UVbackground_redshift_drop);
+  fprintf(fp, "cloudy_electron_fraction_factor   = %g\n",
+          grackle_chemistry_data->cloudy_electron_fraction_factor);
+  fprintf(fp, "use_radiative_transfer            = %d\n",
+          grackle_chemistry_data->use_radiative_transfer);
+  fprintf(fp, "radiative_transfer_coupled_rate_solver = %d\n",
+          grackle_chemistry_data->radiative_transfer_coupled_rate_solver);
+  fprintf(fp, "radiative_transfer_intermediate_step = %d\n",
+          grackle_chemistry_data->radiative_transfer_intermediate_step);
+  fprintf(fp, "radiative_transfer_hydrogen_only  = %d\n",
+          grackle_chemistry_data->radiative_transfer_hydrogen_only);
+  fprintf(fp, "self_shielding_method             = %d\n",
+          grackle_chemistry_data->self_shielding_method);
+  fprintf(fp, "H2_custom_shielding               = %d\n",
+          grackle_chemistry_data->H2_custom_shielding);
+  fprintf(fp, "H2_self_shielding                 = %d\n",
+          grackle_chemistry_data->H2_self_shielding);
+
+  fprintf(fp, "\nUnits:\n");
+  fprintf(fp, "a_units               = %g\n", grackle_units.a_units);
+  fprintf(fp, "a_value               = %g\n", grackle_units.a_value);
+  fprintf(fp, "comoving_coordinates  = %d\n",
+          grackle_units.comoving_coordinates);
+  fprintf(fp, "density_units         = %g\n", grackle_units.density_units);
+  fprintf(fp, "length_units          = %g\n", grackle_units.length_units);
+  fprintf(fp, "time_units            = %g\n", grackle_units.time_units);
+  fprintf(fp, "velocity_units        = %g\n", grackle_units.velocity_units);
+
+#define rt_print_grackle_field(v)                                              \
+  if (grackle_fields.v != NULL)                                                \
+  fprintf(fp, "grackle_fields." #v " = %g\n", grackle_fields.v[field_index])
+
+  fprintf(fp, "\nGrackle field data:\n");
+  rt_print_grackle_field(density);
+  rt_print_grackle_field(internal_energy);
+  rt_print_grackle_field(HI_density);
+  rt_print_grackle_field(HII_density);
+  rt_print_grackle_field(HeI_density);
+  rt_print_grackle_field(HeII_density);
+  rt_print_grackle_field(HeIII_density);
+  rt_print_grackle_field(e_density);
+  rt_print_grackle_field(HM_density);
+  rt_print_grackle_field(H2I_density);
+  rt_print_grackle_field(H2II_density);
+  rt_print_grackle_field(DI_density);
+  rt_print_grackle_field(DII_density);
+  rt_print_grackle_field(HDI_density);
+  rt_print_grackle_field(metal_density);
+  rt_print_grackle_field(x_velocity);
+  rt_print_grackle_field(y_velocity);
+  rt_print_grackle_field(z_velocity);
+  rt_print_grackle_field(volumetric_heating_rate);
+  rt_print_grackle_field(specific_heating_rate);
+  rt_print_grackle_field(RT_HI_ionization_rate);
+  rt_print_grackle_field(RT_HeI_ionization_rate);
+  rt_print_grackle_field(RT_HeII_ionization_rate);
+  rt_print_grackle_field(RT_H2_dissociation_rate);
+  rt_print_grackle_field(RT_heating_rate);
+}
+
+#endif /* MY_GRACKLE_UTILS_H */
