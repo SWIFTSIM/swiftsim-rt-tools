@@ -91,9 +91,6 @@ void get_interaction_rates(double radiation_energy_density[RT_NGROUPS],
     /* Grackle wants them in 1/internal_time_units */
     ionization_rates_by_species[spec] /= (1. / time_units);
   }
-  /* const double nHI = species_densities[0] / const_mh; */
-  /* const double nHI = species_number_densities[0]; */
-  /* rates[0] /= nHI; */
 
   /* We're done. Write the results in correct place */
   rates[1] = ionization_rates_by_species[0];

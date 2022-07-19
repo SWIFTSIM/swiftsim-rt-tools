@@ -58,7 +58,7 @@ int main() {
   /* max dt while cooling. in yr. Will be converted later */
   double dt_max_cool = 1000.;
   /* max dt while heating. in yr. Will be converted later */
-  double dt_max_heat = 2.;
+  double dt_max_heat = 2;
   double tinit = 1e-5; /* in yr; will be converted later */
   double tend = 5.5e6; /* in yr; will be converted later */
   /* Convert times to internal units. */
@@ -171,24 +171,6 @@ int main() {
     radiation_energy_density_cgs[g] = fixed_radiation_density_field_cgs[g];
   }
 
-  gr_float ion_densities_cgs[6];
-  /* I need them in cgs. */
-  ion_densities_cgs[0] = species_densities[0] * density_units;
-  ion_densities_cgs[1] = species_densities[1] * density_units;
-  ion_densities_cgs[2] = species_densities[2] * density_units;
-  ion_densities_cgs[3] = species_densities[3] * density_units;
-  ion_densities_cgs[4] = species_densities[4] * density_units;
-  ion_densities_cgs[5] = species_densities[5] * density_units;
-
-  gr_float interaction_rates[5] = {0., 0., 0., 0., 0};
-
-  get_interaction_rates(radiation_energy_density_cgs, ion_densities_cgs, cse,
-                        csn, mean_photon_energies, time_units,
-                        interaction_rates);
-  printf("Mladen's rates %12.3e %12.3e %12.3e %12.3e %12.3e\n",
-         interaction_rates[0], interaction_rates[1], interaction_rates[2],
-         interaction_rates[3], interaction_rates[4]);
-
   /* Grackle behaviour setup */
   /* ----------------------- */
 
@@ -233,6 +215,8 @@ int main() {
 
   /* Gas Data */
   /* -------- */
+
+  gr_float interaction_rates[5] = {0., 0., 0., 0., 0};
 
   /* Create struct for storing grackle field data */
   grackle_field_data grackle_fields;
@@ -280,11 +264,19 @@ int main() {
     int output_frequency_to_use = output_frequency_cool;
     if (t / const_yr * time_units < 0.5e6) {
       /* below 0.5 Myr, we heat. */
-      iact_rates[0] = interaction_rates[0];
-      iact_rates[1] = interaction_rates[1];
-      iact_rates[2] = interaction_rates[2];
-      iact_rates[3] = interaction_rates[3];
-      iact_rates[4] = interaction_rates[4];
+
+      /* I need densities in cgs. */
+      gr_float ion_densities_cgs[6];
+      ion_densities_cgs[0] = grackle_fields.HI_density[0] * density_units;
+      ion_densities_cgs[1] = grackle_fields.HII_density[0] * density_units;
+      ion_densities_cgs[2] = grackle_fields.HeI_density[0] * density_units;
+      ion_densities_cgs[3] = grackle_fields.HeII_density[0] * density_units;
+      ion_densities_cgs[4] = grackle_fields.HeIII_density[0] * density_units;
+      ion_densities_cgs[5] = grackle_fields.e_density[0] * density_units;
+
+      get_interaction_rates(radiation_energy_density_cgs, ion_densities_cgs,
+                            cse, csn, mean_photon_energies, time_units,
+                            iact_rates);
       dt = dt_max_heat;
       output_frequency_to_use = output_frequency_heat;
     }

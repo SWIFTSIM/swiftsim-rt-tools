@@ -223,8 +223,6 @@ cross_sections_integrate_gsl(double (*function)(double, void *),
 
   gsl_integration_workspace_free(w);
 
-  /* TODO MLADEN: don't forget to change this part in swift too ! */
-
   return result;
 }
 
