@@ -62,7 +62,7 @@ int warnings = 0;
 
 /*! Check that the value is a valid float.
  * Assume the argument given is positive and of type double. */
-#define check_valid_float(v)                                                   \
+#define check_valid_float(v, check_grackle_limits)                             \
   ({                                                                           \
     if (v < 0.) {                                                              \
       fflush(stdout);                                                          \
@@ -94,6 +94,15 @@ int warnings = 0;
       fprintf(stdout, "WARNING: %s:%s:%d: " #v " has large exponent: %.6e\n",  \
               __FILE__, __FUNCTION__, __LINE__, v);                            \
       warnings++;                                                              \
+    }                                                                          \
+    if (check_grackle_limits) {                                                \
+      if (v < 1.e-20) {                                                        \
+        fflush(stdout);                                                        \
+        fprintf(stderr, "%s:%s:%d: " #v                                        \
+            " below grakcle TINY_NUMBER 1e-20: %.6e\n",                        \
+                __FILE__, __FUNCTION__, __LINE__, v);                          \
+        abort();                                                               \
+      }                                                                        \
     }                                                                          \
   })
 
@@ -216,13 +225,13 @@ void read_swift_params(struct swift_params *params) {
 
   /* Convert units */
   time_units = length_units / velocity_units;
-  check_valid_float(time_units);
+  check_valid_float(time_units, 0);
   density_units = mass_units / (length_units * length_units * length_units);
-  check_valid_float(density_units);
+  check_valid_float(density_units, 0);
   internal_energy_units = velocity_units * velocity_units;
-  check_valid_float(internal_energy_units);
+  check_valid_float(internal_energy_units, 0);
   energy_units = mass_units * internal_energy_units;
-  check_valid_float(energy_units);
+  check_valid_float(energy_units, 0);
 
   /* Clean up */
   free(photon_groups_read);
@@ -255,13 +264,13 @@ void read_ic_params(struct swift_params *params) {
   /* Convert quantities from IC internal units to SWIFT internal units */
   message("Converting IC units to SWIFT run units");
   particle_mass = particle_mass_ic * mass_units_ic / mass_units;
-  check_valid_float(particle_mass);
+  check_valid_float(particle_mass, 1);
 
   density_average = av_density_ic * density_units_ic / density_units;
-  check_valid_float(density_average);
+  check_valid_float(density_average, 0);
 
   boxsize = boxsize_ic * length_units_ic / length_units;
-  check_valid_float(boxsize);
+  check_valid_float(boxsize, 0);
   if (boxsize == 0.)
     error("Got 0. boxsize?");
 
@@ -269,13 +278,13 @@ void read_ic_params(struct swift_params *params) {
     /* If density = 0 in parameter file, make an estimate yourself. */
     const float totmass = npart * particle_mass;
     density_average = totmass / (boxsize * boxsize * boxsize);
-    check_valid_float(density_average);
+    check_valid_float(density_average, 1);
 
     density_min = 1e-3 * density_average;
-    check_valid_float(density_min);
+    check_valid_float(density_min, 1);
 
     density_max = 1e3 * density_average;
-    check_valid_float(density_max);
+    check_valid_float(density_max, 1);
   } else {
     const float min_density_ic =
         parser_get_param_float(params, "ParticleData:minDensity");
@@ -288,21 +297,24 @@ void read_ic_params(struct swift_params *params) {
       error("density max < average? %.6e %.6e", min_density_ic, av_density_ic);
 
     density_min = min_density_ic * density_units_ic / density_units;
-    check_valid_float(density_min);
+    check_valid_float(density_min, 1);
 
     density_max = max_density_ic * density_units_ic / density_units;
-    check_valid_float(density_max);
+    check_valid_float(density_max, 1);
   }
+  /* before, density average was allowed to be zero. Now check for 
+   * grackle limits too. */
+  check_valid_float(density_average, 1);
 
   const float sml_ic =
       parser_get_param_float(params, "ParticleData:smoothingLength");
   if (sml_ic == 0.) {
     /* Try and estimate yourself */
     smoothing_length = 0.75 * boxsize / pow(npart, 0.3333333);
-    check_valid_float(smoothing_length);
+    check_valid_float(smoothing_length, 1);
   } else {
     smoothing_length = sml_ic * length_units_ic / length_units;
-    check_valid_float(smoothing_length);
+    check_valid_float(smoothing_length, 1);
   }
 }
 
@@ -361,40 +373,40 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
   const float internal_energy_cgs =
       const_kboltz * T / (gamma_minus_one * mu * const_mh);
   const float internal_energy = internal_energy_cgs / internal_energy_units;
-  check_valid_float((double)internal_energy);
+  check_valid_float((double)internal_energy, 1);
 
   /* Get and check other quantities from internal energy */
   const float pressure = gamma_minus_one * internal_energy * density;
-  check_valid_float((double)pressure);
+  check_valid_float((double)pressure, 1);
 
   const float entropy = pressure * pow(density, -gamma);
-  check_valid_float((double)entropy);
+  check_valid_float((double)entropy, 1);
 
   const float soundspeed = sqrtf(internal_energy * gamma * gamma_minus_one);
-  check_valid_float((double)soundspeed);
+  check_valid_float((double)soundspeed, 1);
 
   /* Get and check quantities using entropy now */
   const float internal_energy_from_entropy =
       entropy * powf(density, gamma_minus_one) / gamma_minus_one;
-  check_valid_float((double)internal_energy_from_entropy);
+  check_valid_float((double)internal_energy_from_entropy, 1);
 
   const float pressure_from_entropy = entropy * powf(density, gamma);
-  check_valid_float((double)pressure_from_entropy);
+  check_valid_float((double)pressure_from_entropy, 1);
 
   const float entropy_from_internal_energy =
       gamma_minus_one * internal_energy * powf(density, -gamma_minus_one);
-  check_valid_float(entropy_from_internal_energy);
+  check_valid_float(entropy_from_internal_energy, 1);
 
   const float soundspeed_from_entropy =
       sqrtf(gamma * powf(density, gamma_minus_one) * entropy);
-  check_valid_float(soundspeed_from_entropy);
+  check_valid_float(soundspeed_from_entropy, 1);
 
   const float internal_energy_from_pressure =
       (pressure_from_entropy / density) / gamma_minus_one;
-  check_valid_float((double)internal_energy_from_pressure);
+  check_valid_float((double)internal_energy_from_pressure, 1);
 
   const float soundspeed_from_pressure = sqrtf(gamma * pressure / density);
-  check_valid_float((double)soundspeed_from_pressure);
+  check_valid_float((double)soundspeed_from_pressure, 1);
 
   /* Compare obtained values */
   check_floats_equal(pressure, pressure_from_entropy);
@@ -408,11 +420,11 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
    * as an estimate for fluid velocity */
 
   const double momentum = particle_mass * soundspeed;
-  check_valid_float(momentum);
+  check_valid_float(momentum, 1);
 
   const double total_energy =
       particle_mass * (internal_energy + 0.5 * soundspeed * soundspeed);
-  check_valid_float(total_energy);
+  check_valid_float(total_energy, 1);
 
   if (verbose) {
     message("rho=%.3e u=%.3e P=%.3e A=%.3e cs=%.3e | mass=%.3e momentum=%.3e "
@@ -529,13 +541,13 @@ int main(void) {
     message("density_min too close to average. Resizing %.3e -> %.3e",
             density_min, 0.8 * density_average);
     density_min = 0.8 * density_average;
-    check_valid_float(density_min);
+    check_valid_float(density_min, 1);
   }
   if (fabs(density_max / density_average - 1.) < 0.05) {
     message("density_max too close to average. Resizing %.3e -> %.3e",
             density_max, 1.2 * density_average);
     density_max = 1.2 * density_average;
-    check_valid_float(density_max);
+    check_valid_float(density_max, 1);
   }
 
   float dens_arr[3] = {density_average, density_min, density_max};
