@@ -79,7 +79,7 @@ void get_interaction_rates(double radiation_energy_density[RT_NGROUPS],
       const double n_spec = species_number_densities[spec];
 
       heating_rate_group += (cse * Emean - E_ion[spec] * csn) * n_spec;
-      ionization_rates_by_species[spec] += csn * n_spec * Nic;
+      ionization_rates_by_species[spec] += csn * Nic;
     }
 
     /* rates[0] += heating_rate_group * Eic / nHI; */
@@ -91,6 +91,8 @@ void get_interaction_rates(double radiation_energy_density[RT_NGROUPS],
     /* Grackle wants them in 1/internal_time_units */
     ionization_rates_by_species[spec] /= (1. / time_units);
   }
+  /* Grackle wants heating rate in units of / nHI_cgs */
+  rates[0] /= species_number_densities[0];
 
   /* We're done. Write the results in correct place */
   rates[1] = ionization_rates_by_species[0];
