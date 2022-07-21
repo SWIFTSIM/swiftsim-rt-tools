@@ -7,4 +7,7 @@ Iliev0part2
 Iliev0part3
     Single-zone ionizing up and cooling and recombining
 
-
+instructions
+    contains instructions on how to modify the code to be able to achieve
+    certain behaviours. E.g. disable particle heating, hydrodynamics interactions,
+    set a fixed radiation field that switches off, etc.
