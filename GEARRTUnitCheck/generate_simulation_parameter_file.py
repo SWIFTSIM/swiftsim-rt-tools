@@ -88,10 +88,6 @@ smoothing_length = np.sum(sml) / npart
 min_sml = np.min(sml)
 max_sml = np.max(sml)
 
-print("Density: min={0:.3e} max={1:.3e} av={2:.3e}".format(min_density, max_density, average_density))
-print("Smoothing length: min={0:.3e} max={1:.3e} av={2:.3e}".format(min_sml, max_sml, smoothing_length))
-
-
 # dump yaml file
 with open("simulation_parameters.yml", "w") as file:
 
