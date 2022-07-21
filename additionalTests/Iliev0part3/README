@@ -22,84 +22,13 @@ Details:
     Bin   2:  1.316e+16 -  5.879e+17 [Hz]  Luminosity/cm^2 = 6.152e+00 [erg/s/cm^2]
 
   B) For only one photoionizing group:
-    (Not recommended, as you need special treatment. The flux rate given in the paper is in
-    ionizing photons following a spectrum. Only one group will start at frequency 0, so you'll
-    have to adapt for that.)
 
     Bin   0:  3.288e+15 -  5.879e+17 [Hz]  Luminosity =    4.744e+01 [erg/s]    1.240e-32 [L_Sol]
 
 
-Notes
--------
 
--   To achieve constant density for GEAR-RT with Gizmo, you need to modify the
-    code internally as follows:
+You can find instructions on how to fix the density field for GEAR-RT in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_turn_off_hydrodynamics_evolution.md
 
-    1)  Keep particles static. You can either declare all particles in the
-        simulation boundary particles at compile time, or you can activate the
-        `#GIZMO_FIXED_PARTICLES` macro in `src/const.h`
-
-    2)  Disable all particle interactions. E.g. add 
-
-        ```
-          dt_therm = 0.f;
-          dt_grav = 0.f;
-          dt_kick_corr = 0.f;
-        ```
-
-        at the top of `src/hydro/Gizmo/hydro.h:hydro_kick_extra()` function.
-
-    3)  To fix the radiation fields, add a "const double time" parameter to
-        rt_do_thermochemistry(). This function is particularly good because it
-        already has all the units etc passed as parameters, and is the last
-        step right before we use the radiation fields. You get the time in internal
-        units via e->time, or in case of sub-cycling (discouraged) 
-        e->ti_current_subcycle * e->time_base, which is available when the 
-        thermochemistry task is called.
-
-        Then add the following lines to rt_do_thermochemistry() at the top:
-
-        ```
-          /* Set radiation fields. */
-          const double time_to_cgs = units_cgs_conversion_factor(us, UNIT_CONV_TIME);
-          const double t_Myr = time * time_to_cgs / (3600. * 24. * 365. * 1e6);
-
-          /* Make sure it's working */
-          if (p->id == 1 && t_Myr < 0.5) message("part 1 found t < 0.5Myr");
-
-          if (t_Myr < 0.5) {
-            /* Fixed radiation fields */
-            if (RT_NGROUPS == 4){
-              const double flux_to_cgs = 
-                  units_cgs_conversion_factor(us, UNIT_CONV_PHOTON_FLUX_PER_UNIT_SURFACE);
-              double fixed_fluxes[RT_NGROUPS];
-              fixed_fluxes[0] = 0.;
-              fixed_fluxes[1] = 1.350e01 / flux_to_cgs;
-              fixed_fluxes[2] = 2.779e01 / flux_to_cgs;
-              fixed_fluxes[3] = 6.152e00 / flux_to_cgs;
-
-              for (int g = 0; g < RT_NGROUPS; g++){
-                double fixed_energy_density = fixed_fluxes[g] * 
-                    rt_params.reduced_speed_of_light_inverse;
-                p->rt_data.radiation[g].energy_density = fixed_energy_density;
-                double flux_factor = 3 * 1.7320508; /* 3 * sqrt(3) : |F| = sqrt(3) F_x = cE/3  */
-                p->rt_data.radiation[g].flux[0] = flux_factor * fixed_fluxes[g];
-                p->rt_data.radiation[g].flux[1] = flux_factor * fixed_fluxes[g];
-                p->rt_data.radiation[g].flux[2] = flux_factor * fixed_fluxes[g];
-              }
-            } else {
-              error("This fixup isn't intended for !=4 RT groups");
-            }
-
-          } else {
-            /* Zero radiation fields */
-            for (int g = 0; g < RT_NGROUPS; g++){
-              p->rt_data.radiation[g].energy_density = 0.;
-              p->rt_data.radiation[g].flux[0] = 0.;
-              p->rt_data.radiation[g].flux[1] = 0.;
-              p->rt_data.radiation[g].flux[2] = 0.;
-            }
-          }
-
-        ```
-
+You can find instructions on how to fix the radiation field for GEAR-RT in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_fix_radiation_fields.md
