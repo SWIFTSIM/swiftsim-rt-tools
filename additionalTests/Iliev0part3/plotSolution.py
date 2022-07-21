@@ -36,6 +36,8 @@ plotkwargs = {"alpha": 0.5}
 legendprops = {"size": 8}
 # snapshot basenames
 snapshot_base = "output"
+# skip the zeroth snapshot?
+skip_zeroth_snapshot = False
 
 
 # -----------------------------------------------------------------------
@@ -43,6 +45,7 @@ snapshot_base = "output"
 energy_units = unyt.Msun * unyt.kpc ** 2 / unyt.kyr ** 2
 flux_units = unyt.erg / (unyt.cm**2 * unyt.s)
 mass_units = unyt.Msun
+time_units = unyt.yr
 
 
 def mean_molecular_weight(XH0, XHp, XHe0, XHep, XHepp):
@@ -97,7 +100,7 @@ def get_snapshot_list(snapshot_basename="output"):
     dirlist = os.listdir()
     for f in dirlist:
         if f.startswith(snapshot_basename) and f.endswith("hdf5"):
-            if f == snapshot_base + "_0000.hdf5":
+            if skip_zeroth_snapshot and f == snapshot_base + "_0000.hdf5":
                 # skip snapshot zero.
                 print("skipping", f)
                 continue
@@ -184,7 +187,7 @@ def get_snapshot_data(snaplist):
     firstdata = swiftsimio.load(snaplist[0])
     ngroups = int(firstdata.metadata.subgrid_scheme["PhotonGroupNumber"])
 
-    times = np.zeros(nsnaps) * mass_units
+    times = np.zeros(nsnaps) * time_units
     temperatures = np.zeros(nsnaps) * unyt.K
     volumes = np.zeros(nsnaps) * unyt.kpc**3
     mean_molecular_weights = np.zeros(nsnaps)
@@ -209,7 +212,7 @@ def get_snapshot_data(snaplist):
         um = u.to(energy_units / mass_units) * masses
         um.to(energy_units)
 
-        times[i] = time.to("Myr")
+        times[i] = time.to(time_units)
         temperatures[i] = np.mean(T)
         mean_molecular_weights[i] = np.mean(mu)
         internal_energies[i] = np.mean(um)
@@ -240,6 +243,52 @@ def get_snapshot_data(snaplist):
     )
 
 
+def get_reference():
+    """
+    Read in the temperatures from the reference file
+    """
+
+    resultfile = "reference.dat"
+
+    # Read in units.
+    #  f = open(resultfile, "r")
+    #  firstline = f.readline()
+    #  massline = f.readline()
+    #  lengthline = f.readline()
+    #  velline = f.readline()
+    #  f.close()
+    #  units = []
+    #  for l in [massline, lengthline, velline]:
+    #      before, after = l.split("used:")
+    #      val, unit = after.split("[")
+    #      val = val.strip()
+    #      units.append(float(val))
+
+    #  mass_units = units[0]
+    #  length_units = units[1]
+    #  velocity_units = units[2]
+    #  time_units = velocity_units / length_units
+    #  density_units = mass_units / length_units ** 3
+
+    # Read in all other data 
+    data = np.loadtxt(resultfile)
+
+    Time = data[:, 1]
+    #  Time_Myr = Time * 1e-6
+    #  dt = data[:, 2]
+    Temperature = data[:, 3]
+    #  mu = data[:, 4]
+    #  tot_density = data[:, 5]  # mass density
+    #  HI_density = data[:, 6]
+    #  HII_density = data[:, 7]
+    #  HeI_density = data[:, 8]
+    #  HeII_density = data[:, 9]
+    #  HeIII_density = data[:, 10]
+    #  e_density = data[:, 11]  # number density
+
+    return Time, Temperature
+
+
 if __name__ == "__main__":
 
     # ------------------
@@ -250,20 +299,22 @@ if __name__ == "__main__":
     t, T, mu, mass_fraction, u, photon_energies, volumes, c_reduced = get_snapshot_data(snaplist)
     ngroups = photon_energies.shape[0]
 
+    t_ref, T_ref = get_reference()
+
     fig = plt.figure(figsize=(8, 8), dpi=300)
     ax1 = fig.add_subplot(2, 2, 1)
     ax2 = fig.add_subplot(2, 2, 2)
     ax3 = fig.add_subplot(2, 2, 3)
     ax4 = fig.add_subplot(2, 2, 4)
 
-    ax1.loglog(t, T, label="obtained results")
-    ax1.set_xlabel("time [Myr]")
+    ax1.loglog(t, T, label="SWIFT results")
+    ax1.loglog(t_ref, T_ref, label="grackle reference", linestyle="--")
     ax1.set_ylabel("gas temperature [K]")
     ax1.legend(prop=legendprops)
     ax1.grid()
+    ax1.set_xlim(0.9*t.min(), 1.01*t.max())
 
     ax2.plot(t, mu, label="obtained results")
-    ax2.set_xlabel("time [Myr]")
     ax2.set_ylabel("mean molecular weight")
     ax2.legend(prop=legendprops)
     ax2.grid()
@@ -277,7 +328,6 @@ if __name__ == "__main__":
     ax3.loglog(t, mass_fraction[:, 3], label="HeII", ls="-.", **plotkwargs, zorder=1)
     ax3.loglog(t, mass_fraction[:, 4], label="HeIII", ls="--", **plotkwargs, zorder=1)
     ax3.legend(loc="upper right", prop=legendprops)
-    ax3.set_xlabel("time [Myr]")
     ax3.set_ylabel("gas mass fractions [1]")
     ax3.grid()
 
@@ -308,14 +358,14 @@ if __name__ == "__main__":
             label=f"radiation flux group {g+1}",
             **plotkwargs,
         )
-    ax4.set_xlabel("time [Myr]")
     ax4.set_ylabel(
         r"total radiation flux $E \times \tilde{c}$ [$"+Ec.units.latex_representation()+"$]", usetex = True
     )
     ax4.legend(prop=legendprops)
     ax4.grid()
 
-    #  for ax in fig.axes:
+    for ax in fig.axes:
+        ax.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
     #      ax.set_xlim(0.4, 5.6)
 
     plt.tight_layout()
