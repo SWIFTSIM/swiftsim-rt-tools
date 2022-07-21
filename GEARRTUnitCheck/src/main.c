@@ -23,6 +23,8 @@
 #include "constants.h"
 #include "grackle_cooling_test.h"
 #include "grackle_heating_test.h"
+#include "mean_molecular_weight.h"
+#include "ionization_equilibrium.h"
 #include "parser.h"
 
 /* Some global variables */
@@ -99,7 +101,7 @@ int warnings = 0;
       if (v < 1.e-20) {                                                        \
         fflush(stdout);                                                        \
         fprintf(stderr, "%s:%s:%d: " #v                                        \
-            " below grakcle TINY_NUMBER 1e-20: %.6e\n",                        \
+            " below grackle TINY_NUMBER 1e-20: %.6e\n",                        \
                 __FILE__, __FUNCTION__, __LINE__, v);                          \
         abort();                                                               \
       }                                                                        \
@@ -124,7 +126,7 @@ int warnings = 0;
 
 /*! Check that the value is a valid double.
  * Assume the argument given is positive and of type double. */
-#define check_valid_double(v)                                                  \
+#define check_valid_double(v, check_grackle_limits)                            \
   ({                                                                           \
     if (v < 0.) {                                                              \
       fflush(stdout);                                                          \
@@ -155,6 +157,15 @@ int warnings = 0;
       fprintf(stdout, "WARNING: %s:%s:%d: " #v " has large exponent: %.6e\n",  \
               __FILE__, __FUNCTION__, __LINE__, v);                            \
       warnings++;                                                              \
+    }                                                                          \
+    if (check_grackle_limits) {                                                \
+      if (v < 1.e-20) {                                                        \
+        fflush(stdout);                                                        \
+        fprintf(stderr, "%s:%s:%d: " #v                                        \
+            " below grackle TINY_NUMBER 1e-20: %.6e\n",                        \
+                __FILE__, __FUNCTION__, __LINE__, v);                          \
+        abort();                                                               \
+      }                                                                        \
     }                                                                          \
   })
 
@@ -356,14 +367,14 @@ void print_params() {
  *
  * @param density gas density to use
  * @param name name of the test case. NO SPACES.
- * @param float T temperature to deal with
+ * @param T temperature to deal with
  * @param verbose are we talkative?
  **/
 void check_gas_quantities(float density, char *name, float T, int verbose) {
 
   /* assume mean molecular weight of 1 for this test. While that isn't correct,
    * it should do the trick for the purpose of this test. */
-  message("Checking gas quantities for T=%.1f case=%s", T, name);
+  message("Checking gas quantities for T=%.1e case=%s", T, name);
 
   const float gamma = const_adiabatic_index;
   const float gamma_minus_one = gamma - 1.f;
@@ -432,15 +443,26 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
             density, internal_energy, pressure, entropy, soundspeed,
             particle_mass, momentum, total_energy);
   }
+}
 
-  /* Check that the number densities are well behaved.
-   * The assumption here is that we never use the number densities
-   * as floats. Assume pure hydrogen gas. */
 
-  const double n = density / (const_mh / mass_units);
-  check_valid_double(n);
+/**
+ * @brief attempt to check whether quantities used by
+ * grackle internally have valid values.
+ *
+ * @param density gas density to use
+ * @param name name of the test case. NO SPACES.
+ * @param T temperature to deal with
+ * @param verbose are we talkative?
+ **/
+void check_grackle_internals(float density, char *name, float T, int verbose) {
+
+  message("Checking grackle internals for T=%.1e case=%s", T, name);
+
+  /* Check that the total number density is within the valid limits for
+   * grackle to handle. */
   const double n_cgs = density * density_units / const_mh;
-  check_valid_double(n_cgs);
+  check_valid_double(n_cgs, 0);
   /* Make sure the number density is within the limit of what grackle can do */
   if (n_cgs < 1e-10)
     error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
@@ -451,38 +473,88 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
           "above upper limit of 1e16",
           name, density, n_cgs);
 
-  /* Check for heating rates divided by number density, which is a parameter 
-   * that grackle requires. Pretend we have hydrogen only gas, and only 1 
-   * radiation group.  Then try with "fully neutral" and "fully ionized" gas,
-   * where we assume that "fully ionized" is taken to mean that the number
-   * density of neutral hydrogen is multiplied by a factor of 1e-9. 
-   * The cross sections assume a blackbody spectrum of T = 1e5K.
-   * */
+  /* Prepare some grackle internals for later. See cool1d_multi_g.F
+   * in grackle's source files for reference. */
+  const double dom = density_units / const_mh;
+  check_valid_double(dom, 0);
+  const double tbase1 = time_units;
+  check_valid_double(tbase1, 0);
+  const double xbase1 = length_units;
+  check_valid_double(xbase1, 0);
+  const double dbase1 = density_units;
+  check_valid_double(dbase1, 0);
+  const double coolunit = xbase1 * xbase1 * const_mh * const_mh / (tbase1 * tbase1 * tbase1 * dbase1);
+  check_valid_double(coolunit, 0);
 
-  const double cse = 1.096971e-18;
-  const double csn = 1.630511e-18;
-  const double mean_photon_energy = 4.744e-11;
-  const double fixed_luminosity_cgs = 4.774e+01; /* erg/s/cm^2 */
-  const double E_ion = 2.179e-11; /* erg, ionization energy of hydrogen */
+  /* Test for different gas compositions. */
+  double hydrogen_mass_fractions[3] = {1., 0.75, 0.25};
+  /* Store heating rates for each composition. Grackle wants them in
+   * units of erg/s/cm^2 / nHI_cgs, so for each mass fraction of
+   * hydrogen, the heating rates that we provide to grackle should be
+   * identical. Check whether that is the case after the computation
+   * is done. */
+  double heating_rates[3] = {0., 0., 0.};
 
-  const double fixed_radiation_density_cgs = fixed_luminosity_cgs / const_speed_light_c;
-  const double Eic = fixed_radiation_density_cgs * const_speed_light_c;
-  const double Nic = Eic / mean_photon_energy;
+  for (int x = 0; x < 3; x++) {
+    /* Get and check that the number densities are well behaved.
+     * The assumption here is that we never use the number densities
+     * as floats. Assume pure hydrogen gas. */
 
-  double ionization_factor[2] = {1., 1.e-9};
-  double heating_rates[2] = {0., 0.};
+    double X = hydrogen_mass_fractions[x];
+    double nH = X * density / (const_mh / mass_units);
+    check_valid_double(nH, 1);
 
-  for (int i = 0; i < 2; i++) {
-    const double f = ionization_factor[i];
-    const double HI_heating_rate = (cse * mean_photon_energy - E_ion * csn) * Nic * (n_cgs * f);
-    const double HI_ionization_rate = csn * (n_cgs * f) * Nic;
+    double nH0 = 0.;
+    double nHp = 0.;
+    double nHe0 = 0.;
+    double nHep = 0.;
+    double nHepp = 0.;
+    double ne = 0.;
 
-    check_valid_double(HI_heating_rate);
-    check_valid_double(HI_ionization_rate);
+    ionization_equilibrium_calculate_densities(T, nH, X, &nH0, &nHp, &nHe0, &nHep, &nHepp, &ne);
+    check_valid_double(nH0, 1);
+    check_valid_double(nHp, 1);
+    check_valid_double(nHe0, 1);
+    check_valid_double(nHep, 1);
+    check_valid_double(nHepp, 1);
+    check_valid_double(ne, 1);
+
+    /* Check for heating rates divided by number density, which is a parameter 
+     * that grackle requires. Check hydrogen only, and only 1 radiation group.  
+     * Then try with "fully neutral" and "fully ionized" gas,
+     * where we assume that "fully ionized" is taken to mean that the number
+     * density of neutral hydrogen is multiplied by a factor of 1e-9. 
+     * The cross sections assume a blackbody spectrum of T = 1e5K. */
+
+    const double cse = 1.096971e-18;
+    const double csn = 1.630511e-18;
+    const double mean_photon_energy = 4.744e-11;
+    const double fixed_luminosity_cgs = 4.774e+01; /* erg/s/cm^2 */
+    const double E_ion = 2.179e-11; /* erg, ionization energy of hydrogen */
+
+    const double Ei = fixed_luminosity_cgs / const_speed_light_c;
+    const double Eic = Ei * const_speed_light_c;
+    const double Nic = Eic / mean_photon_energy;
+
+    check_valid_double(Eic, 1);
+    check_valid_double(Nic, 1);
+
+    const double number_density_units = density_units / const_mh;
+    check_valid_double(number_density_units, 0);
+    const double nHI_cgs = nH0 * number_density_units;
+    check_valid_double(nHI_cgs, 1);
+
+    const double HI_heating_rate = (cse * mean_photon_energy - E_ion * csn) * Nic * nHI_cgs;
+    check_valid_double(HI_heating_rate, 0);
+    const double HI_ionization_rate = csn * Nic;
+    check_valid_double(HI_ionization_rate, 0);
+
     /* heating rate is expected to be in erg/s/cm^3 / nHI*/
-    const double HI_heating_rate_for_grackle = HI_heating_rate / (n * f);
+    const double HI_heating_rate_for_grackle = HI_heating_rate / nHI_cgs;
+    check_valid_double(HI_heating_rate_for_grackle, 1);
     /* ion. rate is expected to be in 1/time_units, so divide by (1/time_units) */
     const double HI_ionization_rate_for_grackle = HI_ionization_rate * time_units;
+    check_valid_double(HI_ionization_rate_for_grackle, 1);
 
     if (verbose) {
       message("Heating rate: %.4e Ionization rate: %.4e", 
@@ -490,12 +562,21 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
       message("Heating rate GR: %.4e Ionization rate GR: %.4e", 
           HI_heating_rate_for_grackle, HI_ionization_rate_for_grackle);
     }
+    heating_rates[x] = HI_heating_rate_for_grackle;
 
-    check_valid_double(HI_heating_rate_for_grackle);
-    check_valid_double(HI_ionization_rate_for_grackle);
-    heating_rates[i] = HI_heating_rate_for_grackle;
+    /* Now check that the actual computation within grackle doesn't exceed limits */
+    /* using volumetric heating rate */
+    double edot_volumetric = HI_heating_rate / coolunit / (dom * dom);
+    check_valid_double(edot_volumetric, 1);
+    double HI = nHI_cgs * const_mh / density_units;
+    check_valid_double(HI, 1);
+    double edot_RT_heating = HI_heating_rate_for_grackle / coolunit * HI / dom;
+    check_valid_double(edot_RT_heating, 1);
+    if (verbose) message("Edot volumetric: %.6e RT: %.6e", edot_volumetric, edot_RT_heating);
   }
+
   check_doubles_equal(heating_rates[0], heating_rates[1]);
+  check_doubles_equal(heating_rates[1], heating_rates[2]);
 }
 
 int main(void) {
@@ -552,19 +633,18 @@ int main(void) {
 
   float dens_arr[3] = {density_average, density_min, density_max};
   char *dens_names[3] = {"density_average", "density_min", "density_max"};
+  float T_test[7] = {10., 100., 1000., 1.e4, 1.e5, 1.e6, 1.e7};
 
   /* Run Gas Quantities Checks */
   /* ------------------------- */
   for (int d = 0; d < 3; d++) {
     float rho = dens_arr[d];
     char *name = dens_names[d];
-    check_gas_quantities(rho, name, /*T=*/10., verbose);
-    check_gas_quantities(rho, name, /*T=*/100., verbose);
-    check_gas_quantities(rho, name, /*T=*/1000., verbose);
-    check_gas_quantities(rho, name, /*T=*/10000., verbose);
-    check_gas_quantities(rho, name, /*T=*/100000., verbose);
-    check_gas_quantities(rho, name, /*T=*/1000000., verbose);
-    check_gas_quantities(rho, name, /*T=*/10000000., verbose);
+    for (int t = 0; t < 7; t++){
+      float T = T_test[t];
+      check_gas_quantities(rho, name, T, verbose);
+      check_grackle_internals(rho, name, T, verbose);
+    }
   }
 
   /* Run Grackle cooling test */
