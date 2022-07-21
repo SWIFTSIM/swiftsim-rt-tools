@@ -18,13 +18,6 @@
 #
 ##############################################################################
 
-# -----------------------------------------------------------
-# Use 20 particles in to generate a uniform box with
-# high temperatures.
-# The goal is to reproduce Figure 3 in Smith e al. 2017
-# (ui.adsabs.harvard.edu/abs/2017MNRAS.466.2217S)
-# -----------------------------------------------------------
-
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
 
@@ -32,9 +25,20 @@ import unyt
 import numpy as np
 import h5py
 
+us = cosmo_units
+
+mass_units = us["mass"]
+time_units = us["time"]
+length_units = us["length"]
+temperature_units = us["temperature"]
+velocity_units = length_units / time_units
+energy_units = mass_units * velocity_units**2
+internal_energy_units = velocity_units**2
+
+tiny_number = 1e-20
 
 # number of particles in each dimension
-n_p = 20
+n_p = 10
 nparts = n_p ** 3
 # filename of ICs to be generated
 outputfilename = "ilievTest0part3.hdf5"
@@ -43,14 +47,15 @@ gamma = 5.0 / 3.0
 # total hydrogen mass fraction
 XH = 1.0
 # total helium mass fraction
-XHe = 1e-12
+XHe = tiny_number
 # boxsize
-boxsize = 10 * unyt.kpc
+boxsize = (1. * unyt.kpc).to(length_units)
 # initial gas temperature
-initial_temperature = 1e2 * unyt.K
+initial_temperature = 1e2 * temperature_units
 # particle mass
-# take 0.1 amu/cm^3
-pmass = (1. * unyt.atomic_mass_unit / unyt.cm ** 3) * (boxsize ** 3 / nparts)
+# take 1 amu/cm^3
+pmass = (1. * unyt.atomic_mass_unit.to("g") / unyt.cm ** 3) * (boxsize ** 3 / nparts)
+pmass = pmass.to(mass_units)
 
 # -----------------------------------------------
 
@@ -96,12 +101,12 @@ def mean_molecular_weight(XH0, XHp, XHe0, XHep, XHepp):
 
 # assume everything is neutral initially
 mu = mean_molecular_weight(XH, 0, XHe, 0.0, 0.0)
-u_part = internal_energy(initial_temperature, mu)
-pmass = pmass.to("Msun")
+u_part = internal_energy(initial_temperature, mu).to(internal_energy_units)
+pmass = pmass.to(mass_units)
 
 
-xp = unyt.unyt_array(np.zeros((nparts, 3), dtype=np.float32), boxsize.units)
-dx = boxsize / n_p
+xp = unyt.unyt_array(np.zeros((nparts, 3), dtype=np.float32), length_units)
+dx = boxsize.to(length_units) / n_p
 ind = 0
 for i in range(n_p):
     x = (i + 0.5) * dx
@@ -110,13 +115,14 @@ for i in range(n_p):
         for k in range(n_p):
             z = (k + 0.5) * dx
 
-            xp[ind] = (x, y, z)
+            xp[ind] = unyt.unyt_array((x, y, z)).to(length_units)
             ind += 1
 
-w = Writer(cosmo_units, boxsize, dimension=3)
+#  w = Writer(unyt.unit_systems.cgs_unit_system, boxsize, dimension=3)
+w = Writer(us, boxsize, dimension=3)
 
 w.gas.coordinates = xp
-w.gas.velocities = np.zeros(xp.shape, dtype=np.float32) * (unyt.km / unyt.s)
+w.gas.velocities = np.zeros(xp.shape, dtype=np.float32) * (unyt.cm / unyt.s)
 w.gas.masses = np.ones(nparts, dtype=np.float32) * pmass
 w.gas.internal_energy = np.ones(nparts, dtype=np.float32) * u_part
 
@@ -126,7 +132,6 @@ w.gas.generate_smoothing_lengths(boxsize=boxsize, dimension=3)
 # If IDs are not present, this automatically generates
 w.write(outputfilename)
 
-
 # Now open file back up again and add RT data.
 F = h5py.File(outputfilename, "r+")
 header = F["Header"]
@@ -134,13 +139,11 @@ parts = F["/PartType0"]
 
 # Create initial ionization species mass fractions.
 # Assume everything is ionized initially
-# NOTE: grackle doesn't really like exact zeroes, so
-# use something very small instead.
 HIdata = np.ones((nparts), dtype=np.float32) * XH
-HIIdata = np.ones((nparts), dtype=np.float32) * 1e-12
-HeIdata = np.ones((nparts), dtype=np.float32) * XHe
-HeIIdata = np.ones((nparts), dtype=np.float32) * 1e-12
-HeIIIdata = np.ones((nparts), dtype=np.float32) * 1e-12
+HIIdata = np.ones((nparts), dtype=np.float32) * tiny_number
+HeIdata = np.ones((nparts), dtype=np.float32)
+HeIIdata = np.ones((nparts), dtype=np.float32)
+HeIIIdata = np.ones((nparts), dtype=np.float32)
 
 parts.create_dataset("MassFractionHI", data=HIdata)
 parts.create_dataset("MassFractionHII", data=HIIdata)

@@ -19,6 +19,5 @@ fi
     --stars \
     --feedback \
 ./ilievTest0part3.yml 2>&1 | tee output.log
-    # --steps=10 \
 
 python3 plotSolution.py
