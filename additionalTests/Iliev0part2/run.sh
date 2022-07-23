@@ -16,7 +16,7 @@ if [ ! -f 'ilievTest0part2.hdf5' ]; then
 fi
 
 # Run SWIFT with RT
-../../swiftsim/examples/swift \
+../../../swiftsim/swift \
     --hydro --threads=4 --stars --external-gravity \
     --feedback --radiation \
     ilievTest0part2.yml 2>&1 | tee output.log

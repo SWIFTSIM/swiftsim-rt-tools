@@ -121,9 +121,6 @@ def plot_solution(filename):
     ax2.set_xlim(0., 1.)
     #  ax2.legend()
 
-    title = r"$t = ${0:.1f}".format(meta.time.to("Myr"))
-    fig.suptitle(title)
-
     #  plt.xlim([0, boxsize[0] / 2.0])
     plt.tight_layout()
     figname = filename[:-5]
