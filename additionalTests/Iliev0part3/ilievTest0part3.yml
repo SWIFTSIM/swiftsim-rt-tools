@@ -5,10 +5,9 @@ MetaData:
 InternalUnitSystem:
   UnitMass_in_cgs:     1.98848e18     # 1e-15 M_sun in grams
   UnitLength_in_cgs:   3.08567758e+15 # 1 pc in cm
-  UnitVelocity_in_cgs: 1.e5
-  UnitCurrent_in_cgs:  1            
-  UnitTemp_in_cgs:     1           
-
+  UnitVelocity_in_cgs: 1.e5           # 1 km/s in cm/s
+  UnitCurrent_in_cgs:  1              # Amperes
+  UnitTemp_in_cgs:     1              # Kelvin
 
 # Parameters governing the time integration
 TimeIntegration:
@@ -32,13 +31,13 @@ Statistics:
 # Parameters for the hydrodynamics scheme
 SPH:
   resolution_eta:        1.2348   # Target smoothing length in units of the mean inter-particle separation (1.2348 == 48Ngbs with the cubic spline kernel).
-  CFL_condition:         1e8      # We can only afford to use this stupidity here because in this test, all hydrodynamics is turned off.
+  CFL_condition:         1.e8     # We can only afford to use this stupidity here because in this test, all hydrodynamics is supposed to be turned off.
   minimal_temperature:   10.      # Kelvin
 
 # Parameters related to the initial conditions
 InitialConditions:
   file_name:  ./ilievTest0part3.hdf5  # The file to read
-  periodic:   1                    # periodic ICs
+  periodic:   1                       # periodic ICs
 
 GEARRT:
     f_reduce_c: 1.                  # keep c correct as to not influence thermochemistry rates unnecessarily. 
