@@ -42,19 +42,23 @@ output_cooling[-1] = t_end
 
 # If you're rebuilding this output times list:
 # I read this 'dt' out from a run, then used it to generate the output list
-dt_heat = 1.715414e-01
+dt_heat = 8.577071e-02
 
 current_t = 0.
 outputtimes = []
 # first 20 snapshots
 for i in range(20):
-    current_t += 2 * dt_heat
+    current_t += dt_heat
     outputtimes.append(current_t)
-# second 20 snapshots
+for i in range(20):
+    current_t += 2*dt_heat
+    outputtimes.append(current_t)
+for i in range(20):
+    current_t += 4 * dt_heat
+    outputtimes.append(current_t)
 for i in range(20):
     current_t += 8 * dt_heat
     outputtimes.append(current_t)
-# third 20 snapshots
 for i in range(20):
     current_t += 32 * dt_heat
     outputtimes.append(current_t)

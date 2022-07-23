@@ -10,7 +10,7 @@ if [ ! -f ./ilievTest0part3.hdf5 ]; then
 fi
 
 # Run SWIFT with RT
-../../../swiftsim/examples/swift \
+../../../swiftsim/swift \
     --hydro \
     --threads=4 \
     --verbose=0  \

@@ -141,9 +141,9 @@ parts = F["/PartType0"]
 # Assume everything is ionized initially
 HIdata = np.ones((nparts), dtype=np.float32) * XH
 HIIdata = np.ones((nparts), dtype=np.float32) * tiny_number
-HeIdata = np.ones((nparts), dtype=np.float32)
-HeIIdata = np.ones((nparts), dtype=np.float32)
-HeIIIdata = np.ones((nparts), dtype=np.float32)
+HeIdata = np.zero((nparts), dtype=np.float32)
+HeIIdata = np.zero((nparts), dtype=np.float32)
+HeIIIdata = np.zero((nparts), dtype=np.float32)
 
 parts.create_dataset("MassFractionHI", data=HIdata)
 parts.create_dataset("MassFractionHII", data=HIIdata)
