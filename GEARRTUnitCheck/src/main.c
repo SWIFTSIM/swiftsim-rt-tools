@@ -591,8 +591,7 @@ int main(void) {
   /* ----------------------------------------- */
 
   /* TODO: make this a cmdline arg? */
-  /* char *swift_param_filename = "swift_parameters.yml"; */
-  char *swift_param_filename = "ilievTest0part3.yml";
+  char *swift_param_filename = "swift_parameters.yml";
   char *sim_param_filename = "simulation_parameters.yml";
 
   /* Print a lot of information to the screen? */

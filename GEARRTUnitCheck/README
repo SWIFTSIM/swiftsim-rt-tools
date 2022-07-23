@@ -1,7 +1,6 @@
 GEAR-RT Units Check
 =====================
 
-
 Run a couple of tests to verify whether your choice of units for a simulation 
 might be incompatible with the precision limits for the internal thermochemistry 
 computations.
@@ -61,4 +60,13 @@ Results
     characteristics (heating, cooling...) they were set up for. You will most
     likely see strong differences when comparing the results for the average,
     minimal, and maximal density estimate.
+
+-   The test should complete in a matter of seconds. (You can try to establish
+    a reference for how fast it should go on your local machine by making a
+    direct comparison with the setup for the additional test in 
+    swiftsim-rt-tools/additionalTests/Iliev0part3. That finishes in less than
+    a second on an intel skylake i7.) If it takes too long, it might indicate 
+    that your choice of units is leading to grackle having trouble reaching a 
+    convergent solution. Try changing your units and see whether that can make 
+    the test finish in seconds.
 

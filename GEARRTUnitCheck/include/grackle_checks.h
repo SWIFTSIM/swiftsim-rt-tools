@@ -68,8 +68,8 @@ void grackle_checks_ion_sum(grackle_field_data *grackle_fields,
   double ion_number_sum = grackle_fields->HII_density[0] / mh +
                           grackle_fields->HeII_density[0] / (4. * mh) +
                           2. * grackle_fields->HeIII_density[0] / (4. * mh);
-  /* grackle_fields->H2II_density[0] / (2. * mh)  */
-  /* grackle_fields->DII_density[0] / (2. * mh); */
+  /* + grackle_fields->H2II_density[0] / (2. * mh)  */
+  /* + grackle_fields->DII_density[0] / (2. * mh); */
 
   /* e_density is the electron number density multiplied by proton mass */
   double ne = grackle_fields->e_density[0] / mh;
