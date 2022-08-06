@@ -28,8 +28,10 @@ class photoionization_cross_section:
         """
         # E_ion corresponds to [13.60, 24.59, 54.42] eV
         self.E_ion = [2.179e-11, 3.940e-11, 8.719e-11]  # erg
-        # E_zero corresponds to [0.4298, 0.1361, 1.720]  eV
-        self.E_zero = [6.886e-13, 2.181e-13, 2.756e-12]  # erg
+        # E_zero corresponds to [0.4298, 13.61, 1.720]  eV
+        # Note that the value given in table E1 of Rosdahl et al 2013
+        # of 0.1361 is wrong. It is 13.61 instead.
+        self.E_zero = [6.886e-13, 2.181e-11, 2.756e-12]  # erg
         self.sigma_zero = [5.475e-14, 9.492e-16, 1.369e-14]  # cm^-2
         self.P = [2.963, 3.188, 2.963]
         self.ya = [32.88, 1.469, 32.88]
