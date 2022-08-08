@@ -242,7 +242,10 @@ void read_swift_params(struct swift_params *params) {
   internal_energy_units = velocity_units * velocity_units;
   check_valid_float(internal_energy_units, 0);
   energy_units = mass_units * internal_energy_units;
-  check_valid_float(energy_units, 0);
+  /* It turns out that the energy units are commonly above float exponent
+   * limits, bu that's not an issue because the energy itself can be very
+   * high too. So in the end, it works out. */
+  /* check_valid_float(energy_units, 0); */
 
   /* Clean up */
   free(photon_groups_read);
@@ -528,7 +531,7 @@ void check_grackle_internals(float density, char *name, float T, int verbose) {
 
     const double cse = 1.096971e-18;
     const double csn = 1.630511e-18;
-    const double mean_photon_energy = 4.744e-11;
+    const double mean_photon_energy = 4.744e-11; /* erg */
     const double fixed_luminosity_cgs = 4.774e+01; /* erg/s/cm^2 */
     const double E_ion = 2.179e-11; /* erg, ionization energy of hydrogen */
 
@@ -666,7 +669,7 @@ int main(void) {
                              internal_energy_units, verbose);
   }
 
-  /* TODO: Luminosities check */
+  /* TODO: Luminosities check, radiation energy density check */
 
   /* Clean up after yourself */
   free(swift_params);
