@@ -38,7 +38,7 @@ velocity_units = units[2]
 time_units = velocity_units / length_units
 density_units = mass_units / length_units ** 3
 
-# Read in all other data 
+# Read in all other data
 data = np.loadtxt(resultfile)
 
 Time = data[:, 1]
@@ -65,7 +65,7 @@ nHeI = HeI_density * density_units / (4 * mh)
 nHeII = HeII_density * density_units / (4 * mh)
 # in part per cc
 nHeIII = HeIII_density * density_units / (4 * mh)
-# in part per cc. Grackle Convention: electron density is 
+# in part per cc. Grackle Convention: electron density is
 # electron number density multiplied by proton mass
 ne = e_density * density_units / mh
 # in part per cc

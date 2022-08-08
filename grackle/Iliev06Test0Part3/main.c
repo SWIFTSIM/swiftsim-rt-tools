@@ -93,10 +93,9 @@ int main() {
 #endif
   double radiation_energy_density_cgs[4] = {0., 0., 0., 0.};
   for (int g = 0; g < RT_NGROUPS; g++) {
-    radiation_energy_density_cgs[g] = 
+    radiation_energy_density_cgs[g] =
         fixed_luminosity_cgs[g] / const_speed_light_c;
   }
-
 
   /* Derived quantities from ICs */
   /* --------------------------- */
@@ -158,7 +157,7 @@ int main() {
   }
 
   get_cross_sections(T_blackbody, frequency_bins_Hz, cse, csn,
-      mean_photon_energies);
+                     mean_photon_energies);
 
   /* Grackle behaviour setup */
   /* ----------------------- */
@@ -254,7 +253,8 @@ int main() {
     if (t / const_yr * time_units < 0.5e6) {
       /* below 0.5 Myr, we heat. */
 
-      /* TODO: loop over all fields here too, or remove loop below. Stay consistent. */
+      /* TODO: loop over all fields here too, or remove loop below. Stay
+       * consistent. */
 
       /* I need densities in cgs. */
       gr_float ion_densities_cgs[6];
@@ -285,7 +285,7 @@ int main() {
     gr_float tchem_time;
     if (local_calculate_cooling_time(&grackle_chemistry_data, &grackle_rates,
                                      &grackle_units_data, &grackle_fields,
-                                     &tchem_time) == 0){
+                                     &tchem_time) == 0) {
 
       fprintf(stderr, "Error in calculate_cooling_time.");
       abort();

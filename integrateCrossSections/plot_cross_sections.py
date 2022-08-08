@@ -13,10 +13,10 @@ import cross_section_parametrization as cs_params
 h_planck = 6.62606957e-27  # cm**2*g/s
 
 # peak of 10^5K blackbody spectrum in Hz * 10 * h_planck
-E_max = 5.879e+15 * 10 * h_planck
+E_max = 5.879e15 * 10 * h_planck
 
 
-E = np.linspace(0., E_max, 10000)
+E = np.linspace(0.0, E_max, 10000)
 cs = cs_params.photoionization_cross_section()
 
 

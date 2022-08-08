@@ -2,7 +2,8 @@
 
 import swiftsimio
 import matplotlib as mpl
-mpl.use('Agg')
+
+mpl.use("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
 import sys
@@ -89,37 +90,60 @@ def plot_solution(filename):
     # get profiles
     # max r should be sqrt(3) * boxlen
     nbins = 100
-    r_bin_edges = np.linspace(0., 1.4, nbins + 1)
+    r_bin_edges = np.linspace(0.0, 1.4, nbins + 1)
     r_bin_centers = 0.5 * (r_bin_edges[:-1] + r_bin_edges[1:])
-    xHI_binned, _, _ = stats.binned_statistic(r, xHI, statistic="mean", bins=r_bin_edges, range=(0., 1.4))
-    xHII_binned, _, _ = stats.binned_statistic(r, xHII, statistic="mean", bins=r_bin_edges, range=(0., 1.4))
-    T_binned, _, _ = stats.binned_statistic(r, T, statistic="mean", bins=r_bin_edges, range=(0., 1.4))
+    xHI_binned, _, _ = stats.binned_statistic(
+        r, xHI, statistic="mean", bins=r_bin_edges, range=(0.0, 1.4)
+    )
+    xHII_binned, _, _ = stats.binned_statistic(
+        r, xHII, statistic="mean", bins=r_bin_edges, range=(0.0, 1.4)
+    )
+    T_binned, _, _ = stats.binned_statistic(
+        r, T, statistic="mean", bins=r_bin_edges, range=(0.0, 1.4)
+    )
 
     fig = plt.figure(figsize=(10, 5.5))
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
 
-    ax1.scatter(r, xHI, **scatterplot_kwargs, zorder = 0)
-    ax1.scatter(r, xHII, **scatterplot_kwargs, zorder = 0)
-    ax1.semilogy(r_bin_centers, xHI_binned, label=r"$x_{HI}$", zorder = 2)
-    ax1.semilogy(r_bin_centers, xHII_binned, label=r"$x_{HII}$", zorder = 2)
+    ax1.scatter(r, xHI, **scatterplot_kwargs, zorder=0)
+    ax1.scatter(r, xHII, **scatterplot_kwargs, zorder=0)
+    ax1.semilogy(r_bin_centers, xHI_binned, label=r"$x_{HI}$", zorder=2)
+    ax1.semilogy(r_bin_centers, xHII_binned, label=r"$x_{HII}$", zorder=2)
     # black background lines
-    ax1.semilogy(r_bin_centers, xHI_binned, c="k", linewidth = params["lines.linewidth"]*2., zorder=1)
-    ax1.semilogy(r_bin_centers, xHII_binned, c="k", linewidth = params["lines.linewidth"]*2., zorder=1)
+    ax1.semilogy(
+        r_bin_centers,
+        xHI_binned,
+        c="k",
+        linewidth=params["lines.linewidth"] * 2.0,
+        zorder=1,
+    )
+    ax1.semilogy(
+        r_bin_centers,
+        xHII_binned,
+        c="k",
+        linewidth=params["lines.linewidth"] * 2.0,
+        zorder=1,
+    )
 
-
-    ax2.scatter(r, T, **scatterplot_kwargs, zorder = 0)
-    ax2.semilogy(r_bin_centers, T_binned, label=r"gas temperature", zorder = 2)
-    ax2.semilogy(r_bin_centers, T_binned, c="k", linewidth = params["lines.linewidth"]*2., zorder=1)
+    ax2.scatter(r, T, **scatterplot_kwargs, zorder=0)
+    ax2.semilogy(r_bin_centers, T_binned, label=r"gas temperature", zorder=2)
+    ax2.semilogy(
+        r_bin_centers,
+        T_binned,
+        c="k",
+        linewidth=params["lines.linewidth"] * 2.0,
+        zorder=1,
+    )
 
     ax1.set_xlabel("r / (L / 2)")
     ax1.set_ylabel("Hydrogen Fractions")
-    ax1.set_xlim(0., 1.4)
+    ax1.set_xlim(0.0, 1.4)
     ax1.legend()
 
     ax2.set_xlabel("r / (L / 2)")
     ax2.set_ylabel("Temperature [K]")
-    ax2.set_xlim(0., 1.4)
+    ax2.set_xlim(0.0, 1.4)
     ax2.set_yscale("log")
 
     fig.suptitle("Iliev+06 Test 0 part 2, $t$ = {0:.0f}".format(meta.time.to("Myr")))

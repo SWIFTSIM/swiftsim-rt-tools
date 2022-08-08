@@ -32,8 +32,8 @@ time_units = us["time"]
 length_units = us["length"]
 temperature_units = us["temperature"]
 velocity_units = length_units / time_units
-energy_units = mass_units * velocity_units**2
-internal_energy_units = velocity_units**2
+energy_units = mass_units * velocity_units ** 2
+internal_energy_units = velocity_units ** 2
 
 tiny_number = 1e-20
 
@@ -49,12 +49,12 @@ XH = 1.0
 # total helium mass fraction
 XHe = tiny_number
 # boxsize
-boxsize = (1. * unyt.kpc).to(length_units)
+boxsize = (1.0 * unyt.kpc).to(length_units)
 # initial gas temperature
 initial_temperature = 1e2 * temperature_units
 # particle mass
 # take 1 amu/cm^3
-pmass = (1. * unyt.atomic_mass_unit.to("g") / unyt.cm ** 3) * (boxsize ** 3 / nparts)
+pmass = (1.0 * unyt.atomic_mass_unit.to("g") / unyt.cm ** 3) * (boxsize ** 3 / nparts)
 pmass = pmass.to(mass_units)
 
 # -----------------------------------------------

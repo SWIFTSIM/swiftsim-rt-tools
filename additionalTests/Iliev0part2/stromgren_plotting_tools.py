@@ -4,14 +4,8 @@ import unyt
 import copy
 
 # species masses in atomic mass units
-mamu = {
-        "e": 0.0, 
-        "HI": 1.0, 
-        "HII": 1.0, 
-        "HeI": 4.0, 
-        "HeII": 4.0, 
-        "HeIII": 4.0
-        }
+mamu = {"e": 0.0, "HI": 1.0, "HII": 1.0, "HeI": 4.0, "HeII": 4.0, "HeIII": 4.0}
+
 
 def get_number_densities(Temp, XH, XHe):
     """
@@ -253,7 +247,6 @@ def internal_energy(T, mu, gamma):
 
     u = unyt.boltzmann_constant * T / (gamma - 1) / (mu * unyt.atomic_mass_unit)
     return u
-
 
 
 def mean_molecular_weight(XH0, XHp, XHe0, XHep, XHepp):

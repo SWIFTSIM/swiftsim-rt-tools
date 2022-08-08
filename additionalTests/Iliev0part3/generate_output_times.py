@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-#----------------------------------------------
+# ----------------------------------------------
 # Generate an output times list to your liking
-#----------------------------------------------
+# ----------------------------------------------
 
 import yaml
 import numpy as np
@@ -11,7 +11,7 @@ unit_l = None
 unit_v = None
 t_end = None
 with open(r"ilievTest0part3.yml") as paramfile:
-    params =  yaml.load(paramfile, Loader=yaml.FullLoader)
+    params = yaml.load(paramfile, Loader=yaml.FullLoader)
 
     unit_l = params["InternalUnitSystem"]["UnitLength_in_cgs"]
     unit_l = float(unit_l)
@@ -29,13 +29,15 @@ with open(r"ilievTest0part3.yml") as paramfile:
 unit_t = unit_l / unit_v
 unit_myr = unit_t / (3600 * 24 * 365 * 1e6)
 
-if abs((t_end * unit_myr) / 5.5 - 1.) > 0.001:
-    print("tend is {0:.3e} Myr, should be 5.5!".format(t_end*unit_myr))
+if abs((t_end * unit_myr) / 5.5 - 1.0) > 0.001:
+    print("tend is {0:.3e} Myr, should be 5.5!".format(t_end * unit_myr))
 else:
-    print("t_end is {0:.3g} Myr".format(t_end*unit_myr))
+    print("t_end is {0:.3g} Myr".format(t_end * unit_myr))
 
 
-output_heating = np.logspace(np.log10(dt_max*unit_myr*2), np.log10(0.5), 100) / unit_myr
+output_heating = (
+    np.logspace(np.log10(dt_max * unit_myr * 2), np.log10(0.5), 100) / unit_myr
+)
 output_cooling = np.linspace(0.51, 5.5, 100) / unit_myr
 # make sure we have no precision issues for final snap
 output_cooling[-1] = t_end
@@ -44,14 +46,14 @@ output_cooling[-1] = t_end
 # I read this 'dt' out from a run, then used it to generate the output list
 dt_heat = 8.577071e-02
 
-current_t = 0.
+current_t = 0.0
 outputtimes = []
 # first 20 snapshots
 for i in range(20):
     current_t += dt_heat
     outputtimes.append(current_t)
 for i in range(20):
-    current_t += 2*dt_heat
+    current_t += 2 * dt_heat
     outputtimes.append(current_t)
 for i in range(20):
     current_t += 4 * dt_heat

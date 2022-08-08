@@ -43,7 +43,7 @@ skip_zeroth_snapshot = False
 # -----------------------------------------------------------------------
 
 energy_units = unyt.Msun * unyt.kpc ** 2 / unyt.kyr ** 2
-flux_units = unyt.erg / (unyt.cm**2 * unyt.s)
+flux_units = unyt.erg / (unyt.cm ** 2 * unyt.s)
 mass_units = unyt.Msun
 time_units = unyt.yr
 
@@ -189,7 +189,7 @@ def get_snapshot_data(snaplist):
 
     times = np.zeros(nsnaps) * time_units
     temperatures = np.zeros(nsnaps) * unyt.K
-    volumes = np.zeros(nsnaps) * unyt.kpc**3
+    volumes = np.zeros(nsnaps) * unyt.kpc ** 3
     mean_molecular_weights = np.zeros(nsnaps)
     mass_fractions = np.zeros((nsnaps, 5))
     internal_energies = np.zeros(nsnaps) * energy_units
@@ -238,8 +238,8 @@ def get_snapshot_data(snaplist):
         mass_fractions,
         internal_energies,
         photon_energies,
-        volumes, 
-        c_reduced
+        volumes,
+        c_reduced,
     )
 
 
@@ -272,7 +272,7 @@ def get_reference():
     #  time_units = velocity_units / length_units
     #  density_units = mass_units / length_units ** 3
 
-    # Read in all other data 
+    # Read in all other data
     data = np.loadtxt(resultfile)
 
     Time = data[:, 1]
@@ -298,7 +298,9 @@ if __name__ == "__main__":
     # ------------------
 
     snaplist = get_snapshot_list(snapshot_base)
-    t, T, mu, mass_fraction, u, photon_energies, volumes, c_reduced = get_snapshot_data(snaplist)
+    t, T, mu, mass_fraction, u, photon_energies, volumes, c_reduced = get_snapshot_data(
+        snaplist
+    )
     ngroups = photon_energies.shape[0]
 
     t_ref, T_ref = get_reference()
@@ -314,7 +316,7 @@ if __name__ == "__main__":
     ax1.set_ylabel("gas temperature [K]")
     ax1.legend(prop=legendprops)
     ax1.grid()
-    ax1.set_xlim(0.9*t.min(), 1.01*t.max())
+    ax1.set_xlim(0.9 * t.min(), 1.01 * t.max())
 
     ax2.plot(t, mu, label="obtained results")
     ax2.set_ylabel("mean molecular weight")
@@ -336,32 +338,25 @@ if __name__ == "__main__":
     # for GEAR-RT, the flux corresponds to the energy density flux,
     # i.e. c * E_{snapshot}/V_{snapshot} = F_{snapshot}
     # Try reconstruct the fluxes that you've injected in the test to verify
-    # that you injected the right amount. 
+    # that you injected the right amount.
     # I expect:
     #  Bin   0:  3.288e+15 -  5.945e+15 [Hz]  Luminosity/cm^2 = 1.350e+01 [erg/s/cm^2]
     #  Bin   1:  5.945e+15 -  1.316e+16 [Hz]  Luminosity/cm^2 = 2.779e+01 [erg/s/cm^2]
     #  Bin   2:  1.316e+16 -  5.879e+17 [Hz]  Luminosity/cm^2 = 6.152e+00 [erg/s/cm^2]
 
-    Ec = photon_energies * c_reduced / volumes;
+    Ec = photon_energies * c_reduced / volumes
     Ec.convert_to_units(flux_units)
     tot_flux = np.sum(Ec, axis=0)
     ax4.semilogx(
-        t,
-        tot_flux,
-        label="total radiation flux",
-        color="k",
-        ls="--",
-        **plotkwargs,
+        t, tot_flux, label="total radiation flux", color="k", ls="--", **plotkwargs
     )
     for g in range(ngroups):
-        ax4.plot(
-            t,
-            Ec[g, :],
-            label=f"radiation flux group {g+1}",
-            **plotkwargs,
-        )
+        ax4.plot(t, Ec[g, :], label=f"radiation flux group {g+1}", **plotkwargs)
     ax4.set_ylabel(
-        r"total radiation flux $E \times \tilde{c}$ [$"+Ec.units.latex_representation()+"$]", usetex = True
+        r"total radiation flux $E \times \tilde{c}$ [$"
+        + Ec.units.latex_representation()
+        + "$]",
+        usetex=True,
     )
     ax4.legend(prop=legendprops)
     ax4.grid()

@@ -16,7 +16,7 @@
 #                  [ \int_{nl}^{nu} J(\nu)              / (h \nu) d\nu ] /
 #
 #
-# This script prints out all intermediate results as well so you can 
+# This script prints out all intermediate results as well so you can
 # cross-compare every intermediate step.
 # -----------------------------------------------------------------------------
 
@@ -151,17 +151,33 @@ if __name__ == "__main__":
             csn_species = number_weighted_integral / N_nu_integral
             csn[g].append(csn_species)
 
-
         print("Group", g)
         print("nu_start:                  {0:12.6g}".format(nu_min))
         print("nu_end:                    {0:12.6g}".format(nu_max))
         print("Spectrum energy integral:  {0:12.6g}".format(E_nu_integral))
         print("Spectrum number integral:  {0:12.6g}".format(N_nu_integral))
-        print("average photon energy:     {0:12.6g}".format(E_nu_integral/N_nu_integral))
+        print(
+            "average photon energy:     {0:12.6g}".format(E_nu_integral / N_nu_integral)
+        )
         print("Species:                   {0:12d} {1:12d} {2:12d}".format(0, 1, 2))
-        print("inegral sigma * E:         {0:12.6g} {1:12.6g} {2:12.6g}".format(integral_sigma_E[0], integral_sigma_E[1], integral_sigma_E[2]))
-        print("inegral sigma * E / hnu:   {0:12.6g} {1:12.6g} {2:12.6g}".format(integral_sigma_N[0], integral_sigma_N[1], integral_sigma_N[2]))
-        print("energy weighted c.section: {0:12.6g} {1:12.6g} {2:12.6g}".format(cse[g][0], cse[g][1], cse[g][2]))
-        print("number weighted c.section: {0:12.6g} {1:12.6g} {2:12.6g}".format(csn[g][0], csn[g][1], csn[g][2]))
+        print(
+            "inegral sigma * E:         {0:12.6g} {1:12.6g} {2:12.6g}".format(
+                integral_sigma_E[0], integral_sigma_E[1], integral_sigma_E[2]
+            )
+        )
+        print(
+            "inegral sigma * E / hnu:   {0:12.6g} {1:12.6g} {2:12.6g}".format(
+                integral_sigma_N[0], integral_sigma_N[1], integral_sigma_N[2]
+            )
+        )
+        print(
+            "energy weighted c.section: {0:12.6g} {1:12.6g} {2:12.6g}".format(
+                cse[g][0], cse[g][1], cse[g][2]
+            )
+        )
+        print(
+            "number weighted c.section: {0:12.6g} {1:12.6g} {2:12.6g}".format(
+                csn[g][0], csn[g][1], csn[g][2]
+            )
+        )
         print()
-
