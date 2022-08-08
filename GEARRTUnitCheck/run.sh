@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# make clean
+make clean
 make
 ./GEARRT_unit_checks
 python3 plot_cooling_tests.py

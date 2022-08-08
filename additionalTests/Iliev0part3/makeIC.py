@@ -138,7 +138,7 @@ header = F["Header"]
 parts = F["/PartType0"]
 
 # Create initial ionization species mass fractions.
-# Assume everything is ionized initially
+# Assume everything is neutral initially
 HIdata = np.ones((nparts), dtype=np.float32) * XH
 HIIdata = np.ones((nparts), dtype=np.float32) * tiny_number
 HeIdata = np.zeros((nparts), dtype=np.float32)

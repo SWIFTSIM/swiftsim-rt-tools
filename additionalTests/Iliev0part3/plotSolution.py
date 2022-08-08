@@ -251,6 +251,8 @@ def get_reference():
     resultfile = "reference.dat"
 
     # Read in units.
+    # This should still work, but shouldn't be
+    # necessary in the current state of this example.
     #  f = open(resultfile, "r")
     #  firstline = f.readline()
     #  massline = f.readline()
@@ -366,8 +368,6 @@ if __name__ == "__main__":
 
     for ax in fig.axes:
         ax.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
-    #      ax.set_xlim(0.4, 5.6)
 
     plt.tight_layout()
-    #  plt.show()
     plt.savefig("ilievTest0part3.png")

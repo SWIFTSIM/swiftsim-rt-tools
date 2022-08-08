@@ -15,6 +15,7 @@ Details:
 - Ionization photon number rate is Ndot = 5 * 10^48 photons/s. This translates
   to the luminosity L = 6.198024e+04 L_Sun. 
 - Initial ionization fraction: x = 1.2 * 10^-3
+- run up to 100 Myr
 
 
 Notes

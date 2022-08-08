@@ -243,7 +243,7 @@ void read_swift_params(struct swift_params *params) {
   check_valid_float(internal_energy_units, 0);
   energy_units = mass_units * internal_energy_units;
   /* It turns out that the energy units are commonly above float exponent
-   * limits, bu that's not an issue because the energy itself can be very
+   * limits, but that's not an issue because the energy itself can be very
    * high too. So in the end, it works out. */
   /* check_valid_float(energy_units, 0); */
 
@@ -300,6 +300,9 @@ void read_ic_params(struct swift_params *params) {
     density_max = 1e3 * density_average;
     check_valid_float(density_max, 1);
   } else {
+
+    check_valid_float(density_average, 1);
+
     const float min_density_ic =
         parser_get_param_float(params, "ParticleData:minDensity");
     if (min_density_ic > av_density_ic)
@@ -316,9 +319,6 @@ void read_ic_params(struct swift_params *params) {
     density_max = max_density_ic * density_units_ic / density_units;
     check_valid_float(density_max, 1);
   }
-  /* before, density average was allowed to be zero. Now check for 
-   * grackle limits too. */
-  check_valid_float(density_average, 1);
 
   const float sml_ic =
       parser_get_param_float(params, "ParticleData:smoothingLength");

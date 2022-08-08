@@ -82,7 +82,6 @@ void get_interaction_rates(double radiation_energy_density[RT_NGROUPS],
       ionization_rates_by_species[spec] += csn * Nic;
     }
 
-    /* rates[0] += heating_rate_group * Eic / nHI; */
     rates[0] += heating_rate_group * Nic;
   }
 
@@ -101,4 +100,4 @@ void get_interaction_rates(double radiation_energy_density[RT_NGROUPS],
   /* rates[4] = skipped for now */
 }
 
-#endif
+#endif /* def  PHOTON_INTERACTION_RATES_H */

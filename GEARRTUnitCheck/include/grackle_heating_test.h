@@ -15,7 +15,6 @@
 
 #include <grackle.h>
 
-/* #include "cross_sections.h" */
 #include "grackle_checks.h"
 #include "ionization_equilibrium.h"
 #include "mean_molecular_weight.h"
@@ -82,18 +81,10 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
   double gas_density = density;
 
   /* Initial conditions for radiation */
-  /* Blackbody temperature is not needed when we're not computing
-   * the cross sections on-the-fly. */
-  /* double T_blackbody = 1e5; [> K <] */
 #if RT_NGROUPS == 4
-  /* frequency bins are not needed when we're not computing
-   * the cross sections on-the-fly. */
-  /* double frequency_bins_Hz[4] = {0., 3.288e15, 5.945e15, 13.157e15}; [> Hz <]
-   */
   /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
   double fixed_luminosity_cgs[4] = {0., 1.350e+01, 2.779e+01, 6.152e+00};
 #elif RT_NGROUPS == 1
-  /* double frequency_bins_Hz[1] = {3.288e15};     [> Hz <] */
   /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
   double fixed_luminosity_cgs[1] = {4.774e+01};
 #else
@@ -155,18 +146,6 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
 
   /* Get photon cross sections and mean energies */
   /* ------------------------------------------- */
-  /* Note that the result is always in cgs. */
-  /* TODO: DOUBLE CHECK-CONSISTENCY !!! */
-  /* double **cse = malloc(RT_NGROUPS * sizeof(double *)); */
-  /* double **csn = malloc(RT_NGROUPS * sizeof(double *)); */
-  /* double mean_photon_energies[RT_NGROUPS]; */
-  /* for (int group = 0; group < RT_NGROUPS; group++) { */
-  /*   cse[group] = malloc(RT_NIONIZING_SPECIES * sizeof(double)); */
-  /*   csn[group] = malloc(RT_NIONIZING_SPECIES * sizeof(double)); */
-  /*   mean_photon_energies[group] = 0.; */
-  /* } */
-  /* get_cross_sections(T_blackbody, frequency_bins_Hz, cse, csn, */
-  /*                    mean_photon_energies); */
 
 #if RT_NGROUPS == 4
   /* Just store the solutions, don't mind the computation for this test.
@@ -360,12 +339,6 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
   fclose(fd);
   clean_up_fields(&grackle_fields);
   _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
-  /* for (int g = 0; g < RT_NGROUPS; g++) { */
-  /*   free(cse[g]); */
-  /*   free(csn[g]); */
-  /* } */
-  /* free(cse); */
-  /* free(csn); */
 
   return;
 }

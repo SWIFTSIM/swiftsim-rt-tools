@@ -70,7 +70,6 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
   double hydrogen_fraction_by_mass = 0.76;
-  /* Use solution of swift's output. This is in internal units already. */
   double gas_density = density;
 
   /* Derived quantities from ICs */
@@ -180,10 +179,15 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
   /* Write headers */
   /* ------------- */
 
-  /* First to stdout */
+  if (verbose) {
+    /* Print to screen as well */
+    write_header(stdout);
+    write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                   &grackle_chemistry_data, /*field_index=*/0, t, dt_max,
+                   time_units, /*step=*/0);
+  }
 
-  /* Now into a file as well. */
-  /* also write down what ICs you used into file */
+  /* write down what ICs you used into file */
   write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units,
                  length_units, velocity_units, dt_max,
                  hydrogen_fraction_by_mass, gas_density, internal_energy);
@@ -192,14 +196,6 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
                  &grackle_chemistry_data, /*field_index=*/0, t, dt_max,
                  time_units,
                  /*step=*/0);
-
-  if (verbose) {
-    /* Print to screen as well */
-    write_header(stdout);
-    write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, /*field_index=*/0, t, dt_max,
-                   time_units, /*step=*/0);
-  }
 
   /*********************************************************************
   / Calling the chemistry solver

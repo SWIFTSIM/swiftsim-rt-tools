@@ -67,7 +67,6 @@ while current_t * unit_myr < 0.5:
     current_t += 64 * dt_heat
     outputtimes.append(current_t)
 
-#  print(len(outputtimes), "snapshots while heating")
 
 # do 50 snapshots until 1 Myr, and 50 thereafter
 dt_cool = 0.5 / unit_myr / 50

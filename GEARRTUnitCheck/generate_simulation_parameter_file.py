@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #--------------------------------------------------------------------
-# Extract required parameters from a SWIFT output of IC file and
+# Extract required parameters from a SWIFT output or IC file and
 # generate the parameter file required by the GEARRT_unit_checks
 # program.
 #
@@ -59,7 +59,6 @@ temperature_units = meta.units.temperature.to("K").v
 gas = data.gas
 pm = gas.masses.v
 particle_mass = (np.sum(pm) / npart)
-#  particle_mass = pm.mean()
 try:
     rho = gas.density.v
 except AttributeError:
