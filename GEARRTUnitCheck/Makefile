@@ -3,11 +3,9 @@
 #==================================
 
 # executable name
-EXEC   = cooling_test
+EXEC   = GEARRT_unit_checks
 # source directory
-SRCDIR = .
-# include directory
-IDIR = ../include
+SRCDIR = src
 # manual definitions
 DEFINES=
 
@@ -22,6 +20,9 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 # GRACKLE_LIBS =  -L$(GRACKLE_FLOAT_ROOT)/lib
 # CONFIG_BFLOAT= CONFIG_BFLOAT_4
 
+GSL_INCL = -I$(GSL_ROOT)/include
+GSL_LIBS = -I$(GSL_ROOT)/lib
+
 #==================================
 # COMPILER OPTIONS AND DIRECTIVES
 #==================================
@@ -29,24 +30,30 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 #Compiler to use
 CC = gcc 
 # additional options
-OPTIONS = -pedantic -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
+# NOTE: some SWIFT functions need gcc extensions, so -pedantic will act up
+OPTIONS = -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 # optimization
 # OPT = -O3
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror  
+# -fsanitize=address
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
 # Additional libraries
 LIBS = $(GRACKLE_LIBS)
+LIBS += $(GSL_LIBS)
 # Additional header files
-INCLUDES = -I$(IDIR) -I. $(GRACKLE_INCL)
+INCLUDES = -I. -I./include/
+INCLUDES += -I../grackle/include
+INCLUDES += $(GRACKLE_INCL)
+INCLUDES += $(GSL_INCL)
 # linking flags
-LDFLAGS  = -lm -lgrackle -lgfortran
+LDFLAGS  = -lm -lgrackle -lgfortran -lgsl
 
-CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS) $(LDFLAGS)
+CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS)
 
 
 
@@ -57,13 +64,14 @@ CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS) $(LDFLAGS)
 
 #include paths. Will be followed in that order.
 
-VPATH=$(IDIR):$(SRCDIR)
-
+VPATH=$(SRCDIR):./include:../grackle/include
 
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
 OBJECTS = main.o
 
-HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h
+HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h cross_sections.h \
+		  my_grackle_utils.h blackbody.h cross_sections.h photon_interaction_rates.h \
+		  parser.h error.h grackle_checks.h grackle_cooling_test.h grackle_heating_test.h
 
 
 
@@ -71,6 +79,7 @@ HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackl
 # RECEPIES
 #==================================
 
+all: default
 
 default: $(EXEC)
 
@@ -78,9 +87,7 @@ $(EXEC): $(OBJECTS) $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 main.o: main.c $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ -c $<
-#-c : compile and assemble, but do not link
-
+	$(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS)
 
 
 #==================================

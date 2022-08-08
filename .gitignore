@@ -4,3 +4,6 @@
 *.dat
 *.pdf
 black_formatting_env/**
+GRACKLE_INFO
+**/restart/
+**/*~

@@ -3,7 +3,7 @@
 #==================================
 
 # executable name
-EXEC   = cooling_test
+EXEC   = iliev_test
 # source directory
 SRCDIR = .
 # include directory
@@ -22,6 +22,9 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 # GRACKLE_LIBS =  -L$(GRACKLE_FLOAT_ROOT)/lib
 # CONFIG_BFLOAT= CONFIG_BFLOAT_4
 
+GSL_INCL = -I$(GSL_ROOT)/include
+GSL_LIBS = -I$(GSL_ROOT)/lib
+
 #==================================
 # COMPILER OPTIONS AND DIRECTIVES
 #==================================
@@ -35,16 +38,20 @@ OPTIONS = -pedantic -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror 
+# -fsanitize=address
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
 # Additional libraries
 LIBS = $(GRACKLE_LIBS)
+LIBS += $(GSL_LIBS)
 # Additional header files
-INCLUDES = -I$(IDIR) -I. $(GRACKLE_INCL)
+INCLUDES = -I$(IDIR) -I.
+INCLUDES += $(GRACKLE_INCL)
+INCLUDES += $(GSL_INCL)
 # linking flags
-LDFLAGS  = -lm -lgrackle -lgfortran
+LDFLAGS  = -lm -lgrackle -lgfortran -lgsl
 
 CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS) $(LDFLAGS)
 
@@ -63,7 +70,8 @@ VPATH=$(IDIR):$(SRCDIR)
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
 OBJECTS = main.o
 
-HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h
+HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h cross_sections.h \
+		  my_grackle_utils.h blackbody.h cross_sections.h photon_interaction_rates.h
 
 
 

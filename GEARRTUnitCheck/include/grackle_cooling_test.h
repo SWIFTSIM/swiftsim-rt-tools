@@ -1,11 +1,10 @@
-/* ---------------------------------------------
- * In this example, we start with high internal
- * energies and a fully ionized gas, and just
- * let it cool without any RT.
- * --------------------------------------------- */
+#ifndef GRACKLE_COOLING_TEST_H
+#define GRACKLE_COOLING_TEST_H
 
-/* define this before including my_grackle_utils.h */
-#define FIELD_SIZE 1
+/* ----------------------------------------------------------
+ * In this example, we start with high internal energies and
+ * a fully ionized gas, and just let it cool without any RT.
+ * --------------------------------------------------------- */
 
 #include <math.h>
 #include <stdio.h>
@@ -14,49 +13,64 @@
 
 #include <grackle.h>
 
-#include "constants.h"
+#include "error.h"
+#include "grackle_checks.h"
 #include "ionization_equilibrium.h"
 #include "mean_molecular_weight.h"
-#include "my_grackle_utils.h"
+/* NOTE: don't include my_grackle_utils here to make sure you've
+ * got the correct FIELD_SIZE etc definitions. */
+#ifndef MY_GRACKLE_UTILS_H
+#error This file needs my_grackle_utils.h to be included already, \
+  but not from within the file itself.
+#endif
 
-int main() {
+/**
+ * @brief Run a test with an initially high temperature gas
+ * that cools down.
+ * For the units, I use the following convention:
+ * quantity * units = quantity_in_cgs
+ *
+ * @param density gas density to use
+ * @param name name of the test case. NO SPACES.
+ * @param mass_units the internal mass units to use.
+ * @param length_units the internal length units to use.
+ * @param density_units the internal density units to use.
+ * @param velocity_units the internal velocity units to use.
+ * @param internal_energy_units the internal specific internal energy units
+ * @param verbose print time step data to screen?
+ **/
+void run_grackle_cooling_test(float density, char *name, double mass_units,
+                              double length_units, double time_units,
+                              double density_units, double velocity_units,
+                              double internal_energy_units, int verbose) {
 
   /******************************************************************
    * Set up initial conditions and runtime parameters.
    *****************************************************************/
 
-  /* Print some extra data to screen? */
-  int verbose = 1;
+  message("Running grackle cooling test for case %s", name);
+
   /* output file */
-  FILE *fd = fopen("out.dat", "w");
+  char filename[200];
+  sprintf(filename, "cooling_test-%s.dat", name);
+  FILE *fd = fopen(filename, "w");
   /* output frequency  in number of steps */
-  int output_frequency = 8;
-
-  /* Define units : use the same as internal units for swift */
-  /* ------------------------------------------------------- */
-  double mass_units = 1.99848e43;
-  double length_units = 3.08567758e21;
-  double velocity_units = 1e5;
-
-  double density_units =
-      mass_units / length_units / length_units / length_units;
-  double time_units = length_units / velocity_units;
+  int output_frequency = 16;
 
   /* Time integration variables */
   /* -------------------------- */
-  double t = 0.;
-  double dt = 4.882813e-05; /* in internal units. Copy this from swift output */
-  double tinit = 1e3;       /* in yr; will be converted later */
-  double tend = 1e8;        /* in yr; will be converted later */
-  t = tinit * const_yr / time_units;   /* yr to code units */
-  tend = tend * const_yr / time_units; /* yr to code units */
+  double dt_max = 5e2; /* in yr. will be converted later */
+  double tinit = 1.;   /* in yr; will be converted later */
+  double tend = 1e7;   /* in yr; will be converted later */
+
+  double t = tinit * const_yr / time_units; /* yr to code units */
+  dt_max = dt_max * const_yr / time_units;  /* yr to code units */
+  tend = tend * const_yr / time_units;      /* yr to code units */
 
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
   double hydrogen_fraction_by_mass = 0.76;
-  /* Use solution of swift's output. This is in internal units already. */
-  double gas_density = 0.00024633363;
-  double internal_energy = 21201.879;
+  double gas_density = density;
 
   /* Derived quantities from ICs */
   /* --------------------------- */
@@ -64,13 +78,11 @@ int main() {
   /* Assuming fully ionized gas */
   double mu_init = mean_molecular_weight_from_mass_fractions(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
-  double internal_energy_cgs =
-      internal_energy * length_units * length_units / time_units / time_units;
 
-  double T = internal_energy_cgs * (const_adiabatic_index - 1) * mu_init *
-             const_mh / const_kboltz;
-  if (verbose)
-    printf("Initial setup: u_cgs %g T_cgs %g\n", internal_energy_cgs, T);
+  double T = 1e6; /* K */
+  double internal_energy_cgs =
+      const_kboltz * T / ((const_adiabatic_index - 1.) * mu_init * const_mh);
+  double internal_energy = internal_energy_cgs / internal_energy_units;
 
   /* define the hydrogen number density */
   /* use `gr_float` to use the same type of floats that grackle
@@ -78,12 +90,7 @@ int main() {
    * floats, or precision-64 otherwise. */
   gr_float nH =
       hydrogen_fraction_by_mass * gas_density / (const_mh / mass_units);
-  gr_float nHI;
-  gr_float nHII;
-  gr_float nHeI;
-  gr_float nHeII;
-  gr_float nHeIII;
-  gr_float ne;
+  gr_float nHI, nHII, nHeI, nHeII, nHeIII, ne;
 
   /* get densities of primordial spicies assuming ionization equilibrium */
   ionization_equilibrium_calculate_densities(T, nH, hydrogen_fraction_by_mass,
@@ -101,10 +108,10 @@ int main() {
   gr_float e_density = ne * (const_mh / mass_units);
 
   /* Store them all in a single array for simplicity. */
-  gr_float species_densities[12] = {
-      HI_density, HII_density, HeI_density, HeII_density, HeIII_density,
-      e_density,  0.,          0.,          0.,           0.,
-      0.,         0.};
+  gr_float species_densities[12] = {HI_density,   HII_density,   HeI_density,
+                                    HeII_density, HeIII_density, e_density,
+                                    TINY_NUMBER,  TINY_NUMBER,   TINY_NUMBER,
+                                    TINY_NUMBER,  TINY_NUMBER,   TINY_NUMBER};
 
   /* Grackle behaviour setup */
   /* ----------------------- */
@@ -146,8 +153,7 @@ int main() {
    * pointer. */
   chemistry_data grackle_chemistry_data;
   if (set_default_chemistry_parameters(&grackle_chemistry_data) == 0) {
-    fprintf(stderr, "Errir in set_default_chemistry_parameters");
-    return EXIT_FAILURE;
+    error("Error in set_default_chemistry_parameters");
   }
 
   /* Set parameter values for chemistry. */
@@ -159,8 +165,7 @@ int main() {
   /* Initialize the chemistry_data_storage object to be able to use local
    * functions */
   if (initialize_chemistry_data(&grackle_units_data) == 0) {
-    fprintf(stderr, "Error in initialize_chemistry_data.\n");
-    return EXIT_FAILURE;
+    error("Error in initialize_chemistry_data.");
   }
 
   /* Gas Data */
@@ -174,29 +179,22 @@ int main() {
   /* Write headers */
   /* ------------- */
 
-  /* First to stdout */
-
   if (verbose) {
-    printf("%15s%15s%15s%15s%15s%15s%15s%15s\n",
-           "Initial setup: ", "Temperature", "nHI", "nHII", "nHeI", "nHeII",
-           "nHeIII", "ne");
-    printf("%15s%15g%15g%15g%15g%15g%15g%15g\n\n", "Initial setup: ", T, nHI,
-           nHII, nHeI, nHeII, nHeIII, ne);
+    /* Print to screen as well */
+    write_header(stdout);
+    write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                   &grackle_chemistry_data, /*field_index=*/0, t, dt_max,
+                   time_units, /*step=*/0);
   }
 
-  write_header(stdout);
-  write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                 &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units,
-                 /*step=*/0);
-
-  /* Now into a file as well. */
-  /* also write down what ICs you used into file */
+  /* write down what ICs you used into file */
   write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units,
-                 length_units, velocity_units, dt, hydrogen_fraction_by_mass,
-                 gas_density, internal_energy);
+                 length_units, velocity_units, dt_max,
+                 hydrogen_fraction_by_mass, gas_density, internal_energy);
   write_header(fd);
   write_timestep(fd, &grackle_fields, &grackle_units_data,
-                 &grackle_chemistry_data, /*field_index=*/0, t, dt, time_units,
+                 &grackle_chemistry_data, /*field_index=*/0, t, dt_max,
+                 time_units,
                  /*step=*/0);
 
   /*********************************************************************
@@ -205,21 +203,40 @@ int main() {
   *********************************************************************/
 
   int step = 0;
+  int completion = 0;
+  int completion_fractions = 5;
   while (t < tend) {
+
+    /* Get cooling time */
+    gr_float tchem_time;
+    if (local_calculate_cooling_time(&grackle_chemistry_data, &grackle_rates,
+                                     &grackle_units_data, &grackle_fields,
+                                     &tchem_time) == 0)
+      error("Error in calculate_cooling_time.");
+    double dt = fmin(fabs(tchem_time), dt_max);
 
     t += dt;
     step += 1;
-
-    /* if (solve_chemistry(&grackle_units_data, &grackle_fields, dt) == 0) { */
     if (local_solve_chemistry(&grackle_chemistry_data, &grackle_rates,
                               &grackle_units_data, &grackle_fields, dt) == 0) {
-      fprintf(stderr, "Error in solve_chemistry.\n");
-      return EXIT_FAILURE;
+      error("Error in solve_chemistry.");
     }
 
-    write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, /*field_index=*/0, t, dt,
-                   time_units, step);
+    grackle_checks_density_sum(density, &grackle_fields);
+    grackle_checks_ion_sum(&grackle_fields, mass_units);
+
+    if (verbose) {
+      write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                     &grackle_chemistry_data, /*field_index=*/0, t, dt,
+                     time_units, step);
+    } else {
+      if (t / tend >
+          ((double)(completion + 1) / (double)completion_fractions)) {
+        message("Completed %.1f %%",
+                (float)(completion + 1) / (float)completion_fractions * 100.f);
+        completion++;
+      }
+    }
 
     if (step % output_frequency == 0)
       write_timestep(fd, &grackle_fields, &grackle_units_data,
@@ -233,5 +250,6 @@ int main() {
   clean_up_fields(&grackle_fields);
   _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
 
-  return EXIT_SUCCESS;
+  return;
 }
+#endif

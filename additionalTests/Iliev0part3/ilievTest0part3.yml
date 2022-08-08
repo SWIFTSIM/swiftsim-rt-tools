@@ -1,0 +1,54 @@
+MetaData:
+  run_name: Iliev06Test0part3
+
+# Define the system of units to use internally. 
+InternalUnitSystem:
+  UnitMass_in_cgs:     1.98848e18     # 1e-15 M_sun in grams
+  UnitLength_in_cgs:   3.08567758e+15 # 1 pc in cm
+  UnitVelocity_in_cgs: 1.e5           # 1 km/s in cm/s
+  UnitCurrent_in_cgs:  1              # Amperes
+  UnitTemp_in_cgs:     1              # Kelvin
+
+# Parameters governing the time integration
+TimeIntegration:
+  time_begin: 0.001     # The starting time of the simulation (in internal units).
+  time_end:   5621.07   # 5.5 Myr
+  dt_min:     0.001022  # 1 y
+  dt_max:     0.1277515 # 125y
+
+# Parameters governing the snapshots
+Snapshots:
+  basename:            output # Common part of the name of output files
+  time_first:          1.     # Time of the first output (in internal units)
+  output_list_on:      1      # (Optional) Enable the output list
+  output_list:         snaplist.txt # (Optional) File containing the output times (see documentation in "Parameter File" section)
+
+# Parameters governing the conserved quantities statistics
+Statistics:
+  time_first:          1.
+  delta_time:          3.1536e12 # Time between statistics output
+
+# Parameters for the hydrodynamics scheme
+SPH:
+  resolution_eta:        1.2348   # Target smoothing length in units of the mean inter-particle separation (1.2348 == 48Ngbs with the cubic spline kernel).
+  CFL_condition:         1.e8     # We can only afford to use this stupidity here because in this test, all hydrodynamics is supposed to be turned off.
+  minimal_temperature:   10.      # Kelvin
+
+# Parameters related to the initial conditions
+InitialConditions:
+  file_name:  ./ilievTest0part3.hdf5  # The file to read
+  periodic:   1                       # periodic ICs
+
+GEARRT:
+    f_reduce_c: 1.                  # keep c correct as to not influence thermochemistry rates unnecessarily. 
+    f_limit_cooling_time: 0.001     # Keep time steps small this way.
+    CFL_condition: 1.e6             # We can only afford to use this stupidity here because in this test, we fix the radiation fields.
+    photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]      # Photon frequency group bin edges in Hz. Needs to be 1 less than the number of groups (N) requested during the configuration (--with-RT=GEAR_N). Outer edges of zero and infinity are assumed.
+    star_emission_rates_LSol: [1., 1., 1., 1.]             # (Optional) constant star emission rates for each photon frequency group to use if use_constant_emission_rates is set, in units of Solar Luminosity.
+    set_equilibrium_initial_ionization_mass_fractions: 1   # (Optional) set the initial ionization fractions depending on gas temperature assuming ionization equilibrium.
+    hydrogen_mass_fraction:   1.    # total hydrogen mass fraction
+    use_const_emission_rates: 1     # (Optional) use constant emission rates for stars as defined with star_emission_rates_LSol parameter
+    stellar_spectrum_type: 1        # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
+    stellar_spectrum_blackbody_temperature_K: 1.e5    # (Conditional) if stellar_spectrum_type=1, use this temperature (in K) for the blackbody spectrum. 
+    case_B_recombination: 0         # Use case A recombination
+    grackle_verbose: 0

@@ -16,6 +16,7 @@ resultfile = "out.dat"
 
 plotkwargs = {"alpha": 0.4}
 
+
 mh = 1.67262171e-24  # Hydrogen mass in g
 
 # Read in units.
@@ -84,39 +85,37 @@ ax2 = fig.add_subplot(2, 2, 2)
 ax3 = fig.add_subplot(2, 2, 3)
 ax4 = fig.add_subplot(2, 2, 4)
 
-ax1.plot(Time_Myr, Temperature, **plotkwargs)
-#  ax1.scatter(Time, Temperature)
+ax1.plot(Time, Temperature)
 ax1.semilogy()
-ax1.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax1.set_xlabel(r"$\rm{Time\,\,[yr]}$")
 ax1.set_ylabel(r"$\rm{Temperature\,\,[K]}$")
 ax1.set_xscale("log")
 
-ax2.plot(Time_Myr, mu)
-ax2.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax2.plot(Time, mu)
+ax2.set_xlabel(r"$\rm{Time\,\,[yr]}$")
 ax2.set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
 ax2.set_xscale("log")
 
-ax3.plot(Time_Myr, nHI, ls=":", label=r"$\rm{HI}$", **plotkwargs)
-ax3.plot(Time_Myr, nHII, ls="-.", label=r"$\rm{HII}$", **plotkwargs)
-ax3.plot(Time_Myr, nHeI, ls=":", label=r"$\rm{HeI}$", **plotkwargs)
-ax3.plot(Time_Myr, nHeII, ls="-.", label=r"$\rm{HeII}$", **plotkwargs)
-ax3.plot(Time_Myr, nHeIII, ls="--", label=r"$\rm{HeIII}$", **plotkwargs)
-ax3.plot(Time_Myr, ne, ":", label=r"$\rm{n_e}$", **plotkwargs)
-ax3.plot(Time_Myr, n, label=r"$\rm{Tot}$", alpha=1)
-
+ax3.plot(Time, nHI, ls=":", label=r"$\rm{HI}$", **plotkwargs)
+ax3.plot(Time, nHII, ls="-.", label=r"$\rm{HII}$", **plotkwargs)
+ax3.plot(Time, nHeI, ls=":", label=r"$\rm{HeI}$", **plotkwargs)
+ax3.plot(Time, nHeII, ls="-.", label=r"$\rm{HeII}$", **plotkwargs)
+ax3.plot(Time, nHeIII, ls="--", label=r"$\rm{HeIII}$", **plotkwargs)
+ax3.plot(Time, ne, ":", label=r"$\rm{n_e}$", **plotkwargs)
+ax3.plot(Time, n, label=r"$\rm{Tot}$", alpha=1)
 ax3.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
 ax3.set_ylabel(r"$\rm{Number\,\,Densities}\ [\rm{cm}^{-3}]$")
 ax3.set_xscale("log")
 ax3.legend()
 
 Xtot = XHI + XHII + XHeI + XHeII + XHeIII
-ax4.plot(Time_Myr, XHI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
-ax4.plot(Time_Myr, XHII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
-ax4.plot(Time_Myr, XHeI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
-ax4.plot(Time_Myr, XHeII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
-ax4.plot(Time_Myr, XHeIII, ls="--", label=r"$\rm{XHeIII}$", **plotkwargs)
-ax4.plot(Time_Myr, Xtot, ls="--", label="total", **plotkwargs)
-ax4.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax4.plot(Time, XHI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
+ax4.plot(Time, XHII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
+ax4.plot(Time, XHeI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
+ax4.plot(Time, XHeII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
+ax4.plot(Time, XHeIII, ls="--", label=r"$\rm{XHeIII}$", **plotkwargs)
+ax4.plot(Time, Xtot, ls="--", label="total", **plotkwargs)
+ax4.set_xlabel(r"$\rm{Time\,\,[yr]}$")
 ax4.set_ylabel(r"$\rm{HeI,HeII,HeIII\,\,mass fraction}$")
 ax4.legend()
 ax4.grid()
@@ -124,4 +123,4 @@ ax4.set_xscale("log")
 
 
 plt.tight_layout()
-plt.savefig("cooling_test_output.png", dpi=300)
+plt.savefig("ilievTest.png", dpi=300)
