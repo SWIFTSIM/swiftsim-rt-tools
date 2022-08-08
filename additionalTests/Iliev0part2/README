@@ -1,7 +1,7 @@
 Iliev 0 Test
 -----------------------
 
-Reproducing Iliev+2006 (ui.adsabs.harvard.edu/abs/2006MNRAS.369.1625I/) Test 0.
+Reproducing Iliev+2006 (ui.adsabs.harvard.edu/abs/2006MNRAS.369.1625I/) Test 0, part 2.
 Details:
 
 - hydrogen gas only.
@@ -14,33 +14,16 @@ Details:
 - Gas number density nH = 10^-3 cm^-3
 - Ionization photon number rate is Ndot = 5 * 10^48 photons/s. This translates
   to the luminosity L = 6.198024e+04 L_Sun. 
-
-  TODO: is this relevant?
-  I set an upper frequency limit to 10 times
-  the frequency at which the blackbody spectrum peaks.
-
-TODO: this is for Test 2
 - Initial ionization fraction: x = 1.2 * 10^-3
+
 
 Notes
 -------
 
--   To achieve constant density for GEAR-RT with Gizmo, you need to modify the
-    code internally as follows:
-
-    1)  Keep particles static. You can either declare all particles in the
-        simulation boundary particles at compile time, or you can activate the
-        `#GIZMO_FIXED_PARTICLES` macro in `src/const.h`
-
-    2)  Disable all particle interactions. E.g. add 
-
-        ```
-          dt_therm = 0.f;
-          dt_grav = 0.f;
-          dt_kick_corr = 0.f;
-        ```
-
-        at the top of `src/hydro/Gizmo/hydro.h:hydro_kick_extra()` function.
+This test requires a fixed density for particles throughout the simulation.
+You can find instructions on how to fix the density field for GEAR-RT in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_turn_off_hydrodynamics_evolution.md
 
 
-
+TODO:
+- Increase box size to avoid noise arising from periodicity issues.
