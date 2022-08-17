@@ -22,9 +22,9 @@ ax4 = fig.add_subplot(2, 2, 4)
 
 colors = ["C0", "C4", "C3"]
 
-for i, sim in enumerate(["average", "min", "max"]):
+for i, sim in enumerate(["av", "min", "max"]):
 
-    resultfile = "heating_test-density_" + sim + ".dat"
+    resultfile = "heating_test-rho_" + sim + ".dat"
 
     # Read in units.
     f = open(resultfile, "r")
