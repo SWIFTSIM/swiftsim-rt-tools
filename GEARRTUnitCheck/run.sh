@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# quit if something fails
+set -e
+
 make clean
 make
 ./GEARRT_unit_checks

@@ -20,6 +20,8 @@
 #define const_speed_light_c 2.99792458e+10
 /* year in s */
 #define const_yr 31557600.
+/* Solar luminosity in erg/s */
+#define const_L_Sun 3.826e33
 #define const_adiabatic_index 1.666667
 
 #ifndef M_PI

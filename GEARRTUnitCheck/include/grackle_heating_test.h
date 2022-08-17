@@ -34,18 +34,22 @@
  * quantity * units = quantity_in_cgs
  *
  * @param density gas density to use
+ * @param fixed_radiation_density_field_cgs fixed energy density to use as
+ *heating source, in erg/cm^3/s
  * @param name name of the test case. NO SPACES.
  * @param mass_units the internal mass units to use.
  * @param length_units the internal length units to use.
  * @param density_units the internal density units to use.
  * @param velocity_units the internal velocity units to use.
  * @param internal_energy_units the internal specific internal energy units
+ * @param dump_results whether to write results to file
  * @param verbose print time step data to screen?
  **/
-void run_grackle_heating_test(float density, char *name, double mass_units,
-                              double length_units, double time_units,
-                              double density_units, double velocity_units,
-                              double internal_energy_units, int verbose) {
+void run_grackle_heating_test(
+    float density, double fixed_radiation_density_field_cgs[RT_NGROUPS],
+    char *name, double mass_units, double length_units, double time_units,
+    double density_units, double velocity_units, double internal_energy_units,
+    int dump_results, int verbose) {
 
   /******************************************************************
    * Set up initial conditions and runtime parameters.
@@ -56,7 +60,9 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
   /* output file */
   char filename[200];
   sprintf(filename, "heating_test-%s.dat", name);
-  FILE *fd = fopen(filename, "w");
+  FILE *fd = NULL;
+  if (dump_results)
+    fd = fopen(filename, "w");
   /* output frequency  in number of steps */
   int output_frequency_cool = 64; /* output frequency while cooling */
   int output_frequency_heat = 2;  /* output frequency while heating */
@@ -79,23 +85,6 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
   /* --------------------------------------- */
   double hydrogen_fraction_by_mass = 1.00;
   double gas_density = density;
-
-  /* Initial conditions for radiation */
-#if RT_NGROUPS == 4
-  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
-  double fixed_luminosity_cgs[4] = {0., 1.350e+01, 2.779e+01, 6.152e+00};
-#elif RT_NGROUPS == 1
-  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
-  double fixed_luminosity_cgs[1] = {4.774e+01};
-#else
-  error("You need to set up the correct frequency bins and luminosities "
-        "for " RT_NGROUPS " groups used");
-#endif
-  double fixed_radiation_density_field_cgs[4] = {0., 0., 0., 0.};
-  for (int g = 0; g < RT_NGROUPS; g++) {
-    fixed_radiation_density_field_cgs[g] =
-        fixed_luminosity_cgs[g] / const_speed_light_c;
-  }
 
   /* Derived quantities from ICs */
   /* --------------------------- */
@@ -147,23 +136,20 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
   /* Get photon cross sections and mean energies */
   /* ------------------------------------------- */
 
-#if RT_NGROUPS == 4
+#if RT_NGROUPS == 3
   /* Just store the solutions, don't mind the computation for this test.
    * It's always done in cgs, so that shouldn't fail regardless of user
    * chosen units. */
   /* Cross sections are in cm^-2, mean photon energies in erg. */
-  double cse_0[3] = {0., 0., 0.};
-  double cse_1[3] = {2.782672e-18, 0., 0.};
-  double cse_2[3] = {5.043639e-19, 6.020192e-24, 0.};
-  double cse_3[3] = {7.459092e-20, 6.515781e-25, 1.002143e-18};
-  double *cse[RT_NGROUPS] = {cse_0, cse_1, cse_2, cse_3};
-  double csn_0[3] = {0., 0., 0.};
-  double csn_1[3] = {3.007890e-18, 0., 0.};
-  double csn_2[3] = {5.688884e-19, 6.901561e-24, 0.};
-  double csn_3[3] = {7.893315e-20, 6.929928e-25, 1.056205e-18};
-  double *csn[RT_NGROUPS] = {csn_0, csn_1, csn_2, csn_3};
-  double mean_photon_energies[RT_NGROUPS] = {1.337e-11, 3.020e-11, 5.619e-11,
-                                             1.052e-10};
+  double cse_0[3] = {2.782672e-18, 0., 0.};
+  double cse_1[3] = {5.043639e-19, 6.020192e-24, 0.};
+  double cse_2[3] = {7.459092e-20, 6.515781e-25, 1.002143e-18};
+  double *cse[RT_NGROUPS] = {cse_0, cse_1, cse_2};
+  double csn_0[3] = {3.007890e-18, 0., 0.};
+  double csn_1[3] = {5.688884e-19, 6.901561e-24, 0.};
+  double csn_2[3] = {7.893315e-20, 6.929928e-25, 1.056205e-18};
+  double *csn[RT_NGROUPS] = {csn_0, csn_1, csn_2};
+  double mean_photon_energies[RT_NGROUPS] = {3.020e-11, 5.619e-11, 1.052e-10};
 #elif RT_NGROUPS == 1
   double cse_0[3] = {1.096971e-18, 2.303147e-24, 1.298503e-19};
   double *cse[RT_NGROUPS] = {cse_0};
@@ -254,13 +240,15 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
   }
 
   /* write down what ICs you used into file */
-  write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units,
-                 length_units, velocity_units, dt_max_heat,
-                 hydrogen_fraction_by_mass, gas_density, internal_energy);
-  write_header(fd);
-  write_timestep(fd, &grackle_fields, &grackle_units_data,
-                 &grackle_chemistry_data, /*field_index=*/0, t, dt_max_heat,
-                 time_units, /*step=*/0);
+  if (dump_results) {
+    write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units,
+                   length_units, velocity_units, dt_max_heat,
+                   hydrogen_fraction_by_mass, gas_density, internal_energy);
+    write_header(fd);
+    write_timestep(fd, &grackle_fields, &grackle_units_data,
+                   &grackle_chemistry_data, /*field_index=*/0, t, dt_max_heat,
+                   time_units, /*step=*/0);
+  }
 
   /*********************************************************************
   / Calling the chemistry solver
@@ -329,14 +317,15 @@ void run_grackle_heating_test(float density, char *name, double mass_units,
       }
     }
 
-    if (step % output_frequency_to_use == 0)
+    if (step % output_frequency_to_use == 0 && dump_results)
       write_timestep(fd, &grackle_fields, &grackle_units_data,
                      &grackle_chemistry_data, /*field_index=*/0, t, dt,
                      time_units, step);
   }
 
   /* Cleanup */
-  fclose(fd);
+  if (dump_results)
+    fclose(fd);
   clean_up_fields(&grackle_fields);
   _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
 

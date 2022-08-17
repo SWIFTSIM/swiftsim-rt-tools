@@ -26,7 +26,9 @@ length_units = 0.0
 velocity_units = 0.0
 current_units = 0.0
 temperature_units = 0.0
-
+min_radiation = sys.float_info.max
+max_radiation = 0.0
+average_radiation = 0.0
 
 try:
     inputfile = sys.argv[1]
@@ -87,6 +89,29 @@ smoothing_length = np.sum(sml) / npart
 min_sml = np.min(sml)
 max_sml = np.max(sml)
 
+# Read in radiation data
+has_photon_group = True
+radiation_sum = 0.0
+group = 0
+
+while has_photon_group:
+    group += 1
+    dsetname = "photon_energies_group{0:d}".format(group)
+    try:
+        rad_group = getattr(gas, dsetname)
+        radiation_sum += rad_group.sum()
+        min_radiation = min(min_radiation, rad_group.min())
+        max_radiation = max(max_radiation, rad_group.max())
+    except AttributeError:
+        has_photon_group = False
+        break
+average_radiation = radiation_sum / npart
+if average_radiation == 0.0:
+    min_radiation = 0.0
+    max_radiation = 0.0
+print("Found", group - 1, "photon group ICs")
+
+
 # dump yaml file
 with open("simulation_parameters.yml", "w") as file:
 
@@ -101,6 +126,9 @@ with open("simulation_parameters.yml", "w") as file:
     min_density = float(min_density)
     max_density = float(max_density)
     average_density = float(average_density)
+    min_radiation = float(min_radiation)
+    max_radiation = float(max_radiation)
+    average_radiation = float(average_radiation)
     smoothing_length = float(smoothing_length)
     boxsize = float(boxsize)
     npart = int(npart)
@@ -116,7 +144,11 @@ with open("simulation_parameters.yml", "w") as file:
         "maxDensity": max_density,
         "averageDensity": average_density,
         "smoothingLength": smoothing_length,
+        "minRadiationEnergy": min_radiation,
+        "maxRadiationEnergy": max_radiation,
+        "averageRadiationEnergy": average_radiation,
     }
+
     units_dict = {
         "UnitMass_in_cgs": mass_units,
         "UnitLength_in_cgs": length_units,

@@ -28,16 +28,22 @@ Instructions
 
     The program expects the file to be named "simulation_parameters.yml" by
     default. If you want to change that, you can find the filename definition 
-    at the top of the `main()` function in `main.c`
+    at the top of the `main()` function in `main.c`. In particular, change
+    this line: 
+    ```
+      char *IC_params_filename = "simulation_parameters.yml";
+    ```
 
 2)  Provide `main.c` with the correct SWIFT runtime parameter file
     Locate the definition of 
-        `char *swift_param_filename = "swift_parameters.yml";`
+    ```
+      char *sim_run_params_filename = "swift_parameters.yml";`
+    ```
     in `main()` in `main.c`, and change the file name to the SWIFT parameter
     file that you intend to use for your simulation.
 
 3)  define how many photon groups you are planning to run the simulation 
-    with at the top of the file `main.c`, e.g. `#define RT_NGROUPS 4`
+    with at the top of the file `main.c`, e.g. `#define RT_NGROUPS 3`
 
 4)  Compile and run the test suite using `run.sh`
 

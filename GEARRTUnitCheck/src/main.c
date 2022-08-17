@@ -9,7 +9,7 @@
 /* #include <fenv.h>  */
 
 /* define these before including local headers like my_grackle_utils.h */
-#define RT_NGROUPS 4
+#define RT_NGROUPS 3
 /* Grackle related macros */
 #define FIELD_SIZE 1
 #include "my_grackle_utils.h"
@@ -31,34 +31,43 @@
 /* --------------------- */
 
 /* Units to be used in the swift simulation */
-double mass_units;
-double time_units;
-double length_units;
-double density_units;
-double velocity_units;
-double temperature_units;
-double energy_units;
-double internal_energy_units;
+double mass_units = 0.;
+double time_units = 0.;
+double length_units = 0.;
+double density_units = 0.;
+double velocity_units = 0.;
+double temperature_units = 0.;
+double internal_energy_units = 0.;
+double energy_units = 0.;
+double energy_density_units = 0.;
+double power_units = 0.;
 
 /* Radiation variables */
-float c_reduced; /* in internal units */
-double *star_emission_rates;
-double *photon_groups_Hz;
+float c_reduced = 0.; /* in internal units */
+double *star_emission_rates = NULL;
+double *photon_groups_Hz = NULL;
+int use_const_emission_rates = 0.;
 
 /* Other quantities. All assumed in SWIFT internal units. */
-float particle_mass;
+float particle_mass = 0.f;
 /* (Estimate of) minimal density in sim */
-float density_min;
+float density_min = 0.f;
 /* (Estimate of) maximal density in sim */
-float density_max;
+float density_max = 0.f;
 /* Average density in sim */
-float density_average;
+float density_average = 0.f;
 /* boxsize */
-float boxsize;
+float boxsize = 0.f;
 /* (Estimate of) smoothing length */
-float smoothing_length;
+float smoothing_length = 0.f;
+/* Minimal radiation energy (not density) in ICs */
+float rad_energy_min = 0.f;
+/* Maximal radiation energy (not density) in ICs */
+float rad_energy_max = 0.f;
+/* Average radiation energy (not density) in ICs */
+float rad_energy_av = 0.f;
 /* Number of gas particles in simulation */
-long long npart;
+long long npart = 0.l;
 
 int warnings = 0;
 
@@ -186,6 +195,45 @@ int warnings = 0;
   })
 
 /**
+ * @brief estimate a time step size.
+ * @return time step in internal units.
+ **/
+float estimate_dt(void) {
+  if (smoothing_length == 0.)
+    error("sml=0?");
+  if (c_reduced == 0.)
+    error("c_red=0?");
+  return smoothing_length / c_reduced;
+}
+
+/**
+ * @brief Get an estimate for the injected radiation energy density
+ * from a given luminosity.
+ *
+ * @param luminosity luminosity in units of solar luminosities
+ * @return the radiation energy density in internal units.
+ *
+ **/
+float radiation_energy_density_from_luminosity(double luminosity) {
+
+  /* To obtain some energy density, set E = L * dt / V
+   * If you want to vary particle volume, you should also vary dt
+   * by the same factor according to the CFL logic. This means
+   * however that the factor to modify dt and V cancels out since
+   * we need dt/V, so no reason to check several scenarios there. */
+
+  const double partV = boxsize * boxsize * boxsize / (double)npart;
+  check_valid_float(partV, 0);
+  const double dt = estimate_dt();
+  check_valid_float(dt, 0);
+  float rad_energy_density =
+      luminosity * const_L_Sun / power_units * dt / partV;
+  check_valid_float(rad_energy_density, 0);
+
+  return rad_energy_density;
+}
+
+/**
  * @brief Read in the parameters relevant for this check.
  *
  * @param params (return) swift_params struct to be filled
@@ -215,29 +263,38 @@ void read_swift_params(struct swift_params *params) {
 
   float fc = parser_get_param_float(params, "GEARRT:f_reduce_c");
   c_reduced = fc * const_speed_light_c / velocity_units;
-  star_emission_rates = malloc(RT_NGROUPS * sizeof(double));
-  double *photon_groups_read = malloc(RT_NGROUPS * sizeof(double));
-  parser_get_param_double_array(params, "GEARRT:star_emission_rates_LSol",
-                                RT_NGROUPS, star_emission_rates);
+  photon_groups_Hz = malloc(RT_NGROUPS * sizeof(double));
   if (RT_NGROUPS == 0) {
     error(
         "Can't run RT with 0 photon groups. Modify RT_NGROUPS in this script.");
-  } else if (RT_NGROUPS == 1) {
-    photon_groups_read[0] = 0.;
   } else {
-    parser_get_param_double_array(params, "GEARRT:photon_groups_Hz",
-                                  RT_NGROUPS - 1, photon_groups_read);
+    parser_get_param_double_array(params, "GEARRT:photon_groups_Hz", RT_NGROUPS,
+                                  photon_groups_Hz);
   }
-  photon_groups_Hz = malloc(RT_NGROUPS * sizeof(double));
-  for (int i = 0; i < RT_NGROUPS - 1; i++) {
-    photon_groups_Hz[i + 1] = photon_groups_read[i];
-  }
-  photon_groups_Hz[0] = 0.;
 
+  use_const_emission_rates = parser_get_opt_param_int(
+      params, "GEARRT:use_const_emission_rates", /* default = */ 0);
+  star_emission_rates = malloc(RT_NGROUPS * sizeof(double));
+  if (use_const_emission_rates) {
+    parser_get_param_double_array(params, "GEARRT:star_emission_rates_LSol",
+                                  RT_NGROUPS, star_emission_rates);
+  } else {
+    error("This check isn't set up to run without constant stellar emission "
+          "rates (yet)");
+  }
+}
+
+/**
+ * @brief get additional internal unit conversions
+ **/
+void get_internal_units(void) {
   /* Convert units */
+  const double volume_units = (length_units * length_units * length_units);
+  check_valid_double(volume_units, 0);
+
   time_units = length_units / velocity_units;
   check_valid_float(time_units, 0);
-  density_units = mass_units / (length_units * length_units * length_units);
+  density_units = mass_units / volume_units;
   check_valid_float(density_units, 0);
   internal_energy_units = velocity_units * velocity_units;
   check_valid_float(internal_energy_units, 0);
@@ -246,10 +303,21 @@ void read_swift_params(struct swift_params *params) {
    * limits, but that's not an issue because the energy itself can be very
    * high too. So in the end, it works out. */
   /* check_valid_float(energy_units, 0); */
+  /* Nonetheless, print a warning for now. */
+  if (energy_units != 0. &&
+      (fabs(energy_units) > 1e30 || fabs(energy_units) < 1e-30)) {
+    fprintf(stdout,
+            "WARNING: %s:%s:%d: energy units has large exponent: %.6e\n",
+            __FILE__, __FUNCTION__, __LINE__, energy_units);
+    warnings++;
+  }
 
-  /* Clean up */
-  free(photon_groups_read);
+  energy_density_units = energy_units / volume_units;
+  check_valid_float(energy_density_units, 0);
+  power_units = energy_units / time_units;
+  check_valid_float(power_units, 0);
 }
+
 /**
  * @brief Read in the parameters from the ICs relevant for this check.
  *
@@ -261,30 +329,42 @@ void read_ic_params(struct swift_params *params) {
       parser_get_param_double(params, "InternalUnitSystem:UnitMass_in_cgs");
   const double length_units_ic =
       parser_get_param_double(params, "InternalUnitSystem:UnitLength_in_cgs");
-  /* const double velocity_units_ic = parser_get_param_double(params,
-   * "InternalUnitSystem:UnitVelocity_in_cgs"); */
+  const double velocity_units_ic =
+      parser_get_param_double(params, "InternalUnitSystem:UnitVelocity_in_cgs");
   /* const double temperature_units_ic = parser_get_param_double(params,
    * "InternalUnitSystem:UnitTemp_in_cgs"); */
   const double density_units_ic =
       mass_units_ic / (length_units_ic * length_units_ic * length_units_ic);
+  const double energy_units_ic =
+      mass_units_ic * velocity_units_ic * velocity_units_ic;
 
   const float particle_mass_ic =
       parser_get_param_float(params, "ParticleData:ParticleMass");
   const float av_density_ic =
       parser_get_param_float(params, "ParticleData:averageDensity");
+  const float av_radiation_ic =
+      parser_get_param_float(params, "ParticleData:averageRadiationEnergy");
   const float boxsize_ic = parser_get_param_float(params, "GlobalData:boxsize");
   npart = parser_get_param_longlong(params, "GlobalData:npart");
 
   /* Convert quantities from IC internal units to SWIFT internal units */
   message("Converting IC units to SWIFT run units");
   particle_mass = particle_mass_ic * mass_units_ic / mass_units;
-  check_valid_float(particle_mass, 1);
+  check_valid_float(particle_mass, 0);
 
   density_average = av_density_ic * density_units_ic / density_units;
   check_valid_float(density_average, 0);
+  if (density_average > 0.)
+    check_valid_float(density_average, 1);
+
+  rad_energy_av = av_radiation_ic * energy_units_ic / energy_units;
+  if (rad_energy_av != 0.)
+    check_valid_float(rad_energy_av, 0);
+  if (rad_energy_av < 0.)
+    error("Average radiation energy = %.3g < 0", rad_energy_av);
 
   boxsize = boxsize_ic * length_units_ic / length_units;
-  check_valid_float(boxsize, 0);
+  check_valid_float(boxsize, 1);
   if (boxsize == 0.)
     error("Got 0. boxsize?");
 
@@ -325,17 +405,27 @@ void read_ic_params(struct swift_params *params) {
   if (sml_ic == 0.) {
     /* Try and estimate yourself */
     smoothing_length = 0.75 * boxsize / pow(npart, 0.3333333);
-    check_valid_float(smoothing_length, 1);
+    check_valid_float(smoothing_length, 0);
   } else {
     smoothing_length = sml_ic * length_units_ic / length_units;
-    check_valid_float(smoothing_length, 1);
+    check_valid_float(smoothing_length, 0);
+  }
+
+  rad_energy_min = 0.f;
+  rad_energy_max = 0.f;
+  if (rad_energy_av > 0.) {
+    const double rad_energy_max_ic =
+        parser_get_param_float(params, "ParticleData:maxRadiationEnergy");
+    rad_energy_max = rad_energy_max_ic * energy_units_ic / energy_units;
+    const double rad_energy_min_ic =
+        parser_get_param_float(params, "ParticleData:minRadiationEnergy");
+    rad_energy_min = rad_energy_min_ic * energy_units_ic / energy_units;
   }
 }
 
 /**
  * @brief print out the used parameters for a visual inspection
  **/
-
 void print_params() {
 
   message("Units: [in cgs]");
@@ -356,12 +446,11 @@ void print_params() {
   message("%22s: %.6e", "density_max", density_max);
   message("%22s: %.6e", "boxsize", boxsize);
   message("%22s: %.6e", "smoothing length", smoothing_length);
-  message("%22s: %.6e", "approx dt [internal units]",
-          smoothing_length / c_reduced);
+  message("%22s: %.6e", "approx dt [internal units]", estimate_dt());
   message("%22s: %.6e", "approx dt [s]             ",
-          smoothing_length / c_reduced * time_units);
+          estimate_dt() / time_units);
   message("%22s: %.6e", "approx dt [kyr]           ",
-          smoothing_length / c_reduced * time_units / const_yr * 1e-3);
+          estimate_dt() * time_units / const_yr * 1e-3);
 }
 
 /**
@@ -377,7 +466,7 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
 
   /* assume mean molecular weight of 1 for this test. While that isn't correct,
    * it should do the trick for the purpose of this test. */
-  message("Checking gas quantities for T=%.1e case=%s", T, name);
+  message("Checking T=%.1e case=%s", T, name);
 
   const float gamma = const_adiabatic_index;
   const float gamma_minus_one = gamma - 1.f;
@@ -453,13 +542,15 @@ void check_gas_quantities(float density, char *name, float T, int verbose) {
  * grackle internally have valid values.
  *
  * @param density gas density to use
+ * @param radiation_energy_density radiation energy density to use
  * @param name name of the test case. NO SPACES.
  * @param T temperature to deal with
  * @param verbose are we talkative?
  **/
-void check_grackle_internals(float density, char *name, float T, int verbose) {
+void check_grackle_internals(float density, float radiation_energy_density,
+                             char *name, float T, int verbose) {
 
-  message("Checking grackle internals for T=%.1e case=%s", T, name);
+  message("checking %s, T=%.1e", name, T);
 
   /* Check that the total number density is within the valid limits for
    * grackle to handle. */
@@ -532,16 +623,14 @@ void check_grackle_internals(float density, char *name, float T, int verbose) {
 
     const double cse = 1.096971e-18;
     const double csn = 1.630511e-18;
-    const double mean_photon_energy = 4.744e-11;   /* erg */
-    const double fixed_luminosity_cgs = 4.774e+01; /* erg/s/cm^2 */
+    const double mean_photon_energy = 4.744e-11; /* erg */
     const double E_ion = 2.179e-11; /* erg, ionization energy of hydrogen */
 
-    const double Ei = fixed_luminosity_cgs / const_speed_light_c;
-    const double Eic = Ei * const_speed_light_c;
+    const double Eic = radiation_energy_density * const_speed_light_c;
     const double Nic = Eic / mean_photon_energy;
 
-    check_valid_double(Eic, 1);
-    check_valid_double(Nic, 1);
+    check_valid_double(Eic, 0);
+    check_valid_double(Nic, 0);
 
     const double number_density_units = density_units / const_mh;
     check_valid_double(number_density_units, 0);
@@ -589,6 +678,66 @@ void check_grackle_internals(float density, char *name, float T, int verbose) {
   check_doubles_equal(heating_rates[1], heating_rates[2]);
 }
 
+/**
+ * @brief Check whether other gas quantities derived from the
+ * initial conditions are within an acceptable range
+ *
+ * @param radEnergy radiation energy to use
+ * @param radName name of the test case. NO SPACES.
+ * @param density gas density to use
+ * @param name name of the test case. NO SPACES.
+ * @param T temperature to deal with
+ * @param verbose are we talkative?
+ **/
+void check_radiation_energies(float radEnergy, char *radName, float density,
+                              char *name, float T, int verbose) {
+
+  char fullname[80];
+  const double mean_partV = boxsize * boxsize * boxsize / (double)npart;
+  double volumes[3] = {mean_partV, 1.e-3 * mean_partV, 1.e3 * mean_partV};
+  char *vnames[3] = {"V_av", "V_min", "V_max"};
+
+  if (radEnergy == 0.) {
+    sprintf(fullname, "E_rad:%s, %s", radName, name);
+    message("radiation energy = 0 case %s; skipping.", fullname);
+    return;
+  }
+
+  for (int v = 0; v < 3; v++) {
+    sprintf(fullname, "E_rad:%s, %s, %s", radName, name, vnames[v]);
+    const double partV = volumes[v];
+    const double rad_energy_density = radEnergy / partV;
+    check_valid_float(rad_energy_density, 0);
+
+    check_grackle_internals(density, rad_energy_density, fullname, T, verbose);
+  }
+}
+
+/**
+ * @brief Check whether other gas quantities derived from the
+ * initial conditions are within an acceptable range
+ *
+ * @param density gas density to use
+ * @param name name of the test case. NO SPACES.
+ * @param T temperature to deal with
+ * @param verbose are we talkative?
+ **/
+void check_luminosities(float luminosity, float density, char *name, float T,
+                        int verbose) {
+
+  char fullname[80];
+  sprintf(fullname, "luminosities: L=%.3g, %s", luminosity, name);
+
+  if (luminosity == 0.) {
+    message("luminosity = 0 case %s; skipping.", fullname);
+    return;
+  }
+
+  float rad_energy_density =
+      radiation_energy_density_from_luminosity(luminosity);
+  check_grackle_internals(density, rad_energy_density, fullname, T, verbose);
+}
+
 int main(void) {
 
   /* FPE's, here we come! */
@@ -601,8 +750,13 @@ int main(void) {
   /* ----------------------------------------- */
 
   /* TODO: make this a cmdline arg? */
-  char *swift_param_filename = "swift_parameters.yml";
-  char *sim_param_filename = "simulation_parameters.yml";
+  /* This needs to be the parameter filename that you plan
+   * on running SWIFT with for your simulation */
+  char *sim_run_params_filename = "swift_parameters.yml";
+  /* This is the parameter filename for the params that you
+   * either set up manually or extracted from the ICs using
+   * the provided script. */
+  char *IC_params_filename = "simulation_parameters.yml";
 
   /* Print a lot of information to the screen? */
   int verbose = 0;
@@ -610,13 +764,15 @@ int main(void) {
   /* Read the SWIFT parameter file, and the parameters */
   struct swift_params *swift_params =
       (struct swift_params *)malloc(sizeof(struct swift_params));
-  read_paramfile(swift_params, swift_param_filename);
+  read_paramfile(swift_params, sim_run_params_filename);
   read_swift_params(swift_params);
+  /* Get additional internal unit conversions before we continue */
+  get_internal_units();
 
   /* Read the simulation data parameter file, and the parameters */
   struct swift_params *sim_params =
       (struct swift_params *)malloc(sizeof(struct swift_params));
-  read_paramfile(sim_params, sim_param_filename);
+  read_paramfile(sim_params, IC_params_filename);
   read_ic_params(sim_params);
 
   /* Print out the units and parameters for a visual inspection */
@@ -625,8 +781,8 @@ int main(void) {
   /* ------------------------*/
   /* Prepare to run examples */
   /* ------------------------*/
-  /* If the min/max densities are too close to the average, re-size them */
 
+  /* If the min/max densities are too close to the average, re-size them */
   if (fabs(1. - density_min / density_average) < 0.05) {
     message("density_min too close to average. Resizing %.3e -> %.3e",
             density_min, 0.8 * density_average);
@@ -640,19 +796,93 @@ int main(void) {
     check_valid_float(density_max, 1);
   }
 
+  /* If the min/max densities are too close to the average, re-size them */
+  if (rad_energy_av > 0.) {
+    if (rad_energy_min / rad_energy_av > 1.e-3) {
+      message("photon energy_min too close to average. Resizing %.3e -> %.3e",
+              rad_energy_min, 1.e-3 * rad_energy_av);
+      rad_energy_min = 1.e-3 * rad_energy_av;
+      check_valid_float(rad_energy_min, 0);
+    }
+    if (rad_energy_max / rad_energy_av < 1.e3) {
+      message("photon energy_max too close to average. Resizing %.3e -> %.3e",
+              rad_energy_max, 1.e3 * rad_energy_av);
+      rad_energy_max = 1.e3 * rad_energy_av;
+      check_valid_float(rad_energy_max, 0);
+    }
+  }
+
+  /* Set up Initial conditions for radiation */
+#if RT_NGROUPS == 3
+  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
+  double L_heating_test_cgs[3] = {1.350e+01, 2.779e+01, 6.152e+00};
+#elif RT_NGROUPS == 1
+  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
+  double L_heating_test_cgs[1] = {4.774e+01};
+#else
+#error Only RT_NGROUPS = [1, 3] implemented for now
+#endif
+  double Erad_heating_test_cgs[RT_NGROUPS];
+  for (int g = 0; g < RT_NGROUPS; g++) {
+    Erad_heating_test_cgs[g] = L_heating_test_cgs[g] / const_speed_light_c;
+    check_valid_double(Erad_heating_test_cgs[g], 0);
+  }
+
+  /* energy densities from stellar luminosities */
+  double Erad_luminosity_test_cgs[RT_NGROUPS];
+  for (int g = 0; g < RT_NGROUPS; g++) {
+    Erad_luminosity_test_cgs[g] =
+        radiation_energy_density_from_luminosity(star_emission_rates[g]);
+    Erad_luminosity_test_cgs[g] *= energy_density_units;
+    check_valid_double(Erad_luminosity_test_cgs[g], 0);
+  }
+  /* Set up arrays to loop over */
   float dens_arr[3] = {density_average, density_min, density_max};
-  char *dens_names[3] = {"density_average", "density_min", "density_max"};
+  char *dens_names[3] = {"rho_av", "rho_min", "rho_max"};
   float T_test[7] = {10., 100., 1000., 1.e4, 1.e5, 1.e6, 1.e7};
+
+  float rad_arr[3] = {rad_energy_av, rad_energy_min, rad_energy_max};
+  char *rad_names[3] = {"Erad_av", "Erad_min", "Erad_max"};
 
   /* Run Gas Quantities Checks */
   /* ------------------------- */
+  /* Set up some radiation energy density. 4.774e+01 erg/s/cm^2 corresponds
+   * to a blackbody spectrum with T=10^5K and Ndot = 10^12 photons/s */
+  const double fixed_luminosity_gas_check_cgs = 4.774e+01; /* erg/s/cm^2 */
+  const double Ei = fixed_luminosity_gas_check_cgs / const_speed_light_c;
   for (int d = 0; d < 3; d++) {
     float rho = dens_arr[d];
     char *name = dens_names[d];
     for (int t = 0; t < 7; t++) {
       float T = T_test[t];
       check_gas_quantities(rho, name, T, verbose);
-      check_grackle_internals(rho, name, T, verbose);
+      check_grackle_internals(rho, Ei, name, T, verbose);
+    }
+  }
+
+  /* Run Radiation Quantities Checks */
+  /* ------------------------------- */
+  /* Check radiation energies only if there are some present
+   * in the ICs. The radiation energies resulting from injection
+   * from stars will be checked with check_luminosities() */
+  for (int d = 0; d < 3; d++) {
+    float rho = dens_arr[d];
+    char *name = dens_names[d];
+
+    for (int t = 0; t < 7; t++) {
+      float T = T_test[t];
+
+      for (int e = 0; e < 3; e++) {
+        float radEnergy = rad_arr[e];
+        char *radName = rad_names[e];
+        if (rad_energy_av > 0.)
+          check_radiation_energies(radEnergy, radName, rho, name, T, verbose);
+      }
+
+      for (int g = 0; g < RT_NGROUPS; g++) {
+        float l = star_emission_rates[g];
+        check_luminosities(l, rho, name, T, verbose);
+      }
     }
   }
 
@@ -671,12 +901,28 @@ int main(void) {
   for (int d = 0; d < 3; d++) {
     float rho = dens_arr[d];
     char *name = dens_names[d];
-    run_grackle_heating_test(rho, name, mass_units, length_units, time_units,
-                             density_units, velocity_units,
-                             internal_energy_units, verbose);
+    run_grackle_heating_test(rho, Erad_heating_test_cgs, name, mass_units,
+                             length_units, time_units, density_units,
+                             velocity_units, internal_energy_units,
+                             /*dump_results=*/1, verbose);
   }
 
-  /* TODO: Luminosities check, radiation energy density check */
+  /* Run Grackle heating test with provided luminosities */
+  /* --------------------------------------------------- */
+
+  if (use_const_emission_rates) {
+    for (int d = 0; d < 3; d++) {
+      float rho = dens_arr[d];
+      char fullname[80];
+      sprintf(fullname, "%s-NO_OUTPUT-LUMINOSITY_TEST", dens_names[d]);
+      run_grackle_heating_test(
+          rho, Erad_luminosity_test_cgs, fullname, mass_units, length_units,
+          time_units, density_units, velocity_units, internal_energy_units,
+          /*dump_results=*/0, verbose);
+    }
+  } else {
+    error("This test is not set up without constant emission rates");
+  }
 
   /* Clean up after yourself */
   free(swift_params);
