@@ -34,7 +34,8 @@
  * quantity * units = quantity_in_cgs
  *
  * @param density gas density to use
- * @param fixed_radiation_density_field_cgs fixed energy density to use as heating source, in erg/cm^3/s
+ * @param fixed_radiation_density_field_cgs fixed energy density to use as
+ *heating source, in erg/cm^3/s
  * @param name name of the test case. NO SPACES.
  * @param mass_units the internal mass units to use.
  * @param length_units the internal length units to use.
@@ -44,12 +45,11 @@
  * @param dump_results whether to write results to file
  * @param verbose print time step data to screen?
  **/
-void run_grackle_heating_test(float density, double fixed_radiation_density_field_cgs[RT_NGROUPS], char *name, double mass_units,
-                              double length_units, double time_units,
-                              double density_units, double velocity_units,
-                              double internal_energy_units, 
-                              int dump_results, 
-                              int verbose) {
+void run_grackle_heating_test(
+    float density, double fixed_radiation_density_field_cgs[RT_NGROUPS],
+    char *name, double mass_units, double length_units, double time_units,
+    double density_units, double velocity_units, double internal_energy_units,
+    int dump_results, int verbose) {
 
   /******************************************************************
    * Set up initial conditions and runtime parameters.
@@ -61,7 +61,8 @@ void run_grackle_heating_test(float density, double fixed_radiation_density_fiel
   char filename[200];
   sprintf(filename, "heating_test-%s.dat", name);
   FILE *fd = NULL;
-  if (dump_results) fd = fopen(filename, "w");
+  if (dump_results)
+    fd = fopen(filename, "w");
   /* output frequency  in number of steps */
   int output_frequency_cool = 64; /* output frequency while cooling */
   int output_frequency_heat = 2;  /* output frequency while heating */
@@ -239,7 +240,7 @@ void run_grackle_heating_test(float density, double fixed_radiation_density_fiel
   }
 
   /* write down what ICs you used into file */
-  if (dump_results){
+  if (dump_results) {
     write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units,
                    length_units, velocity_units, dt_max_heat,
                    hydrogen_fraction_by_mass, gas_density, internal_energy);
@@ -323,7 +324,8 @@ void run_grackle_heating_test(float density, double fixed_radiation_density_fiel
   }
 
   /* Cleanup */
-  if (dump_results) fclose(fd);
+  if (dump_results)
+    fclose(fd);
   clean_up_fields(&grackle_fields);
   _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
 

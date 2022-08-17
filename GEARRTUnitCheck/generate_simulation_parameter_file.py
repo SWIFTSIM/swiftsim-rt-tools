@@ -91,7 +91,7 @@ max_sml = np.max(sml)
 
 # Read in radiation data
 has_photon_group = True
-radiation_sum = 0.
+radiation_sum = 0.0
 group = 0
 
 while has_photon_group:
@@ -106,10 +106,10 @@ while has_photon_group:
         has_photon_group = False
         break
 average_radiation = radiation_sum / npart
-if average_radiation == 0.:
-    min_radiation = 0.
-    max_radiation = 0.
-print("Found", group-1, "photon group ICs")
+if average_radiation == 0.0:
+    min_radiation = 0.0
+    max_radiation = 0.0
+print("Found", group - 1, "photon group ICs")
 
 
 # dump yaml file
@@ -144,9 +144,9 @@ with open("simulation_parameters.yml", "w") as file:
         "maxDensity": max_density,
         "averageDensity": average_density,
         "smoothingLength": smoothing_length,
-        "minRadiationEnergy": min_radiation, 
-        "maxRadiationEnergy": max_radiation, 
-        "averageRadiationEnergy": average_radiation, 
+        "minRadiationEnergy": min_radiation,
+        "maxRadiationEnergy": max_radiation,
+        "averageRadiationEnergy": average_radiation,
     }
 
     units_dict = {
