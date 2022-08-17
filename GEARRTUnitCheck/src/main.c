@@ -692,29 +692,19 @@ void check_grackle_internals(float density, float radiation_energy_density,
 void check_radiation_energies(float radEnergy, char *radName, float density,
                               char *name, float T, int verbose) {
 
-  const double mean_particle_volume =
-      boxsize * boxsize * boxsize / (double)npart;
-  double volumes[3] = {mean_particle_volume, 1.e-3 * mean_particle_volume,
-                       1.e3 * mean_particle_volume};
+  char fullname[80];
+  const double mean_partV = boxsize * boxsize * boxsize / (double)npart;
+  double volumes[3] = {mean_partV, 1.e-3 * mean_partV, 1.e3 * mean_partV};
   char *vnames[3] = {"V_av", "V_min", "V_max"};
 
-  char fullname[80] = "E_rad:";
-  strcat(fullname, radName);
-  strcat(fullname, ", ");
-  strcat(fullname, name);
   if (radEnergy == 0.) {
+    sprintf(fullname, "E_rad:%s, %s", radName, name);
     message("radiation energy = 0 case %s; skipping.", fullname);
     return;
   }
 
   for (int v = 0; v < 3; v++) {
-    strcpy(fullname, "E_rad:");
-    strcat(fullname, radName);
-    strcat(fullname, ", ");
-    strcat(fullname, name);
-    strcat(fullname, ", ");
-    strcat(fullname, vnames[v]);
-
+    sprintf(fullname, "E_rad:%s, %s, %s", radName, name, vnames[v]);
     const double partV = volumes[v];
     const double rad_energy_density = radEnergy / partV;
     check_valid_float(rad_energy_density, 0);
@@ -762,8 +752,7 @@ int main(void) {
   /* TODO: make this a cmdline arg? */
   /* This needs to be the parameter filename that you plan
    * on running SWIFT with for your simulation */
-  /* char *sim_run_params_filename = "swift_parameters.yml"; */
-  char *sim_run_params_filename = "stromgrenSphere-3D.yml";
+  char *sim_run_params_filename = "swift_parameters.yml";
   /* This is the parameter filename for the params that you
    * either set up manually or extracted from the ICs using
    * the provided script. */
@@ -823,6 +812,30 @@ int main(void) {
     }
   }
 
+  /* Set up Initial conditions for radiation */
+#if RT_NGROUPS == 3
+  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
+  double L_heating_test_cgs[3] = {1.350e+01, 2.779e+01, 6.152e+00};
+#elif RT_NGROUPS == 1
+  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
+  double L_heating_test_cgs[1] = {4.774e+01};
+#else
+#error Only RT_NGROUPS = [1, 3] implemented for now
+#endif
+  double Erad_heating_test_cgs[RT_NGROUPS];
+  for (int g = 0; g < RT_NGROUPS; g++) {
+    Erad_heating_test_cgs[g] = L_heating_test_cgs[g] / const_speed_light_c;
+    check_valid_double(Erad_heating_test_cgs[g], 0);
+  }
+
+  /* energy densities from stellar luminosities */
+  double Erad_luminosity_test_cgs[RT_NGROUPS];
+  for (int g = 0; g < RT_NGROUPS; g++) {
+    Erad_luminosity_test_cgs[g] =
+        radiation_energy_density_from_luminosity(star_emission_rates[g]);
+    Erad_luminosity_test_cgs[g] *= energy_density_units;
+    check_valid_double(Erad_luminosity_test_cgs[g], 0);
+  }
   /* Set up arrays to loop over */
   float dens_arr[3] = {density_average, density_min, density_max};
   char *dens_names[3] = {"rho_av", "rho_min", "rho_max"};
@@ -883,30 +896,6 @@ int main(void) {
                              internal_energy_units, verbose);
   }
 
-  /* Initial conditions for radiation */
-#if RT_NGROUPS == 3
-  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
-  double L_heating_test_cgs[3] = {1.350e+01, 2.779e+01, 6.152e+00};
-#elif RT_NGROUPS == 1
-  /* Fixed luminosity to heat the gas. In erg / cm^2 / s */
-  double L_heating_test_cgs[1] = {4.774e+01};
-#else
-#error Only RT_NGROUPS = [1, 3] implemented for now
-#endif
-  double Erad_heating_test_cgs[RT_NGROUPS];
-  for (int g = 0; g < RT_NGROUPS; g++) {
-    Erad_heating_test_cgs[g] = L_heating_test_cgs[g] / const_speed_light_c;
-    check_valid_double(Erad_heating_test_cgs[g], 0);
-  }
-
-  double Erad_luminosity_test_cgs[RT_NGROUPS];
-  for (int g = 0; g < RT_NGROUPS; g++) {
-    Erad_luminosity_test_cgs[g] =
-        radiation_energy_density_from_luminosity(star_emission_rates[g]);
-    Erad_luminosity_test_cgs[g] *= energy_density_units;
-    check_valid_double(Erad_luminosity_test_cgs[g], 0);
-  }
-
   /* Run Grackle heating test */
   /* ------------------------ */
   for (int d = 0; d < 3; d++) {
@@ -918,8 +907,8 @@ int main(void) {
                              /*dump_results=*/1, verbose);
   }
 
-  /* Run Grackle heating test with given luminosities */
-  /* ------------------------------------------------ */
+  /* Run Grackle heating test with provided luminosities */
+  /* --------------------------------------------------- */
 
   if (use_const_emission_rates) {
     for (int d = 0; d < 3; d++) {
@@ -931,6 +920,8 @@ int main(void) {
           time_units, density_units, velocity_units, internal_energy_units,
           /*dump_results=*/0, verbose);
     }
+  } else {
+    error("This test is not set up without constant emission rates");
   }
 
   /* Clean up after yourself */
