@@ -2,7 +2,8 @@
 
 import swiftsimio
 import matplotlib as mpl
-mpl.use('Agg')
+
+mpl.use("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
 import sys
@@ -42,12 +43,7 @@ from scipy import stats
 #  mpl.rcParams.update(params)
 
 
-scatterplot_kwargs = {
-    "alpha": 0.6,
-    "s": 2,
-    "marker": "o",
-    "linewidth": 0.0,
-}
+scatterplot_kwargs = {"alpha": 0.6, "s": 2, "marker": "o", "linewidth": 0.0}
 
 # Read in cmdline arg: Are we plotting only one snapshot, or all?
 # WARNING: The reference solution is comparable with snapshot_500 only
@@ -116,20 +112,18 @@ def plot_solution(filename):
     #  ax1.semilogy(r_bin_centers, xHII_binned, label=r"$x_{HII}$")
     ax1.set_ylim(5e-7, 1.5)
 
-
     ax2.scatter(r, T, **scatterplot_kwargs)
     #  ax2.semilogy(r_bin_centers, T_binned, label=r"gas temperature")
 
-
     ax1.set_xlabel("r / (L / 2)")
     ax1.set_ylabel("Hydrogen Fractions")
-    ax1.set_xlim(0., 1.4)
+    ax1.set_xlim(0.0, 1.4)
     ax1.set_yscale("log")
     ax1.legend()
 
     ax2.set_xlabel("r / (L / 2)")
     ax2.set_ylabel("Temperature [K]")
-    ax2.set_xlim(0., 1.)
+    ax2.set_xlim(0.0, 1.0)
     ax2.set_yscale("log")
     #  ax2.legend()
 

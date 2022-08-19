@@ -196,8 +196,6 @@ def plot_photons(filename, emin, emax, fmin, fmax):
     edgelen = min(boxsize[0], boxsize[1])
     edgelen = edgelen.to(length_units)
 
-
-
     xstar = data.stars.coordinates.to(length_units)
     xpart = data.gas.coordinates.to(length_units)
     dxp = xpart - xstar
@@ -261,7 +259,9 @@ def plot_photons(filename, emin, emax, fmin, fmax):
     # all these three arrays have unyts
     r_bin_edges = np.linspace(0.5 * edgelen * 1e-3, 0.507 * edgelen, nbins + 1)
     r_bin_centres = 0.5 * (r_bin_edges[1:] + r_bin_edges[:-1])
-    r_analytical_bin_edges = np.linspace( 0.5 * edgelen * 1e-6, 0.507 * edgelen, nbins + 1)
+    r_analytical_bin_edges = np.linspace(
+        0.5 * edgelen * 1e-6, 0.507 * edgelen, nbins + 1
+    )
 
     # --------------------------
     # Read in and process data

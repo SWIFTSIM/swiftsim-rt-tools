@@ -84,7 +84,10 @@ def plot_result(filename):
 
     global imshow_kwargs
     imshow_kwargs["extent"] = [
-        0.0, meta.boxsize[0].to("kpc").v, 0.,  meta.boxsize[1].to("kpc").v
+        0.0,
+        meta.boxsize[0].to("kpc").v,
+        0.0,
+        meta.boxsize[1].to("kpc").v,
     ]
 
     mass_map = slice_gas(
@@ -97,7 +100,9 @@ def plot_result(filename):
     data.gas.mXHII = imf.HII * data.gas.masses
 
     mu = spt.mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)
-    data.gas.mT = spt.gas_temperature(data.gas.internal_energies, mu, gamma) * data.gas.masses
+    data.gas.mT = (
+        spt.gas_temperature(data.gas.internal_energies, mu, gamma) * data.gas.masses
+    )
     data.gas.mT = data.gas.mT.to(data.gas.masses.units * unyt.K)
 
     mass_weighted_HI_map = slice_gas(

@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     # Physics setup
     unitL = unyt.Mpc
-    edgelen = 16.5 * 1e-3 * unitL 
+    edgelen = 16.5 * 1e-3 * unitL
     edgelen = edgelen.to(unitL)
     boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
     dx = edgelen / n_p
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     nH = 1e-3 * unyt.cm ** (-3)
     rho_gas = nH * unyt.proton_mass
     Mtot = rho_gas * edgelen ** 3
-    mpart = Mtot / n_p**3
+    mpart = Mtot / n_p ** 3
     mpart = mpart.to(cosmo_units["mass"])
 
     # get gas internal energy for a given temperature and composition
@@ -59,11 +59,11 @@ if __name__ == "__main__":
     mu = spt.mean_molecular_weight(XHI, XHII, XHeI, XHeII, XHeIII)
     internal_energy = spt.internal_energy(T, mu, gamma)
 
-    xp = unyt.unyt_array(np.zeros((n_p**3, 3), dtype=np.float64), unitL)
+    xp = unyt.unyt_array(np.zeros((n_p ** 3, 3), dtype=np.float64), unitL)
 
     # shift particles by half width so that
     # (0.5, 0.5, 0.5) can be taken by star
-    shift = 0.
+    shift = 0.0
     if n_p % 2 == 0:
         shift = 0.5
 
@@ -78,13 +78,12 @@ if __name__ == "__main__":
                 xp[ind, 0] = x
                 xp[ind, 1] = y
                 xp[ind, 2] = z
-                ind += 1;
+                ind += 1
 
     xs = unyt.unyt_array(np.zeros((1, 3), dtype=np.float64), unitL)
     xs[0, 0] = 0.5 * edgelen
     xs[0, 1] = 0.5 * edgelen
     xs[0, 2] = 0.5 * edgelen
-
 
     w = Writer(unit_system=cosmo_units, box_size=boxsize, dimension=3)
 
