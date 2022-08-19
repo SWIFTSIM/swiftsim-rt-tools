@@ -11,3 +11,6 @@ instructions
     contains instructions on how to modify the code to be able to achieve
     certain behaviours. E.g. disable particle heating, hydrodynamics interactions,
     set a fixed radiation field that switches off, etc.
+
+MiniStromgren_3D
+    A small 3D Stromgren sphere test. Useful for quick tests during development.
