@@ -19,12 +19,12 @@
 #
 ##############################################################################
 
+# Script adapted from one provided in StromgrenSphere_3D/ example in SWIFT repository
+
 # ----------------------------------------------------------------------
 # plots
 #   - radiation energies of particles as function of radius
-#   - magnitude of radiation fluxes of particles as function of radius
 #   - total energy in radial bins
-#   - total vectorial sum of fluxes in radial bins
 # and compare with expected propagation speed solution.
 # Usage:
 #   give snapshot number as cmdline arg to plot
