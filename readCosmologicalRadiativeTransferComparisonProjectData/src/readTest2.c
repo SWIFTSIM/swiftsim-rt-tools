@@ -32,13 +32,14 @@ int main(int argc, char **argv) {
   /* } */
 
   float *xHI_hist = NULL;
-
-  get_profile(&xHI_hist, xHI);
-  io_write_profile(filename, xHI_hist, HISTOGRAM_NBINS, "xHI");
+  float *xHI_std = NULL;
+  get_profile(&xHI_hist, &xHI_std, xHI);
+  io_write_profile(filename, xHI_hist, xHI_std, HISTOGRAM_NBINS, "xHI");
 
   float *T_hist = NULL;
-  get_profile(&T_hist, T);
-  io_write_profile(filename, T_hist, HISTOGRAM_NBINS, "T");
+  float *T_std = NULL;
+  get_profile(&T_hist, &T_std, T);
+  io_write_profile(filename, T_hist, T_std, HISTOGRAM_NBINS, "T");
 
   fclose(fp);
   free(xHI);

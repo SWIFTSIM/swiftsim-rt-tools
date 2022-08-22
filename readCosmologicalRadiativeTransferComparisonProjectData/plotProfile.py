@@ -23,12 +23,13 @@ if not os.path.isfile(infile):
     quit()
 
 
-data = np.loadtxt(infile)
+data, std = np.loadtxt(infile, delimiter=",", unpack=True)
 
 fig = plt.figure(figsize=(8, 6), dpi=200)
 ax1 = fig.add_subplot(111)
 
-im1 = ax1.plot(data)
+#  ax1.plot(range(1, data.shape[0]+1), data)
+ax1.errorbar(range(1, data.shape[0]+1), data, yerr=std, capsize=2)
 
 plt.tight_layout()
 fname = infile[:-3] + "png"
