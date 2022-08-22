@@ -39,7 +39,8 @@ replace_gas = True
 
 if __name__ == "__main__":
 
-    glass = h5py.File("glassCube_64.hdf5", "r")
+    #  glass = h5py.File("glassCube_64.hdf5", "r")
+    glass = h5py.File("glassCube_128.hdf5", "r")
     parts = glass["PartType0"]
     xp = parts["Coordinates"][:]
     h = parts["SmoothingLength"][:]
@@ -69,7 +70,7 @@ if __name__ == "__main__":
 
     # Set up metadata
     unitL = unyt.Mpc
-    edgelen = 13.2 * 1e-3 * unitL  # 22 so we can cut off 1kpc on each edge for image
+    edgelen = 20. * 1e-3 * unitL  # 22 so we can cut off 1kpc on each edge for image
     edgelen = edgelen.to(unitL)
     boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
 
