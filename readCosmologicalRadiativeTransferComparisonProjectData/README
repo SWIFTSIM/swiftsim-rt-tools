@@ -1,1 +1,63 @@
-TODO
+Scripts to read in result data from the cosmological radiative code comparison 
+project. 
+
+They are publicly available on 
+
+(state 22.08.2022). Detailed descriptions of the data is given in 
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/files/RT_tests.pdf
+(state 22.08.2022).
+
+The result files are all binary files, written in the "IFrIT" format.  (See
+https://ascl.net/1304.019).
+
+
+Following the source code (`frit-4.1.2/docs/writeIFrIT.[cf]`), apparently the 
+files have been written using
+
+```
+    int WriteIFrITUniformScalarsBinFile(
+        int n1, int n2, int n3, /* Size of the computational mesh in 3 directions */
+        float *var1, float *var2, float *var3, /* Three scalar variables */
+        char *filename) /* Name of the file */
+    {
+       int ntemp; FILE *F; /* ntemp should be declared long on a 16-bit machine */
+       F = fopen(filename,"wb"); if(F == NULL) return 1;
+       ntemp = 12;
+       fwrite(&ntemp,4,1,F);
+       fwrite(&n1,4,1,F);
+       fwrite(&n2,4,1,F);
+       fwrite(&n3,4,1,F);
+       fwrite(&ntemp,4,1,F);
+       ntemp = 4*n1*n2*n3;
+       fwrite(&ntemp,4,1,F); fwrite(var1,4,n1*n2*n3,F); fwrite(&ntemp,4,1,F);
+       fwrite(&ntemp,4,1,F); fwrite(var2,4,n1*n2*n3,F); fwrite(&ntemp,4,1,F);
+       fwrite(&ntemp,4,1,F); fwrite(var3,4,n1*n2*n3,F); fwrite(&ntemp,4,1,F);
+       fclose(F);
+       return 0;
+    }
+```
+
+or  in Fortran:
+
+```
+C
+C  Write to binary uniform scalars data file
+C
+      subroutine WriteIFrITUniformScalarsBinFile(n1,n2,n3,var1,var2,var3,
+     .     filename)
+      integer n1, n2, n3  ! Size of the computational mesh in 3 directions
+      real*4 var1(n1,n2,n3)
+      real*4 var2(n1,n2,n3) ! Three scalar variables
+      real*4 var3(n1,n2,n3)
+      character*(*) filename  ! Name of the file
+      open(unit=1, file=filename, form='unformatted')
+      write(1) n1, n2, n3
+      write(1) (((var1(i,j,k),i=1,n1),j=1,n2),k=1,n3)
+      write(1) (((var2(i,j,k),i=1,n1),j=1,n2),k=1,n3)
+      write(1) (((var3(i,j,k),i=1,n1),j=1,n2),k=1,n3)
+      close(1)
+      return
+      end
+```
+
+
