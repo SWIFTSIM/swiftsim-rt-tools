@@ -110,7 +110,7 @@ void get_std(float *data, float *mean, int *count, float **std) {
           continue;
 
         int index = floor(d / HISTOGRAM_BIN_WIDTH);
-        float val = data[get_array_index(i, j, k)]; 
+        float val = data[get_array_index(i, j, k)];
 
         float temp1 = (val - mean[index]);
         float temp2 = temp1 * temp1;
@@ -121,18 +121,20 @@ void get_std(float *data, float *mean, int *count, float **std) {
     }
   }
 
-  for (int i = 0; i < HISTOGRAM_NBINS; i++){
+  for (int i = 0; i < HISTOGRAM_NBINS; i++) {
     /* Sanity check: Make sure we obtained the same count */
-    if (c[i] != count[i]){
+    if (c[i] != count[i]) {
       printf("Inconsistent counts: got=%d had=%d", c[i], count[i]);
       abort();
     }
 
-    if (c[i] == 0) continue;
-    if (c[i] == 1) continue;
+    if (c[i] == 0)
+      continue;
+    if (c[i] == 1)
+      continue;
 
     /* Make actual STD out of sum of squares */
-    float temp = 1.f / ((float) c[i] - 1.f) * s[i];
+    float temp = 1.f / ((float)c[i] - 1.f) * s[i];
     temp = sqrtf(temp);
     s[i] = temp;
   }
@@ -145,7 +147,8 @@ void get_std(float *data, float *mean, int *count, float **std) {
  * Get a profile
  *
  * @param profile (return) the pointer to the profile of the data
- * @param std (return) the pointer to the standard deviation of the data in the profile
+ * @param std (return) the pointer to the standard deviation of the data in the
+ *profile
  * @param data the data to make a profile of
  *
  **/
