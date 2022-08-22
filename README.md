@@ -30,4 +30,5 @@ SWIFT.
     thermochemistry. Useful to set up initial conditions, or do some outside
     computations for setups.
 
-
+-   `readCosmologicalRadiativeTransferComparisonProjectData` - read in data from
+    the cosmological radiative transfer comparison project (Iliev et al 2006, 2009)
