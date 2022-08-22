@@ -28,7 +28,6 @@
  * @param count (return) the event counts in each bin
  *
  * */
-
 void get_histogram(float *data, float **hist, int **count) {
 
   float *h = malloc(HISTOGRAM_NBINS * sizeof(float));

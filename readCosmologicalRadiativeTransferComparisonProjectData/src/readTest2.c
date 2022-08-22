@@ -36,14 +36,15 @@ int main(int argc, char **argv) {
   get_profile(&xHI_hist, xHI);
   io_write_profile(filename, xHI_hist, HISTOGRAM_NBINS, "xHI");
 
-  /* float T_hist = NULL; */
-  /* get_profile(&xT_hist, T); */
+  float *T_hist = NULL;
+  get_profile(&T_hist, T);
+  io_write_profile(filename, T_hist, HISTOGRAM_NBINS, "T");
 
   fclose(fp);
   free(xHI);
   free(xHI_hist);
   free(T);
-  /* free(T_hist); */
+  free(T_hist);
 
   return 0;
 }

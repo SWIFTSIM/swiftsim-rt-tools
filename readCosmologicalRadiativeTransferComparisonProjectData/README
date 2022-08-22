@@ -1,14 +1,25 @@
 Scripts to read in result data from the cosmological radiative code comparison 
-project. 
+projects (https://arxiv.org/abs/astro-ph/0603199, https://arxiv.org/abs/0905.2920)
 
 They are publicly available on 
-
-(state 22.08.2022). Detailed descriptions of the data is given in 
-https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/files/RT_tests.pdf
-(state 22.08.2022).
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/index.html (state 22.08.2022). 
+Detailed descriptions of the data is provided in
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/files/RT_tests.pdf (state 22.08.2022).
 
 The result files are all binary files, written in the "IFrIT" format.  (See
-https://ascl.net/1304.019).
+https://ascl.net/1304.019). Each test may contain different variables written out, 
+so each set gets their own executable which can be compiled individually.
+
+Typically each executable will take the result binary file as a cmdline arg,
+read it in, and extract the profiles of the relevant data. The profiles are set
+up to be spherically averaged histograms over 128 cells that were used in the
+tests. Alternatively, functions are provided to print out entire 2D slices.
+
+Two simple python scripts to plot results (slices, profiles) are provided.
+
+
+
+
 
 
 Following the source code (`frit-4.1.2/docs/writeIFrIT.[cf]`), apparently the 
@@ -59,5 +70,4 @@ C
       return
       end
 ```
-
 
