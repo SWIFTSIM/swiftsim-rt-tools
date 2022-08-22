@@ -1,22 +1,21 @@
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
 
+#include "cell.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include "cell.h"
 
 #define HISTOGRAM_NBINS 128
 #define HISTOGRAM_BIN_WIDTH 1.
 
-
-#define check_is_NULL(arr)            \
-  ({                                  \
-    if (*arr != NULL) {               \
-      printf(#arr "is not NULL\n");   \
-      abort();                        \
-     }                                \
-   })
+#define check_is_NULL(arr)                                                     \
+  ({                                                                           \
+    if (*arr != NULL) {                                                        \
+      printf(#arr "is not NULL\n");                                            \
+      abort();                                                                 \
+    }                                                                          \
+  })
 
 /**
  * Generate a histogram from given data.
@@ -30,38 +29,38 @@
  *
  * */
 
-void get_histogram(float *data, float** hist, int** count){
+void get_histogram(float *data, float **hist, int **count) {
 
   float *h = malloc(HISTOGRAM_NBINS * sizeof(float));
   int *c = malloc(HISTOGRAM_NBINS * sizeof(int));
 
-  for (int i = 0; i < HISTOGRAM_NBINS; i++){
+  for (int i = 0; i < HISTOGRAM_NBINS; i++) {
     h[i] = 0.f;
     c[i] = 0;
   }
 
   const float max_range = HISTOGRAM_BIN_WIDTH * HISTOGRAM_NBINS;
 
-  for (int i = 0; i < NCELLS; i++){
-    float x = ((float) i + 0.5f) * CELL_WIDTH;
+  for (int i = 0; i < NCELLS; i++) {
+    float x = ((float)i + 0.5f) * CELL_WIDTH;
     float x2 = x * x;
     for (int j = 0; j < NCELLS; j++) {
-      float y = ((float) j + 0.5f) * CELL_WIDTH;
+      float y = ((float)j + 0.5f) * CELL_WIDTH;
       float y2 = y * y;
-      for (int k = 0; k < NCELLS; k++){
-        float z = ((float) k + 0.5f) * CELL_WIDTH;
+      for (int k = 0; k < NCELLS; k++) {
+        float z = ((float)k + 0.5f) * CELL_WIDTH;
         float z2 = z * z;
 
         float d = sqrtf(x2 + y2 + z2);
-        
+
         /* don't use anything further away than the box size */
-        if (d > max_range) continue;
+        if (d > max_range)
+          continue;
 
         int index = floor(d / HISTOGRAM_BIN_WIDTH);
 
-        h[index] += data[get_array_index(i,j,k)];
+        h[index] += data[get_array_index(i, j, k)];
         c[index] += 1;
-
       }
     }
   }
@@ -72,7 +71,6 @@ void get_histogram(float *data, float** hist, int** count){
   *count = c;
 }
 
-
 /**
  * Get a profile
  *
@@ -80,7 +78,7 @@ void get_histogram(float *data, float** hist, int** count){
  * @param data the data to make a profile of
  *
  **/
-void get_profile(float **profile, float *data){
+void get_profile(float **profile, float *data) {
 
   float *hist = NULL;
   int *count = NULL;
@@ -91,9 +89,10 @@ void get_profile(float **profile, float *data){
     prof[i] = 0.f;
   }
 
-  for (int i = 0; i < HISTOGRAM_NBINS; i++){
+  for (int i = 0; i < HISTOGRAM_NBINS; i++) {
     float res = NAN;
-    if (count[i] > 0) res = hist[i] / (float) count[i];
+    if (count[i] > 0)
+      res = hist[i] / (float)count[i];
     prof[i] = res;
   }
 

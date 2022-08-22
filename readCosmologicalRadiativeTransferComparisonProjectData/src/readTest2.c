@@ -1,11 +1,10 @@
 /* Read result data for test 2 */
 
-#include "ioutils.h"
-#include "histogram.h"
 #include "cell.h"
+#include "histogram.h"
+#include "ioutils.h"
 
-
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
   if (argc != 2) {
     printf("Error: Wrong usage.\n");
@@ -20,8 +19,8 @@ int main(int argc, char **argv){
 
   io_read_header(fp);
 
-  float* xHI = malloc(NCELLS*NCELLS*NCELLS*sizeof(float));
-  float* T = malloc(NCELLS*NCELLS*NCELLS*sizeof(float));
+  float *xHI = malloc(NCELLS * NCELLS * NCELLS * sizeof(float));
+  float *T = malloc(NCELLS * NCELLS * NCELLS * sizeof(float));
 
   io_read_scalar_field(fp, xHI);
   io_read_scalar_field(fp, T);
@@ -36,7 +35,6 @@ int main(int argc, char **argv){
 
   get_profile(&xHI_hist, xHI);
   io_write_profile(filename, xHI_hist, HISTOGRAM_NBINS, "xHI");
-
 
   /* float T_hist = NULL; */
   /* get_profile(&xT_hist, T); */
