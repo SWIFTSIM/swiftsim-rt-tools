@@ -39,8 +39,8 @@ replace_gas = True
 
 if __name__ == "__main__":
 
-    glass = h5py.File("glassCube_64.hdf5", "r")
-    #  glass = h5py.File("glassCube_128.hdf5", "r")
+    #  glass = h5py.File("glassCube_64.hdf5", "r")
+    glass = h5py.File("glassCube_128.hdf5", "r")
     parts = glass["PartType0"]
     xp = parts["Coordinates"][:]
     h = parts["SmoothingLength"][:]
@@ -96,7 +96,6 @@ if __name__ == "__main__":
     pid_border = np.arange(1000000001, 1000000001+npart_border+1, 1)
     ind = 0
     
-
     for i in range(nparts + 2 * border_particle_width):
         x = (i + 0.5) * dx
         for j in range(nparts + 2 * border_particle_width):
