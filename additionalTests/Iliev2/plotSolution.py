@@ -130,7 +130,7 @@ def plot_solution(filename):
     ax2 = fig.add_subplot(122)
 
     # First the references
-    for c, code in enumerate(["C2Ray", "RSPH", "OVTET"]):
+    for c, code in enumerate(["C2Ray", "RSPH", "OTVET"]):
         fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
         fname_T =  "reference/" + code + "_" + ref + "_profile_T.dat"
 
