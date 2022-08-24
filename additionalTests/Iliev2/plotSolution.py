@@ -38,7 +38,7 @@ params = {
     "xtick.major.width": 1.5,
     "ytick.major.width": 1.5,
     "axes.linewidth": 1.5,
-    "text.usetex": True,
+    #  "text.usetex": True,
     "figure.figsize": (5, 4),
     "figure.subplot.left": 0.045,
     "figure.subplot.right": 0.99,
@@ -191,7 +191,7 @@ def plot_solution(filename):
     ax1.set_ylabel("Hydrogen Fractions")
     ax2.set_ylabel("Temperature [K]")
 
-    fig.suptitle("Iliev+06 Test 0 part 2, $t$ = {0:.0f}".format(meta.time.to("Myr")))
+    fig.suptitle("Iliev+06 Test 2, $t$ = {0:.0f}".format(meta.time.to("Myr")))
     plt.tight_layout()
     figname = filename[:-5]
     figname += ".png"

@@ -46,10 +46,9 @@ mpl.rcParams.update(params)
 
 scatterplot_kwargs = {
     "alpha": 0.1,
-    "s": 2,
+    "s": 1,
     "marker": ".",
     "linewidth": 0.0,
-    #  "facecolor": "blue",
 }
 
 # Read in cmdline arg: Are we plotting only one snapshot, or all?
@@ -104,25 +103,25 @@ def plot_solution(filename):
     # get profiles
     # max r should be sqrt(3) * boxlen
     nbins = 100
-    r_bin_edges = np.linspace(0.0, 1.4, nbins + 1)
+    r_bin_edges = np.linspace(0.0, 1.1, nbins + 1)
     r_bin_centers = 0.5 * (r_bin_edges[:-1] + r_bin_edges[1:])
     xHI_binned, _, _ = stats.binned_statistic(
-        r, xHI, statistic="mean", bins=r_bin_edges, range=(0.0, 1.4)
+        r, xHI, statistic="mean", bins=r_bin_edges, range=(0.0, 1.1)
     )
     xHI_std, _, _ = stats.binned_statistic(
-        r, xHI, statistic="std", bins=r_bin_edges, range=(0.0, 1.4)
+        r, xHI, statistic="std", bins=r_bin_edges, range=(0.0, 1.1)
     )
     xHII_binned, _, _ = stats.binned_statistic(
-        r, xHII, statistic="mean", bins=r_bin_edges, range=(0.0, 1.4)
+        r, xHII, statistic="mean", bins=r_bin_edges, range=(0.0, 1.1)
     )
     xHII_std, _, _ = stats.binned_statistic(
-        r, xHII, statistic="std", bins=r_bin_edges, range=(0.0, 1.4)
+        r, xHII, statistic="std", bins=r_bin_edges, range=(0.0, 1.1)
     )
     T_binned, _, _ = stats.binned_statistic(
-        r, T, statistic="mean", bins=r_bin_edges, range=(0.0, 1.4)
+        r, T, statistic="mean", bins=r_bin_edges, range=(0.0, 1.1)
     )
     T_std, _, _ = stats.binned_statistic(
-        r, T, statistic="std", bins=r_bin_edges, range=(0.0, 1.4)
+        r, T, statistic="std", bins=r_bin_edges, range=(0.0, 1.1)
     )
 
     fig = plt.figure(figsize=(10, 5.5))
@@ -147,10 +146,10 @@ def plot_solution(filename):
             linewidth=params["lines.linewidth"] * 2.0,
             zorder=1,
         )
-    #  ax1.semilogy(r_bin_centers, xHI_binned, label=r"GEARRT $x_{\mathrm{HI}}$", zorder=2)
-    #  ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=2)
-    ax1.errorbar(r_bin_centers, xHI_binned, yerr=xHI_std, label=r"GEARRT $x_{\mathrm{HI}}$", capsize=2,  zorder=20)
-    ax1.errorbar(r_bin_centers, xHII_binned, yerr=xHII_std, label=r"GEARRT $x_{\mathrm{HII}}$", capsize=2, zorder=20)
+    ax1.semilogy(r_bin_centers, xHI_binned, label=r"$x_{\mathrm{HI}}$", zorder=2)
+    ax1.semilogy(r_bin_centers, xHII_binned, label=r"$x_{\mathrm{HII}}$", zorder=2)
+    #  ax1.errorbar(r_bin_centers, xHI_binned, yerr=xHI_std, label=r"GEARRT $x_{\mathrm{HI}}$", capsize=2,  zorder=20)
+    #  ax1.errorbar(r_bin_centers, xHII_binned, yerr=xHII_std, label=r"GEARRT $x_{\mathrm{HII}}$", capsize=2, zorder=20)
 
     if plot_particles:
         ax2.scatter(r, T, **scatterplot_kwargs, zorder=0)
@@ -162,25 +161,27 @@ def plot_solution(filename):
             linewidth=params["lines.linewidth"] * 2.0,
             zorder=1,
         )
-    #  ax2.semilogy(r_bin_centers, T_binned, label=r"GEARRT", zorder=2)
-    ax2.errorbar(r_bin_centers, T_binned, yerr=T_std, label=r"GEARRT", capsize=2, zorder=20)
+    ax2.semilogy(r_bin_centers, T_binned, label=r"GEARRT", zorder=2)
+    #  ax2.errorbar(r_bin_centers, T_binned, yerr=T_std, label=r"GEARRT", capsize=2, zorder=20)
 
 
     for ax in fig.axes:
         ax.set_xlabel("r / L")
         # note: L is the box size of the original test, not the actual run
         # with GEARRT
-        ax.set_xlim(0.0, 1.1)
+        ax.set_xlim(0.0, 1.01)
         ax.set_yscale("log")
-        ax.legend()
 
+    ax1.legend(loc="lower right")
     ax1.set_ylabel("Hydrogen Fractions")
     ax2.set_ylabel("Temperature [K]")
+    ax1.set_ylim(5e-5, 1.2)
+    ax2.set_ylim(90, 4e4)
 
-    fig.suptitle("Iliev+06 Test 0 part 2, $t$ = {0:.0f}".format(meta.time.to("Myr")))
+    fig.suptitle("Iliev+06 Test 2, $t$ = {0:.0f}".format(meta.time.to("Myr")))
     plt.tight_layout()
     figname = filename[:-5]
-    figname += ".png"
+    figname += "-NoRef.png"
     plt.savefig(figname, dpi=200)
     plt.close()
 

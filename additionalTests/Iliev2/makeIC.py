@@ -71,12 +71,12 @@ if __name__ == "__main__":
 
     # Set up metadata
     unitL = unyt.Mpc
-    edgelen = 14. * 1e-3 * unitL 
+    edgelen = 15. * 1e-3 * unitL 
     edgelen = edgelen.to(unitL)
     boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
 
     # Add border particles
-    border_particle_width = 3
+    border_particle_width = 4
     dx = 1. / (nparts + 2 * border_particle_width)
     scale =  nparts / (nparts + 2 * border_particle_width)
     shift = 0.5 * (1. - scale)
