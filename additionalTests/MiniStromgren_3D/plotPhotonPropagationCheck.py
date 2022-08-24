@@ -83,7 +83,8 @@ mpl.rcParams["text.usetex"] = True
 
 def analytical_integrated_energy_solution(L, time, r, rmax):
     """
-    Compute analytical solution for the sum of the energy
+
+Compute analytical solution for the sum of the energy
     in bins for given injection rate <L> at time <time> 
     at bin edges <r> and maximal radius <rmax>
     """

@@ -52,7 +52,6 @@ scatterplot_kwargs = {
 }
 
 # Read in cmdline arg: Are we plotting only one snapshot, or all?
-# WARNING: The reference solution is comparable with snapshot_500 only
 plot_all = False
 try:
     snapnr = int(sys.argv[1])
