@@ -6,8 +6,9 @@ https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests1-4.html
 Files:
     *_T.dat : contain temperature in K
     *_xHI.dat : contain neutral hydrogen mass fraction
+    *_Ifront.dat: contains simulation time in Myr, I-front radius in kpc, and I-front velocity in km/s
 
-File Contents:
+File Contents for *_T.dat, *_xHI.dat:
     first column: mean value
     second column: standard deviation
 
