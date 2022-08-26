@@ -12,7 +12,8 @@ InternalUnitSystem:
 # Parameters governing the time integration
 TimeIntegration:
   time_begin: 0.    # The starting time of the simulation (in internal units).
-  time_end:   102084.547    # 100 Myr
+  # time_end:   102084.547    # 100 Myr
+  time_end:   510422.735    # 500 Myr
   dt_min:     0.0102084547  # 10 yr
   dt_max:     1020.84547    # 1 Myr
   # max_nr_rt_subcycles: 32 # use this for 128^3
@@ -22,7 +23,8 @@ TimeIntegration:
 Snapshots:
   basename:            output    # Common part of the name of output files
   time_first:          0.        # Time of the first output (in internal units)
-  delta_time:          1020.8453 # 1Myr
+  # delta_time:          1020.8453 # 1 Myr
+  delta_time:          10208.453 # 10 Myr
 
 # Parameters governing the conserved quantities statistics
 Statistics:
@@ -56,6 +58,6 @@ GEARRT:
   stellar_spectrum_type: 1                               # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
   stellar_spectrum_blackbody_temperature_K: 1.e5         # (Conditional) if stellar_spectrum_type=1, use this temperature (in K) for the blackbody spectrum.
   # ---- use this value for 64^3 resolution
-  # stars_max_timestep: 2.50e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  stars_max_timestep: 2.50e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
   # ---- use this value for 128^3 resolution
-  stars_max_timestep: 1.250e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  # stars_max_timestep: 1.250e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
