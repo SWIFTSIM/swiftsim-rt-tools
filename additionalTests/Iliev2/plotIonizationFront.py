@@ -277,7 +277,7 @@ def plot_ionization_fronts_from_log(fig):
     else:
         r_ifront_ana = r_I(times)
         ax1.plot(times/t_rec, rI.to("kpc")/r_ifront_ana.to("kpc"), ls="--", label="GEARRT each step", zorder=31)
-        ax2.plot(times/trec, r_ifront.to("kpc") / r_S.to("kpc"), label="GEARRT each step", zorder=31)
+        ax2.plot(times/t_rec, r_ifront.to("kpc") / r_S.to("kpc"), label="GEARRT each step", zorder=31)
         ax3.plot(timesV/t_rec, vI.to("kpc/kyr")/(r_S.to("kpc") / t_rec.to("kyr")).to("kpc/kyr"), ls="--", label="GEARRT each step", zorder=31)
 
     return
@@ -342,7 +342,7 @@ if __name__ == "__main__":
 
     snaplist = spt.get_snapshot_list(snapshot_base, True, -1)
     plot_ionization_fronts_from_snapshots(snaplist, fig)
-    #  plot_ionization_fronts_from_log(fig)
+    plot_ionization_fronts_from_log(fig)
     plot_ionization_fronts_reference(fig)
 
     if plot_actual_values:
