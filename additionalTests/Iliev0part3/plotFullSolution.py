@@ -34,12 +34,10 @@ import copy
 plotkwargs = {"alpha": 0.5}
 # arguments for legends
 legendprops = {"size": 8}
+# snapshot basenames
+snapshot_base = "output"
 # skip the zeroth snapshot?
 skip_zeroth_snapshot = False
-# basename
-snapshot_basename = "output"
-# label individual references, or make them grey?
-label_refs = False
 
 
 # -----------------------------------------------------------------------
@@ -102,7 +100,7 @@ def get_snapshot_list(snapshot_basename="output"):
     dirlist = os.listdir()
     for f in dirlist:
         if f.startswith(snapshot_basename) and f.endswith("hdf5"):
-            if skip_zeroth_snapshot and f == snapshot_basename + "_0000.hdf5":
+            if skip_zeroth_snapshot and f == snapshot_base + "_0000.hdf5":
                 # skip snapshot zero.
                 print("skipping", f)
                 continue
@@ -173,7 +171,7 @@ def get_ion_mass_fractions(swiftsimio_loaded_data):
     return imf
 
 
-def get_full_snapshot_data(snaplist):
+def get_snapshot_data(snaplist):
     """
     Extract the relevant data from the list of snapshots.
 
@@ -245,43 +243,7 @@ def get_full_snapshot_data(snaplist):
     )
 
 
-def get_snapshot_data(snaplist):
-    """
-    Extract the relevant data from the list of snapshots.
-
-    Returns:
-        numpy arrays of:
-            time
-            temperatures 
-    """
-
-    nsnaps = len(snaplist)
-
-    times = np.zeros(nsnaps) * time_units
-    temperatures = np.zeros(nsnaps) * unyt.K
-    xHI = np.zeros(nsnaps)
-
-    for i, snap in enumerate(snaplist):
-
-        data = swiftsimio.load(snap)
-        gamma = data.gas.metadata.gas_gamma[0]
-        time = data.metadata.time
-        gas = data.gas
-
-        u = gas.internal_energies[:].to(energy_units / mass_units)
-        imf = get_ion_mass_fractions(data)
-        mu = mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)
-        T = gas_temperature(u, mu, gamma).to("K")
-
-        times[i] = time.to(time_units)
-        temperatures[i] = np.mean(T)
-
-        xHI[i] = np.mean(imf.HI / (imf.HI + imf.HII))
-
-    return times, xHI, temperatures
-
-
-def get_grackle_reference():
+def get_reference():
     """
     Read in the temperatures from the reference file
     """
@@ -320,16 +282,14 @@ def get_grackle_reference():
     Temperature = data[:, 3]
     #  mu = data[:, 4]
     #  tot_density = data[:, 5]  # mass density
-    HI_density = data[:, 6]
-    HII_density = data[:, 7]
+    #  HI_density = data[:, 6]
+    #  HII_density = data[:, 7]
     #  HeI_density = data[:, 8]
     #  HeII_density = data[:, 9]
     #  HeIII_density = data[:, 10]
     #  e_density = data[:, 11]  # number density
 
-    xHI = HI_density / (HI_density + HII_density)
-
-    return Time, xHI, Temperature
+    return Time, Temperature
 
 
 if __name__ == "__main__":
@@ -338,46 +298,72 @@ if __name__ == "__main__":
     # Plot figures
     # ------------------
 
-    snaplist = get_snapshot_list(snapshot_basename)
-    #  t, T, mu, mass_fraction, u, photon_energies, volumes, c_reduced = get_full_snapshot_data(
-    #      snaplist
-    #  )
-    t, xHI, T = get_snapshot_data(snaplist)
+    snaplist = get_snapshot_list(snapshot_base)
+    t, T, mu, mass_fraction, u, photon_energies, volumes, c_reduced = get_snapshot_data(
+        snaplist
+    )
+    ngroups = photon_energies.shape[0]
 
-    fig = plt.figure(figsize=(7, 5), dpi=300)
-    ax1 = fig.add_subplot(211)
-    ax2 = fig.add_subplot(212, sharex=ax1)
+    t_ref, T_ref = get_reference()
 
-    reflist = ["FFTE", "RSPH", "FLASH", "ART", "CRASH", "C2RAY"]
-    for ref in reflist:
-        t_ref, xHI_ref, T_ref = np.loadtxt("references/" + ref + ".dat", unpack=True)
-        if label_refs:
-            ax1.loglog(t_ref, xHI_ref, label=ref)
-            ax2.loglog(t_ref, T_ref, label=ref)
-        else:
-            label = None
-            if ref == reflist[-1]:
-                label = "references"
-            ax1.loglog(t_ref, xHI_ref, label=label, alpha=0.6, c="grey")
-            ax2.loglog(t_ref, T_ref, label=label, alpha=0.6, c="grey")
+    fig = plt.figure(figsize=(8, 8), dpi=300)
+    ax1 = fig.add_subplot(2, 2, 1)
+    ax2 = fig.add_subplot(2, 2, 2)
+    ax3 = fig.add_subplot(2, 2, 3)
+    ax4 = fig.add_subplot(2, 2, 4)
 
-    t_ref, xHI_ref, T_ref = get_grackle_reference()
-    ax1.loglog(t_ref, xHI_ref, label="grackle reference", linestyle="--")
-    ax2.loglog(t_ref, T_ref, label="grackle reference", linestyle="--")
-
-    ax1.loglog(t, xHI, label="GEARRT")
-    ax2.loglog(t, T, label="GEARRT")
-
-    ax1.set_ylabel("neutral fraction [1]")
-    ax2.set_ylabel("gas temperature [K]")
+    ax1.loglog(t, T, label="SWIFT results")
+    ax1.loglog(t_ref, T_ref, label="grackle reference", linestyle="--")
+    ax1.set_ylabel("gas temperature [K]")
     ax1.legend(prop=legendprops)
     ax1.grid()
+    ax1.set_xlim(0.9 * t.min(), 1.01 * t.max())
+
+    ax2.plot(t, mu, label="obtained results")
+    ax2.set_ylabel("mean molecular weight")
+    ax2.legend(prop=legendprops)
     ax2.grid()
-    #  ax1.set_xlim(0.5 * t.min(), 1.2 * t.max())
-    ax1.set_xlim(1.0e-6, 6.0e6)
 
-    ax2.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
+    total_mass_fraction = np.sum(mass_fraction, axis=1)
+    ax3.plot(t, total_mass_fraction, "k", label="total", ls="-")
 
-    plt.tight_layout(h_pad=0.0)
+    ax3.loglog(t, mass_fraction[:, 0], label="HI", ls=":", **plotkwargs, zorder=1)
+    ax3.loglog(t, mass_fraction[:, 1], label="HII", ls="-.", **plotkwargs, zorder=1)
+    ax3.loglog(t, mass_fraction[:, 2], label="HeI", ls=":", **plotkwargs, zorder=1)
+    ax3.loglog(t, mass_fraction[:, 3], label="HeII", ls="-.", **plotkwargs, zorder=1)
+    ax3.loglog(t, mass_fraction[:, 4], label="HeIII", ls="--", **plotkwargs, zorder=1)
+    ax3.legend(loc="upper right", prop=legendprops)
+    ax3.set_ylabel("gas mass fractions [1]")
+    ax3.grid()
+
+    # for GEAR-RT, the flux corresponds to the energy density flux,
+    # i.e. c * E_{snapshot}/V_{snapshot} = F_{snapshot}
+    # Try reconstruct the fluxes that you've injected in the test to verify
+    # that you injected the right amount.
+    # I expect:
+    #  Bin   0:  3.288e+15 -  5.945e+15 [Hz]  Luminosity/cm^2 = 1.350e+01 [erg/s/cm^2]
+    #  Bin   1:  5.945e+15 -  1.316e+16 [Hz]  Luminosity/cm^2 = 2.779e+01 [erg/s/cm^2]
+    #  Bin   2:  1.316e+16 -  5.879e+17 [Hz]  Luminosity/cm^2 = 6.152e+00 [erg/s/cm^2]
+
+    Ec = photon_energies * c_reduced / volumes
+    Ec.convert_to_units(flux_units)
+    tot_flux = np.sum(Ec, axis=0)
+    ax4.semilogx(
+        t, tot_flux, label="total radiation flux", color="k", ls="--", **plotkwargs
+    )
+    for g in range(ngroups):
+        ax4.plot(t, Ec[g, :], label=f"radiation flux group {g+1}", **plotkwargs)
+    ax4.set_ylabel(
+        r"total radiation flux $E \times \tilde{c}$ [$"
+        + Ec.units.latex_representation()
+        + "$]",
+        usetex=True,
+    )
+    ax4.legend(prop=legendprops)
+    ax4.grid()
+
+    for ax in fig.axes:
+        ax.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
+
+    plt.tight_layout()
     plt.savefig("ilievTest0part3.png")
-    #  plt.show()

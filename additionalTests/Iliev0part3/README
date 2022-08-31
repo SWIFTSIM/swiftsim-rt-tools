@@ -26,9 +26,22 @@ Details:
     Bin   0:  3.288e+15 -  5.879e+17 [Hz]  Luminosity =    4.744e+01 [erg/s]    1.240e-32 [L_Sol]
 
 
+To run this test with GEARRT, it requires some modifications in SWIFT:
+
+a) turn off hydrodynamics
+b) keep a radiation field fixed for the specified amount of time
+c) modify how you compute the RT time step size.
 
 You can find instructions on how to fix the density field for GEAR-RT in
 swiftsim-rt-tools/additionalTests/instructions/GEARRT_turn_off_hydrodynamics_evolution.md
 
 You can find instructions on how to fix the radiation field for GEAR-RT in
 swiftsim-rt-tools/additionalTests/instructions/GEARRT_fix_radiation_fields.md
+
+You can find instructions on how to modify the RT time step sizes such that they
+continuously increase and you don't need to run millions of steps for this simple test in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_tweak_time_step_sizes.md
+
+For the current setup, I used 
+    dt_init = 1.597603e-10;
+    p->dt *= 1.001; each step

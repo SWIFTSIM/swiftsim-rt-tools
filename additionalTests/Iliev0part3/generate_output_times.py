@@ -35,57 +35,30 @@ else:
     print("t_end is {0:.3g} Myr".format(t_end * unit_myr))
 
 
-output_heating = (
-    np.logspace(np.log10(dt_max * unit_myr * 2), np.log10(0.5), 100) / unit_myr
-)
-output_cooling = np.linspace(0.51, 5.5, 100) / unit_myr
-# make sure we have no precision issues for final snap
-output_cooling[-1] = t_end
-
 # If you're rebuilding this output times list:
 # I read this 'dt' out from a run, then used it to generate the output list
-dt_heat = 8.577071e-02
+dt_heat = 3.994010e-11
 
 current_t = 0.0
+new_t = 0.0
 outputtimes = []
-# first 20 snapshots
-for i in range(20):
-    current_t += dt_heat
-    outputtimes.append(current_t)
-for i in range(20):
-    current_t += 2 * dt_heat
-    outputtimes.append(current_t)
-for i in range(20):
-    current_t += 4 * dt_heat
-    outputtimes.append(current_t)
-for i in range(20):
-    current_t += 8 * dt_heat
-    outputtimes.append(current_t)
-for i in range(20):
-    current_t += 32 * dt_heat
-    outputtimes.append(current_t)
-# fill up until heating stops
-while current_t * unit_myr < 0.5:
-    current_t += 64 * dt_heat
-    outputtimes.append(current_t)
+step = 32
 
+count = 0
+while new_t < t_end:
+    for i in range(12):
+        #  print(current_t, step, dt_heat, step * dt_heat)
+        new_t = current_t + step * dt_heat
+        if new_t > t_end:
+            break
+        current_t = new_t
+        outputtimes.append(current_t)
+        count += 1
+    step *= 2
 
-# do 50 snapshots until 1 Myr, and 50 thereafter
-dt_cool = 0.5 / unit_myr / 50
-for i in range(50):
-    current_t += dt_cool
-    outputtimes.append(current_t)
-dt_cool = 4.5 / unit_myr / 50
-for i in range(50):
-    current_t += dt_cool
-    outputtimes.append(current_t)
-
-if outputtimes[-1] > t_end:
-    outputtimes[-1] = t_end
-
-if outputtimes[-2] == t_end:
-    print("error: second to last snapshot > time_end")
-    quit()
+# add final time
+if outputtimes[-1] < t_end * (1.0 - 1e-3):
+    outputtimes.append(t_end * (1.0 - 1e-3))
 
 
 with open(r"snaplist.txt", "w") as outfile:

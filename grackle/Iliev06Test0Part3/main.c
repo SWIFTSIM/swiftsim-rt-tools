@@ -34,8 +34,7 @@ int main() {
   /* output file */
   FILE *fd = fopen("out.dat", "w");
   /* output frequency  in number of steps */
-  int output_frequency_cool = 64; /* output frequency while cooling */
-  int output_frequency_heat = 2;  /* output frequency while heating */
+  int output_frequency = 64; /* output frequency while cooling */
 
   /* Define units  */
   /* --------------*/
@@ -55,17 +54,18 @@ int main() {
   /* Time integration variables */
   /* -------------------------- */
 
-  /* max dt while cooling. in yr. Will be converted later */
-  double dt_max_cool = 100.;
+  double dt_max_cool = 1e2; /* upper limit for time during cooling, in yr */
+  double dt_max_heat = 10.; /* upper limit for time during heating, in yr */
+  double dt_init = 1.e-8;
   /* max dt while heating. in yr. Will be converted later */
-  double dt_max_heat = 2.;
-  double tinit = 1e-5; /* in yr; will be converted later */
-  double tend = 5.5e6; /* in yr; will be converted later */
+  double tinit = 1e-10; /* in yr; will be converted later */
+  double tend = 5.5e6;  /* in yr; will be converted later */
   /* Convert times to internal units. */
-  double t = tinit * const_yr / time_units;          /* yr to code units */
-  tend = tend * const_yr / time_units;               /* yr to code units */
-  dt_max_cool = dt_max_cool * const_yr / time_units; /* yr to code units */
-  dt_max_heat = dt_max_heat * const_yr / time_units; /* yr to code units */
+  double t = tinit * const_yr / time_units;  /* yr to code units */
+  tend = tend * const_yr / time_units;       /* yr to code units */
+  dt_init = dt_init * const_yr / time_units; /* yr to code units */
+  dt_max_cool = dt_max_cool * const_yr / time_units;
+  dt_max_heat = dt_max_heat * const_yr / time_units;
 
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
@@ -79,9 +79,9 @@ int main() {
   /* Initial conditions for radiation */
   /* See README for details */
   double T_blackbody = 1e5; /* K */
-#if RT_NGROUPS == 4
-  double frequency_bins_Hz[4] = {0., 3.288e15, 5.945e15, 13.157e15}; /* Hz */
-  double fixed_luminosity_cgs[4] = {0., 1.350e+01, 2.779e+01,
+#if RT_NGROUPS == 3
+  double frequency_bins_Hz[3] = {3.288e15, 5.945e15, 13.157e15}; /* Hz */
+  double fixed_luminosity_cgs[3] = {1.350e+01, 2.779e+01,
                                     6.152e+00}; /* erg / cm^2 / s */
 #elif RT_NGROUPS == 1
   double frequency_bins_Hz[1] = {3.288e15};     /* Hz */
@@ -91,7 +91,7 @@ int main() {
          "for " RT_NGROUPS " groups used\n");
   return EXIT_FAILURE;
 #endif
-  double radiation_energy_density_cgs[4] = {0., 0., 0., 0.};
+  double radiation_energy_density_cgs[3] = {0., 0., 0.};
   for (int g = 0; g < RT_NGROUPS; g++) {
     radiation_energy_density_cgs[g] =
         fixed_luminosity_cgs[g] / const_speed_light_c;
@@ -196,6 +196,8 @@ int main() {
                           use_radiative_cooling, use_radiative_transfer,
                           hydrogen_fraction_by_mass);
 
+  grackle_chemistry_data.CaseBRecombination = 1;
+
   if (initialize_chemistry_data(&grackle_units_data) == 0) {
     fprintf(stderr, "Error in initialize_chemistry_data.\n");
     return EXIT_FAILURE;
@@ -242,14 +244,17 @@ int main() {
   *********************************************************************/
 
   int step = 0;
+  double dt = dt_init;
+  double dt_use;
   while (t < tend) {
 
     /* Set up radiation fields, and compute the resulting interaction
      * rates depending on the simulation time. */
 
     gr_float iact_rates[5] = {0., 0., 0., 0., 0.};
-    double dt = dt_max_cool;
-    int output_frequency_to_use = output_frequency_cool;
+
+    dt_use = fmin(dt, dt_max_cool);
+
     if (t / const_yr * time_units < 0.5e6) {
       /* below 0.5 Myr, we heat. */
 
@@ -269,9 +274,11 @@ int main() {
                             cse, csn, mean_photon_energies, time_units,
                             iact_rates);
 
-      dt = dt_max_heat;
-      output_frequency_to_use = output_frequency_heat;
+      dt_use = fmin(dt, dt_max_heat);
     }
+
+    /* Increase timestep size */
+    dt *= 1.001;
 
     for (int i = 0; i < FIELD_SIZE; i++) {
       grackle_fields.RT_heating_rate[i] = iact_rates[0];
@@ -290,24 +297,25 @@ int main() {
       fprintf(stderr, "Error in calculate_cooling_time.");
       abort();
     }
-    dt = fmin(0.1 * fabs(tchem_time), dt);
+    dt_use = fmin(0.1 * fabs(tchem_time), dt_use);
 
-    t += dt;
+    t += dt_use;
     step += 1;
 
     if (local_solve_chemistry(&grackle_chemistry_data, &grackle_rates,
-                              &grackle_units_data, &grackle_fields, dt) == 0) {
+                              &grackle_units_data, &grackle_fields,
+                              dt_use) == 0) {
       fprintf(stderr, "Error in solve_chemistry.\n");
       return EXIT_FAILURE;
     }
 
     write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, /*field_index=*/0, t, dt,
+                   &grackle_chemistry_data, /*field_index=*/0, t, dt_use,
                    time_units, step);
 
-    if (step % output_frequency_to_use == 0)
+    if (step % output_frequency == 0)
       write_timestep(fd, &grackle_fields, &grackle_units_data,
-                     &grackle_chemistry_data, /*field_index=*/0, t, dt,
+                     &grackle_chemistry_data, /*field_index=*/0, t, dt_use,
                      time_units, step);
   }
 

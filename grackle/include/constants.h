@@ -35,7 +35,7 @@
 
 /* Extra check just in case some program already defined this macro */
 #ifndef RT_NGROUPS
-#define RT_NGROUPS 4
+#define RT_NGROUPS 3
 #endif
 
 #endif /* define CONSTANTS_H */

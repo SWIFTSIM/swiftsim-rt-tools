@@ -1,0 +1,10 @@
+All the reference solutions I could find for Iliev et al. 2006 Test 0 Part 3.
+Original data downloaded from https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/RT_workshop_data/ (state 08/2022)
+and partially adapted to be homogeneous in format.
+
+Files are named after participating codes.
+All contain 3 lines:
+
+1) time in yr
+2) neutral fraction (unitless)
+3) temperature in K

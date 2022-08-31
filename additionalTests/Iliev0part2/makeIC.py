@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     # Set up metadata
     unitL = unyt.Mpc
-    edgelen = 20. * 1e-3 * unitL  # 22 so we can cut off 1kpc on each edge for image
+    edgelen = 20.0 * 1e-3 * unitL  # 22 so we can cut off 1kpc on each edge for image
     edgelen = edgelen.to(unitL)
     boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
 
