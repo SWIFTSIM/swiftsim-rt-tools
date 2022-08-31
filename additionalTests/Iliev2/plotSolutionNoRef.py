@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+#---------------------------------------------------
+# Plots temperature and mass fractions without any
+# references.
+#---------------------------------------------------
+
 import swiftsimio
 import matplotlib as mpl
 

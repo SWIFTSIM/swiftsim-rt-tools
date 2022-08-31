@@ -33,3 +33,6 @@ size is increased compared to the one prescribed in the Iliev+2006 paper.
 You can find instructions on how to deal with boundary particles for GEAR-RT in 
 swiftsim-rt-tools/additionalTests/instructions/GEARRT_boundary_particles.md
 
+If you additionally want to extract the positions of the ionization front 
+at each time step, instructions to do so are provided in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_get_ionization_front_each_step.md

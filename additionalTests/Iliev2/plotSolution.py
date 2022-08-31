@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+#--------------------------------------------
+# Plot temperature and neutral fractions.
+#--------------------------------------------
+
 import swiftsimio
 import matplotlib as mpl
 
