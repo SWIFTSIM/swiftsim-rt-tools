@@ -59,10 +59,10 @@ int main() {
   double dt_init = 1.e-8;
   /* max dt while heating. in yr. Will be converted later */
   double tinit = 1e-10; /* in yr; will be converted later */
-  double tend = 5.5e6; /* in yr; will be converted later */
+  double tend = 5.5e6;  /* in yr; will be converted later */
   /* Convert times to internal units. */
-  double t = tinit * const_yr / time_units;          /* yr to code units */
-  tend = tend * const_yr / time_units;               /* yr to code units */
+  double t = tinit * const_yr / time_units;  /* yr to code units */
+  tend = tend * const_yr / time_units;       /* yr to code units */
   dt_init = dt_init * const_yr / time_units; /* yr to code units */
   dt_max_cool = dt_max_cool * const_yr / time_units;
   dt_max_heat = dt_max_heat * const_yr / time_units;
@@ -81,7 +81,8 @@ int main() {
   double T_blackbody = 1e5; /* K */
 #if RT_NGROUPS == 3
   double frequency_bins_Hz[3] = {3.288e15, 5.945e15, 13.157e15}; /* Hz */
-  double fixed_luminosity_cgs[3] = {1.350e+01, 2.779e+01, 6.152e+00}; /* erg / cm^2 / s */
+  double fixed_luminosity_cgs[3] = {1.350e+01, 2.779e+01,
+                                    6.152e+00}; /* erg / cm^2 / s */
 #elif RT_NGROUPS == 1
   double frequency_bins_Hz[1] = {3.288e15};     /* Hz */
   double fixed_luminosity_cgs[1] = {4.774e+01}; /* erg / cm^2 / s */
@@ -300,7 +301,8 @@ int main() {
     step += 1;
 
     if (local_solve_chemistry(&grackle_chemistry_data, &grackle_rates,
-                              &grackle_units_data, &grackle_fields, dt_use) == 0) {
+                              &grackle_units_data, &grackle_fields,
+                              dt_use) == 0) {
       fprintf(stderr, "Error in solve_chemistry.\n");
       return EXIT_FAILURE;
     }

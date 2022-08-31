@@ -7,3 +7,4 @@ black_formatting_env/**
 GRACKLE_INFO
 **/restart/
 **/*~
+compile_commands.json

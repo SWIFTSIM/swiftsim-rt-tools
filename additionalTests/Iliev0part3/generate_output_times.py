@@ -50,17 +50,18 @@ while new_t < t_end:
     for i in range(12):
         #  print(current_t, step, dt_heat, step * dt_heat)
         new_t = current_t + step * dt_heat
-        if new_t > t_end: break
+        if new_t > t_end:
+            break
         current_t = new_t
         outputtimes.append(current_t)
         count += 1
         print(count, step, i, new_t, t_end, step * dt_heat)
-        if (len(outputtimes) > 1): 
-                print((outputtimes[-1]-outputtimes[-2])/(step*dt_heat))
+        if len(outputtimes) > 1:
+            print((outputtimes[-1] - outputtimes[-2]) / (step * dt_heat))
     step *= 2
 
 # add final time
-outputtimes.append(t_end / unit_myr * (1. - 1e-6))
+outputtimes.append(t_end / unit_myr * (1.0 - 1e-6))
 
 
 with open(r"snaplist.txt", "w") as outfile:

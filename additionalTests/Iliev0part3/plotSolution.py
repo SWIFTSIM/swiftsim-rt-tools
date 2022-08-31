@@ -36,7 +36,7 @@ plotkwargs = {"alpha": 0.5}
 legendprops = {"size": 8}
 # skip the zeroth snapshot?
 skip_zeroth_snapshot = False
-# basename 
+# basename
 snapshot_basename = "output"
 
 
