@@ -2,8 +2,15 @@ Iliev 0 Test Part 2
 -----------------------
 
 Reproducing Iliev+2006 (ui.adsabs.harvard.edu/abs/2006MNRAS.369.1625I/) Test 0, part 2.
-Details:
 
+NOTE: This test is pretty much exactly the same as the Test 2, but with modified
+interaction rates. Better run the Test 2, as we have reference solutions for it.
+Furthermore, in the provided Test 2 in this repository, a treatment of boundary
+particles is used and described, such that the results in the outer regions of
+the box are better resolved.
+
+
+Details:
 - hydrogen gas only.
 - the gas density distribution is fixed.
 - original test in paper was in 128^3 cells.
@@ -28,3 +35,5 @@ swiftsim-rt-tools/additionalTests/instructions/GEARRT_turn_off_hydrodynamics_evo
 
 TODO:
 - Increase box size to avoid noise arising from periodicity issues.
+--->  this ToDo is solved in the Test 2 example (swiftsim-rt-toolss/additionalTests/Iliev2)
+

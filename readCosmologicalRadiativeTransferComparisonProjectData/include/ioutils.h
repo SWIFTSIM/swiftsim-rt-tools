@@ -115,10 +115,11 @@ void io_write_slice(char *srcfilename, float *data, char *descriptor, int z) {
  *
  * @param srcfilename filename that was read in to obtain data
  * @param profile the data
+ * @param std the standard deviation of the data. May be NULL
  * @param n number of elements in profile array
  * @param descriptor additional descriptor to add to output filename
  */
-void io_write_profile(char *srcfilename, float *profile, int n,
+void io_write_profile(char *srcfilename, float *profile, float *std, int n,
                       char *descriptor) {
 
   /* Generate output filename */
@@ -130,7 +131,11 @@ void io_write_profile(char *srcfilename, float *profile, int n,
 
   FILE *fp = fopen(outputfile, "w");
   for (int i = 0; i < n; i++) {
-    fprintf(fp, "%.6e\n", profile[i]);
+    if (std != NULL) {
+      fprintf(fp, "%.6e, %.6e\n", profile[i], std[i]);
+    } else {
+      fprintf(fp, "%.6e\n", profile[i]);
+    }
   }
 
   fclose(fp);

@@ -1,0 +1,18 @@
+Reference solutions for Iliev+06 Test 2.
+
+See https://arxiv.org/abs/astro-ph/0603199 and 
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests1-4.html
+
+Files:
+    *_T.dat : contain temperature in K
+    *_xHI.dat : contain neutral hydrogen mass fraction
+    *_Ifront.dat: contains simulation time in Myr, I-front radius in kpc, and I-front velocity in km/s
+
+File Contents for *_T.dat, *_xHI.dat:
+    first column: mean value
+    second column: standard deviation
+
+    all files have 128 lines, corresponding to the 128 cells in each
+    dimension that the reference tests have. The cell size is not
+    provided in these files, look it up yourself in the paper.
+

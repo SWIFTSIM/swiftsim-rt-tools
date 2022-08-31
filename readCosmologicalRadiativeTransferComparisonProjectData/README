@@ -1,26 +1,84 @@
+readCosmologicalRadiativeTransferComparisonProjectData
+========================================================
+
+
+About
+----------------
+
 Scripts to read in result data from the cosmological radiative code comparison 
 projects (https://arxiv.org/abs/astro-ph/0603199, https://arxiv.org/abs/0905.2920)
 
-They are publicly available on 
-https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/index.html (state 22.08.2022). 
-Detailed descriptions of the data is provided in
-https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/files/RT_tests.pdf (state 22.08.2022).
+
+
+Getting the Data
+-----------------
+
+(state 22.08.2022)
+
+The data is publicly available on https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/index.html 
+Detailed descriptions of the data is provided in https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/files/RT_tests.pdf
 
 The result files are all binary files, written in the "IFrIT" format.  (See
-https://ascl.net/1304.019). Each test may contain different variables written out, 
-so each set gets their own executable which can be compiled individually.
+https://ascl.net/1304.019). 
+
+Some of the results, like the I-front radii and velocities are not linked to the 
+html page, but it's still there. See e.g.
+
+You can download the entire database e.g. with
+```
+    $ wget -m -np https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/RT_workshop_data/
+```
+(~28GB)
+
+
+Name Conversions
+--------------------
+
+The raw data is named after the authors, not after the codes used to generate 
+them. For convenience, here's a translation table:
+
+    Name            Code 
+    -----------------------
+    Mellema         C2Ray
+    Gnedin          OTVET
+    Crash           Crash
+    Susa            RSPH
+    Nakamoto        ART
+    Razoumov        FFTE
+    Ritzerveld      SimpleX
+    Zeus            Zeus
+    Flash           Flash-HC
+    Alvarez         IFT
+
+
+
+Usage
+---------------
+
+Each test may contain different variables written out, so each set gets their own 
+executable which can be compiled individually. You can compile them all together 
+or individually using the provided Makefile.
 
 Typically each executable will take the result binary file as a cmdline arg,
 read it in, and extract the profiles of the relevant data. The profiles are set
 up to be spherically averaged histograms over 128 cells that were used in the
-tests. Alternatively, functions are provided to print out entire 2D slices.
+tests. (Alternatively, functions are provided to print out entire 2D slices.)
+
+The results file will be 128 lines long: One for each histogram bin. These bins 
+cover the range of the boxsize for each test. You'll need to check for each test 
+individually what the actual boxsize of the test is if you want to use physical
+data for your plots.
+
+Each line will contain two comma separated values: The mean value of the bin, and
+the standard deviation.
 
 Two simple python scripts to plot results (slices, profiles) are provided.
 
 
 
 
-
+Notes
+---------------
 
 Following the source code (`frit-4.1.2/docs/writeIFrIT.[cf]`), apparently the 
 files have been written using

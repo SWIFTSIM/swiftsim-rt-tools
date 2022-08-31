@@ -1,0 +1,38 @@
+Iliev Test 2
+-----------------------
+
+Reproducing Iliev+2006 (ui.adsabs.harvard.edu/abs/2006MNRAS.369.1625I/) Test 2
+Details:
+
+- hydrogen gas only.
+- the gas density distribution is fixed.
+- original test in paper was in 128^3 cells.
+- source of ionizing radiation has black-body spectrum with T_bb = 10^5K
+- initially the gas is fully neutral and at 100K.
+- Box dimension of original test is L = 6.6kpc, but their source is in the 
+  corner of the box. So we take twice that. (plus a bit extra for boundary particles)
+- Gas number density nH = 10^-3 cm^-3
+- Ionization photon number rate is Ndot = 5 * 10^48 photons/s. This translates
+  to the luminosity L = 6.198024e+04 L_Sun.
+- Initial ionization fraction: x = 1.2 * 10^-3
+- run up to 100 Myr
+
+
+Notes
+-------
+
+This test requires a fixed density for particles throughout the simulation.
+You can find instructions on how to fix the density field for GEAR-RT in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_turn_off_hydrodynamics_evolution.md
+
+This test also requires a treatment for boundary particles. The initial 
+conditions are set up to use a glass file for an inner region of the example,
+and an additional outer uniform particle distribution which constitutes an extra
+boundary particle layer. To accomodate the extra boundary particles, the box
+size is increased compared to the one prescribed in the Iliev+2006 paper.
+You can find instructions on how to deal with boundary particles for GEAR-RT in 
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_boundary_particles.md
+
+If you additionally want to extract the positions of the ionization front 
+at each time step, instructions to do so are provided in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_get_ionization_front_each_step.md
