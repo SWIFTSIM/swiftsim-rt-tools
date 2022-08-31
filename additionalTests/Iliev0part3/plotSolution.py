@@ -374,7 +374,7 @@ if __name__ == "__main__":
     ax1.grid()
     ax2.grid()
     #  ax1.set_xlim(0.5 * t.min(), 1.2 * t.max())
-    ax1.set_xlim(1.0e-6, 6.e6)
+    ax1.set_xlim(1.0e-6, 6.0e6)
 
     ax2.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
 
