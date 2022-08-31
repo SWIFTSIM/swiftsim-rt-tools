@@ -76,7 +76,7 @@ in `rt_do_thermochemistry()`, e.g. like this:
 
       /* Lots of stuff */
 
-      p->rt_data.dt *= 1.01;
+      p->rt_data.dt *= 1.001;
 
       /* Lots of stuff */
 

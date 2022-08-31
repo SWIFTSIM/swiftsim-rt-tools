@@ -41,3 +41,7 @@ swiftsim-rt-tools/additionalTests/instructions/GEARRT_fix_radiation_fields.md
 You can find instructions on how to modify the RT time step sizes such that they
 continuously increase and you don't need to run millions of steps for this simple test in
 swiftsim-rt-tools/additionalTests/instructions/GEARRT_tweak_time_step_sizes.md
+
+For the current setup, I used 
+    dt_init = 1.597603e-10;
+    p->dt *= 1.001; each step

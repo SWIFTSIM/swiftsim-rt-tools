@@ -43,7 +43,7 @@ dt_heat = 3.994010e-11
 current_t = 0.0
 new_t = 0.0
 outputtimes = []
-step = 2
+step = 32
 
 count = 0
 while new_t < t_end:
@@ -55,13 +55,11 @@ while new_t < t_end:
         current_t = new_t
         outputtimes.append(current_t)
         count += 1
-        print(count, step, i, new_t, t_end, step * dt_heat)
-        if len(outputtimes) > 1:
-            print((outputtimes[-1] - outputtimes[-2]) / (step * dt_heat))
     step *= 2
 
 # add final time
-outputtimes.append(t_end / unit_myr * (1.0 - 1e-6))
+if (outputtimes[-1] < t_end * (1.0 - 1e-3)):
+    outputtimes.append(t_end * (1.0 - 1e-3))
 
 
 with open(r"snaplist.txt", "w") as outfile:

@@ -38,6 +38,8 @@ legendprops = {"size": 8}
 skip_zeroth_snapshot = False
 # basename
 snapshot_basename = "output"
+# label individual references, or make them grey?
+label_refs = False
 
 
 # -----------------------------------------------------------------------
@@ -259,6 +261,7 @@ def get_snapshot_data(snaplist):
 
     times = np.zeros(nsnaps) * time_units
     temperatures = np.zeros(nsnaps) * unyt.K
+    xHI = np.zeros(nsnaps)
 
     for i, snap in enumerate(snaplist):
 
@@ -275,7 +278,9 @@ def get_snapshot_data(snaplist):
         times[i] = time.to(time_units)
         temperatures[i] = np.mean(T)
 
-    return times, temperatures
+        xHI[i] = np.mean(imf.HI / (imf.HI + imf.HII))
+
+    return times, xHI, temperatures
 
 
 def get_grackle_reference():
@@ -316,14 +321,16 @@ def get_grackle_reference():
     Temperature = data[:, 3]
     #  mu = data[:, 4]
     #  tot_density = data[:, 5]  # mass density
-    #  HI_density = data[:, 6]
-    #  HII_density = data[:, 7]
+    HI_density = data[:, 6]
+    HII_density = data[:, 7]
     #  HeI_density = data[:, 8]
     #  HeII_density = data[:, 9]
     #  HeIII_density = data[:, 10]
     #  e_density = data[:, 11]  # number density
 
-    return Time, Temperature
+    xHI = HI_density / (HI_density + HII_density)
+
+    return Time, xHI, Temperature
 
 
 if __name__ == "__main__":
@@ -336,21 +343,45 @@ if __name__ == "__main__":
     #  t, T, mu, mass_fraction, u, photon_energies, volumes, c_reduced = get_full_snapshot_data(
     #      snaplist
     #  )
-    t, T = get_snapshot_data(snaplist)
+    t, xHI, T = get_snapshot_data(snaplist)
 
-    t_ref, T_ref = get_grackle_reference()
 
-    fig = plt.figure(figsize=(5, 5), dpi=300)
-    ax1 = fig.add_subplot(1, 1, 1)
+    fig = plt.figure(figsize=(7, 5), dpi=300)
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212, sharex=ax1)
 
-    ax1.loglog(t, T, label="SWIFT results")
-    ax1.loglog(t_ref, T_ref, label="grackle reference", linestyle="--")
-    ax1.set_ylabel("gas temperature [K]")
+    reflist = ["FFTE", "RSPH", "FLASH", "ART", "CRASH", "C2RAY"]
+    for ref in reflist:
+        t_ref, xHI_ref, T_ref = np.loadtxt("references/"+ref+".dat", unpack=True)
+        if label_refs:
+            ax1.loglog(t_ref, xHI_ref, label=ref)
+            ax2.loglog(t_ref, T_ref, label=ref)
+        else:
+            label = None
+            if ref == reflist[-1]:
+                label = "references"
+            ax1.loglog(t_ref, xHI_ref, label=label, alpha=0.6, c="grey")
+            ax2.loglog(t_ref, T_ref, label=label, alpha=0.6, c="grey")
+
+
+    t_ref, xHI_ref, T_ref = get_grackle_reference()
+    ax1.loglog(t_ref, xHI_ref, label="grackle reference", linestyle="--")
+    ax2.loglog(t_ref, T_ref, label="grackle reference", linestyle="--")
+
+    ax1.loglog(t, xHI, label="GEARRT")
+    ax2.loglog(t, T, label="GEARRT")
+
+
+    ax1.set_ylabel("neutral fraction [1]")
+    ax2.set_ylabel("gas temperature [K]")
     ax1.legend(prop=legendprops)
     ax1.grid()
-    ax1.set_xlim(0.5 * t.min(), 1.2 * t.max())
+    ax2.grid()
+    #  ax1.set_xlim(0.5 * t.min(), 1.2 * t.max())
+    ax1.set_xlim(1.e-5, 6e6)
 
-    ax1.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
+    ax2.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
 
-    plt.tight_layout()
+    plt.tight_layout(h_pad=0.)
     plt.savefig("ilievTest0part3.png")
+    #  plt.show()
