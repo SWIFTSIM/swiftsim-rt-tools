@@ -21,5 +21,4 @@ fi
     --feedback --radiation \
     ilievTest2.yml 2>&1 | tee output.log
 
-# Plot the Stromgren 3D checks.
 python3 ./plotSolution.py 10
