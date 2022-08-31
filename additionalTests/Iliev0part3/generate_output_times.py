@@ -58,7 +58,7 @@ while new_t < t_end:
     step *= 2
 
 # add final time
-if (outputtimes[-1] < t_end * (1.0 - 1e-3)):
+if outputtimes[-1] < t_end * (1.0 - 1e-3):
     outputtimes.append(t_end * (1.0 - 1e-3))
 
 
