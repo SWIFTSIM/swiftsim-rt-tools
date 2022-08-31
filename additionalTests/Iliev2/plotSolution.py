@@ -22,7 +22,7 @@ ref = "100Myr"
 
 # plot individual particle data?
 plot_particles = False
-# if True, use only a few references, and add labels. 
+# if True, use only a few references, and add labels.
 # Otherwise use all references, and make them grey
 label_refs = False
 
@@ -56,12 +56,7 @@ params = {
 mpl.rcParams.update(params)
 
 
-scatterplot_kwargs = {
-    "alpha": 0.1,
-    "s": 2,
-    "marker": ".",
-    "linewidth": 0.0,
-}
+scatterplot_kwargs = {"alpha": 0.1, "s": 2, "marker": ".", "linewidth": 0.0}
 
 # Read in cmdline arg: Are we plotting only one snapshot, or all?
 # WARNING: Make sure to set the correct reference time above
@@ -137,32 +132,64 @@ def plot_solution(filename):
         codes = ["RSPH", "C2Ray", "OTVET"]
         for c, code in enumerate(["C2Ray", "RSPH", "OTVET"]):
             fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
-            fname_T =  "reference/" + code + "_" + ref + "_profile_T.dat"
+            fname_T = "reference/" + code + "_" + ref + "_profile_T.dat"
 
             xHI_ref, xHI_std_ref = np.loadtxt(fname_xHI, delimiter=",", unpack=True)
             T_ref, T_std_ref = np.loadtxt(fname_T, delimiter=",", unpack=True)
-            r_ref = np.linspace(0., 1., T_ref.shape[0])
+            r_ref = np.linspace(0.0, 1.0, T_ref.shape[0])
             # shift to bin center
-            r_ref += (r_ref[1] - r_ref[0] ) * 0.5
+            r_ref += (r_ref[1] - r_ref[0]) * 0.5
 
-            ax1.errorbar(r_ref, xHI_ref, yerr=xHI_std_ref, label=code, alpha=0.6, capsize=2, zorder = 1+c)
-            ax2.errorbar(r_ref, T_ref, yerr=T_std_ref, label=code, alpha=0.6, capsize=2, zorder = 1+c)
+            ax1.errorbar(
+                r_ref,
+                xHI_ref,
+                yerr=xHI_std_ref,
+                label=code,
+                alpha=0.6,
+                capsize=2,
+                zorder=1 + c,
+            )
+            ax2.errorbar(
+                r_ref,
+                T_ref,
+                yerr=T_std_ref,
+                label=code,
+                alpha=0.6,
+                capsize=2,
+                zorder=1 + c,
+            )
 
     else:
-        codes = ["ART", "Crash", "IFT","RSPH", "C2Ray", "FFTE", "OTVET", "Zeus"]
+        codes = ["ART", "Crash", "IFT", "RSPH", "C2Ray", "FFTE", "OTVET", "Zeus"]
         for c, code in enumerate(codes):
             fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
-            fname_T =  "reference/" + code + "_" + ref + "_profile_T.dat"
+            fname_T = "reference/" + code + "_" + ref + "_profile_T.dat"
 
             xHI_ref, xHI_std_ref = np.loadtxt(fname_xHI, delimiter=",", unpack=True)
             T_ref, T_std_ref = np.loadtxt(fname_T, delimiter=",", unpack=True)
-            r_ref = np.linspace(0., 1., T_ref.shape[0])
+            r_ref = np.linspace(0.0, 1.0, T_ref.shape[0])
             # shift to bin center
-            r_ref += (r_ref[1] - r_ref[0] ) * 0.5
+            r_ref += (r_ref[1] - r_ref[0]) * 0.5
 
-            ax1.errorbar(r_ref, xHI_ref, yerr=xHI_std_ref, c='grey', alpha=0.6, capsize=2, zorder = 1+c)
-            ax2.errorbar(r_ref, T_ref, yerr=T_std_ref, c="grey", alpha=0.6, capsize=2, zorder = 1+c)
-     
+            ax1.errorbar(
+                r_ref,
+                xHI_ref,
+                yerr=xHI_std_ref,
+                c="grey",
+                alpha=0.6,
+                capsize=2,
+                zorder=1 + c,
+            )
+            ax2.errorbar(
+                r_ref,
+                T_ref,
+                yerr=T_std_ref,
+                c="grey",
+                alpha=0.6,
+                capsize=2,
+                zorder=1 + c,
+            )
+
     if plot_particles:
         ax1.scatter(r, xHI, **scatterplot_kwargs, zorder=0)
         ax1.scatter(r, xHII, **scatterplot_kwargs, zorder=0)
@@ -183,8 +210,24 @@ def plot_solution(filename):
         )
     #  ax1.semilogy(r_bin_centers, xHI_binned, label=r"GEARRT $x_{\mathrm{HI}}$", zorder=2)
     #  ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=2)
-    ax1.errorbar(r_bin_centers, xHI_binned, yerr=xHI_std, label=r"GEARRT $x_{\mathrm{HI}}$", capsize=2, alpha=0.6,  zorder=20)
-    ax1.errorbar(r_bin_centers, xHII_binned, yerr=xHII_std, label=r"GEARRT $x_{\mathrm{HII}}$", capsize=2, alpha=0.6, zorder=20)
+    ax1.errorbar(
+        r_bin_centers,
+        xHI_binned,
+        yerr=xHI_std,
+        label=r"GEARRT $x_{\mathrm{HI}}$",
+        capsize=2,
+        alpha=0.6,
+        zorder=20,
+    )
+    ax1.errorbar(
+        r_bin_centers,
+        xHII_binned,
+        yerr=xHII_std,
+        label=r"GEARRT $x_{\mathrm{HII}}$",
+        capsize=2,
+        alpha=0.6,
+        zorder=20,
+    )
 
     if plot_particles:
         ax2.scatter(r, T, **scatterplot_kwargs, zorder=0)
@@ -197,8 +240,9 @@ def plot_solution(filename):
             zorder=1,
         )
     #  ax2.semilogy(r_bin_centers, T_binned, label=r"GEARRT", zorder=2)
-    ax2.errorbar(r_bin_centers, T_binned, yerr=T_std, label=r"GEARRT", capsize=2, zorder=20)
-
+    ax2.errorbar(
+        r_bin_centers, T_binned, yerr=T_std, label=r"GEARRT", capsize=2, zorder=20
+    )
 
     for ax in fig.axes:
         ax.set_xlabel("r / L")

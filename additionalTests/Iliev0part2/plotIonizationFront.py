@@ -12,15 +12,15 @@ import unyt
 from scipy import stats
 
 
-#-------------------------------------------------
+# -------------------------------------------------
 # This script is intended to reproduce Figure 3
-# of Iliev et al 2006 
+# of Iliev et al 2006
 # (https://arxiv.org/pdf/astro-ph/0508416.pdf)
-#-------------------------------------------------
+# -------------------------------------------------
 
-# in some cases, the final snapshot is very close in time 
+# in some cases, the final snapshot is very close in time
 # to the second to last snapshot, and due to roundoff errors,
-# we get much too high ionization front velocities. So you might 
+# we get much too high ionization front velocities. So you might
 # want to skip plotting the last velocity estimate.
 skip_last = True
 
@@ -49,7 +49,7 @@ params = {
     "figure.subplot.bottom": 0.075,
     "figure.subplot.top": 0.99,
     "figure.subplot.wspace": 0.15,
-    "figure.subplot.hspace": 0.,
+    "figure.subplot.hspace": 0.0,
     "figure.dpi": 200,
     "lines.markersize": 1,
     "lines.linewidth": 2.0,
@@ -59,7 +59,6 @@ mpl.rcParams.update(params)
 snapshot_base = "output"
 
 
-
 # In case you want to make sanity checks:
 # t_rec = 1./ (alpha_B(T) n_H), Iliev+06 eq 9
 t_rec = 122.4 * unyt.Myr
@@ -67,22 +66,24 @@ t_rec = 122.4 * unyt.Myr
 # r_S = (3 * Ndot_gamma / (4*pi*alpha_B(T) * n_H**2)) ** (1/3), Iliev+06 eq 7
 r_S = 5.4 * unyt.kpc
 
+
 def r_I(t):
     """
     Expected analytical I-front radius assuming T=1e4K
     (Iliev+06 eq 5)
     """
 
-    return r_S * (1 - np.exp(-t/t_rec))**(1./3.)
+    return r_S * (1 - np.exp(-t / t_rec)) ** (1.0 / 3.0)
+
 
 def v_I(t):
     """
     Expected analytical I-front velocity assuming T=1e4K
     (Iliev+06 eq 6)
     """
-    expterm = np.exp(-t/t_rec)
+    expterm = np.exp(-t / t_rec)
 
-    return r_S / (3. * t_rec) * expterm / (1 - expterm)**(2./3.)
+    return r_S / (3.0 * t_rec) * expterm / (1 - expterm) ** (2.0 / 3.0)
 
 
 def plot_ionization_fronts_from_snapshots(snaplist, fig):
@@ -110,7 +111,8 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
         meta = data.metadata
         time = meta.time
         boxsize = meta.boxsize
-        if (time == 0. * unyt.Myr): continue
+        if time == 0.0 * unyt.Myr:
+            continue
 
         scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
         xstar = data.stars.coordinates
@@ -150,13 +152,13 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
                     rI = r_bin_edges[0]
                 else:
                     # interpolate radius
-                    dx = xHI_binned[i] - xHI_binned[i-1]
-                    x1 = xHI_binned[i-1]
-                    dr = r_bin_centers[i] - r_bin_centers[i-1] 
+                    dx = xHI_binned[i] - xHI_binned[i - 1]
+                    x1 = xHI_binned[i - 1]
+                    dr = r_bin_centers[i] - r_bin_centers[i - 1]
                     a = dx / dr
-                    b =  x1 - dx/dr * r_bin_centers[i-1]
+                    b = x1 - dx / dr * r_bin_centers[i - 1]
 
-                    rI = (0.5 - b ) / a
+                    rI = (0.5 - b) / a
                 break
 
         if rI is None:
@@ -173,7 +175,6 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
 
         snaptimes.append(time)
 
-
     times_array = unyt.unyt_array(snaptimes)
     times_trec = times_array / t_rec
 
@@ -181,7 +182,7 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
     v_ifront = unyt.unyt_array(v_ifront)
     r_ifront_ana = unyt.unyt_array(r_ifront_ana)
     v_ifront_ana = unyt.unyt_array(v_ifront_ana)
-    
+
     timesV_trec = times_trec
     if skip_last:
         timesV_trec = times_trec[:-1]
@@ -197,7 +198,7 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
         ax1.plot(times_trec, r_ifront.to("kpc"), label="GEARRT")
         ax2.plot(timesV_trec, v_ifront_ana.to("kpc/kyr"), label="analytical")
         ax2.plot(timesV_trec, v_ifront.to("kpc/kyr"), label="GEARRT")
-    
+
     else:
         ax1.plot(times_trec, r_ifront / r_ifront_ana, label="GEARRT")
         ax2.plot(timesV_trec, v_ifront / v_ifront_ana, label="GEARRT")
@@ -254,22 +255,30 @@ def plot_ionization_fronts_from_log(fig):
 
     dr = rI[1:] - rI[:-1]
     dt = times[1:] - times[:-1]
-    vI = dr/dt
+    vI = dr / dt
     timesV = times[1:]
 
     if plot_actual_values:
-        ax1.plot(times/t_rec, rI.to("kpc"), ls="--", label="GEARRT each step")
-        ax2.plot(timesV/t_rec, vI.to("kpc/kyr"), ls="--", label="GEARRT each step")
+        ax1.plot(times / t_rec, rI.to("kpc"), ls="--", label="GEARRT each step")
+        ax2.plot(timesV / t_rec, vI.to("kpc/kyr"), ls="--", label="GEARRT each step")
 
     else:
         r_ifront_ana = r_I(times)
         v_ifront_ana = v_I(timesV)
-        ax1.plot(times/t_rec, rI.to("kpc")/r_ifront_ana.to("kpc"), ls="--", label="GEARRT each step")
-        ax2.plot(timesV/t_rec, vI.to("kpc/kyr")/v_ifront_ana.to("kpc/kyr"), ls="--", label="GEARRT each step")
+        ax1.plot(
+            times / t_rec,
+            rI.to("kpc") / r_ifront_ana.to("kpc"),
+            ls="--",
+            label="GEARRT each step",
+        )
+        ax2.plot(
+            timesV / t_rec,
+            vI.to("kpc/kyr") / v_ifront_ana.to("kpc/kyr"),
+            ls="--",
+            label="GEARRT each step",
+        )
 
     return
-
-   
 
 
 if __name__ == "__main__":

@@ -71,16 +71,16 @@ if __name__ == "__main__":
 
     # Set up metadata
     unitL = unyt.Mpc
-    edgelen = 15. * 1e-3 * unitL 
+    edgelen = 15.0 * 1e-3 * unitL
     edgelen = edgelen.to(unitL)
     boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
 
     # Add border particles
     border_particle_width = 4
-    dx = 1. / (nparts + 2 * border_particle_width)
-    scale =  nparts / (nparts + 2 * border_particle_width)
-    shift = 0.5 * (1. - scale)
-    if (scale < 0):
+    dx = 1.0 / (nparts + 2 * border_particle_width)
+    scale = nparts / (nparts + 2 * border_particle_width)
+    shift = 0.5 * (1.0 - scale)
+    if scale < 0:
         print("scale =", scale, "???")
         quit()
 
@@ -89,13 +89,13 @@ if __name__ == "__main__":
     xp += shift
     pid = np.arange(1, h.shape[0], 1)
 
-    npart_border =  (nparts + 2*border_particle_width)**3 - nparts**3
+    npart_border = (nparts + 2 * border_particle_width) ** 3 - nparts ** 3
 
     xp_border = np.zeros((npart_border, 3))
     h_border = np.ones((npart_border))
-    pid_border = np.arange(1000000001, 1000000001+npart_border+1, 1)
+    pid_border = np.arange(1000000001, 1000000001 + npart_border + 1, 1)
     ind = 0
-    
+
     for i in range(nparts + 2 * border_particle_width):
         x = (i + 0.5) * dx
         for j in range(nparts + 2 * border_particle_width):
@@ -104,9 +104,9 @@ if __name__ == "__main__":
                 z = (k + 0.5) * dx
 
                 is_border = False
-                is_border = is_border or x < shift or x > 1. - shift
-                is_border = is_border or y < shift or y > 1. - shift
-                is_border = is_border or z < shift or z > 1. - shift
+                is_border = is_border or x < shift or x > 1.0 - shift
+                is_border = is_border or y < shift or y > 1.0 - shift
+                is_border = is_border or z < shift or z > 1.0 - shift
 
                 if is_border:
                     xp_border[ind, 0] = x
@@ -114,7 +114,7 @@ if __name__ == "__main__":
                     xp_border[ind, 2] = z
                     ind += 1
 
-    if ind != (nparts + 2*border_particle_width)**3 - nparts**3:
+    if ind != (nparts + 2 * border_particle_width) ** 3 - nparts ** 3:
         print("oh no")
         quit()
 
@@ -126,7 +126,6 @@ if __name__ == "__main__":
     xp = np.concatenate((xp, xp_border), axis=0)
     h = np.concatenate((h, h_border), axis=0)
     pid = np.concatenate((pid, pid_border), axis=0)
-
 
     # convert to correct units
     xp *= edgelen
@@ -145,7 +144,7 @@ if __name__ == "__main__":
     w.stars.coordinates = xs
     # you  got to give all particle types an ID, otherwise swiftsimio
     # will generate the IDs itself
-    w.stars.particle_ids = np.ones(1, dtype=int) * 1000000001+npart_border+1
+    w.stars.particle_ids = np.ones(1, dtype=int) * 1000000001 + npart_border + 1
     w.gas.velocities = np.zeros(xp.shape) * (unitL / unyt.Myr)
     w.stars.velocities = np.zeros(xs.shape) * (unitL / unyt.Myr)
     w.gas.smoothing_length = h

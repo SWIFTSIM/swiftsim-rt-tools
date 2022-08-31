@@ -44,12 +44,7 @@ params = {
 mpl.rcParams.update(params)
 
 
-scatterplot_kwargs = {
-    "alpha": 0.1,
-    "s": 1,
-    "marker": ".",
-    "linewidth": 0.0,
-}
+scatterplot_kwargs = {"alpha": 0.1, "s": 1, "marker": ".", "linewidth": 0.0}
 
 # Read in cmdline arg: Are we plotting only one snapshot, or all?
 plot_all = False
@@ -162,7 +157,6 @@ def plot_solution(filename):
         )
     ax2.semilogy(r_bin_centers, T_binned, label=r"GEARRT", zorder=2)
     #  ax2.errorbar(r_bin_centers, T_binned, yerr=T_std, label=r"GEARRT", capsize=2, zorder=20)
-
 
     for ax in fig.axes:
         ax.set_xlabel("r / L")

@@ -41,12 +41,7 @@ params = {
 mpl.rcParams.update(params)
 
 
-scatterplot_kwargs = {
-    "alpha": 0.1,
-    "s": 2,
-    "marker": ".",
-    "linewidth": 0.0,
-}
+scatterplot_kwargs = {"alpha": 0.1, "s": 2, "marker": ".", "linewidth": 0.0}
 
 # Read in cmdline arg: Are we plotting only one snapshot, or all?
 plot_all = False
