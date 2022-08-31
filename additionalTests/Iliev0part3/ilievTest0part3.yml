@@ -11,15 +11,15 @@ InternalUnitSystem:
 
 # Parameters governing the time integration
 TimeIntegration:
-  time_begin: 0.001     # The starting time of the simulation (in internal units).
+  time_begin: 0.        # The starting time of the simulation (in internal units).
   time_end:   5621.07   # 5.5 Myr
-  dt_min:     0.001022  # 1 y
-  dt_max:     0.1277515 # 125y
+  dt_min:     1.e-11    # 1 y
+  dt_max:     30.       # 125y
 
 # Parameters governing the snapshots
 Snapshots:
   basename:            output # Common part of the name of output files
-  time_first:          1.     # Time of the first output (in internal units)
+  time_first:          0.     # Time of the first output (in internal units)
   output_list_on:      1      # (Optional) Enable the output list
   output_list:         snaplist.txt # (Optional) File containing the output times (see documentation in "Parameter File" section)
 
