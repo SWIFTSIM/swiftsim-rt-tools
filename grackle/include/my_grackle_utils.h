@@ -254,6 +254,8 @@ void write_my_setup(FILE *fd, grackle_field_data grackle_fields,
           grackle_chemistry_data.metal_cooling);
   fprintf(fd, "# grackle_chemistry_data.UVbackground = %d\n",
           grackle_chemistry_data.UVbackground);
+  fprintf(fd, "# grackle_chemistry_data.CaseBRecombination = %d\n",
+          grackle_chemistry_data.CaseBRecombination);
   fprintf(fd, "# grackle_chemistry_data.grackle_data_file = %s\n",
           grackle_chemistry_data.grackle_data_file);
   fprintf(fd, "# grackle_chemistry_data.use_radiative_transfer = %d\n",

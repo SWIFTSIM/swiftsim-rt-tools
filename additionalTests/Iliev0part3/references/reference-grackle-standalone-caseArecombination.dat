@@ -13,6 +13,7 @@
 # grackle_chemistry_data.dust_chemistry = 0
 # grackle_chemistry_data.metal_cooling = 0
 # grackle_chemistry_data.UVbackground = 0
+# grackle_chemistry_data.CaseBRecombination = 0
 # grackle_chemistry_data.grackle_data_file = 
 # grackle_chemistry_data.use_radiative_transfer = 1
 # grackle_chemistry_data.HydrogenFractionByMass = 1

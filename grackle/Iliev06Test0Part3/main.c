@@ -196,6 +196,8 @@ int main() {
                           use_radiative_cooling, use_radiative_transfer,
                           hydrogen_fraction_by_mass);
 
+  grackle_chemistry_data.CaseBRecombination = 1;
+
   if (initialize_chemistry_data(&grackle_units_data) == 0) {
     fprintf(stderr, "Error in initialize_chemistry_data.\n");
     return EXIT_FAILURE;
