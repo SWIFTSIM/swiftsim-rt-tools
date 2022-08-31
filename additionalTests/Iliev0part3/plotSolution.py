@@ -100,8 +100,6 @@ def get_snapshot_list(snapshot_basename="output"):
     snaplist = []
 
     dirlist = os.listdir()
-    dirlist = sorted(dirlist)
-    # keep the order of reading in chronologically
     for f in dirlist:
         if f.startswith(snapshot_basename) and f.endswith("hdf5"):
             if skip_zeroth_snapshot and f == snapshot_basename + "_0000.hdf5":
@@ -115,7 +113,7 @@ def get_snapshot_list(snapshot_basename="output"):
             "Didn't find any snapshots with basename '" + snapshot_basename + "'"
         )
 
-    #  snaplist = sorted(snaplist)
+    snaplist = sorted(snaplist)
 
     return snaplist
 
@@ -288,7 +286,8 @@ def get_grackle_reference():
     Read in the temperatures from the reference file
     """
 
-    resultfile = "references/reference-grackle-standalone.dat"
+    #  resultfile = "references/reference-grackle-standalone-caseArecombination.dat"
+    resultfile = "references/reference-grackle-standalone-caseBrecombination.dat"
 
     # Read in units.
     # This should still work, but shouldn't be
@@ -375,7 +374,7 @@ if __name__ == "__main__":
     ax1.grid()
     ax2.grid()
     #  ax1.set_xlim(0.5 * t.min(), 1.2 * t.max())
-    ax1.set_xlim(1.0e-5, 6e6)
+    ax1.set_xlim(1.0e-6, 6.e6)
 
     ax2.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
 

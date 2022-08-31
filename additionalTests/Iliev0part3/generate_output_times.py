@@ -37,7 +37,6 @@ else:
 
 # If you're rebuilding this output times list:
 # I read this 'dt' out from a run, then used it to generate the output list
-#  dt_heat = 1.597603e-10 # for min step
 dt_heat = 3.994010e-11
 
 current_t = 0.0

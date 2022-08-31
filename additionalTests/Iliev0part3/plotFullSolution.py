@@ -248,7 +248,8 @@ def get_reference():
     Read in the temperatures from the reference file
     """
 
-    resultfile = "references/reference-grackle-standalone.dat"
+    #  resultfile = "references/reference-grackle-standalone-caseArecombination.dat"
+    resultfile = "references/reference-grackle-standalone-caseBrecombination.dat"
 
     # Read in units.
     # This should still work, but shouldn't be
