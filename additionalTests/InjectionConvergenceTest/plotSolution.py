@@ -95,18 +95,17 @@ def get_snapshot_number_list(snapshot_basename=snapshot_base):
 
     snapnumbers = []
 
-    base = snapshot_basename + "-" +  str(resolutions[0])
+    base = snapshot_basename + "-" + str(resolutions[0])
 
     dirlist = os.listdir()
     for f in dirlist:
         if f.startswith(base) and f.endswith("hdf5"):
-            snapnr = f[len(base)+1:-5]
+            snapnr = f[len(base) + 1 : -5]
             snapnumbers.append(snapnr)
 
     snapnumbers = sorted(snapnumbers)
 
     return snapnumbers
-
 
 
 def plot_solution(snapnr):
@@ -142,7 +141,7 @@ def plot_solution(snapnr):
                     yerr=xHI_std_ref,
                     label=code,
                     zorder=1 + c,
-                    **refplotkwargs
+                    **refplotkwargs,
                 )
                 ax2.errorbar(
                     r_ref,
@@ -150,7 +149,7 @@ def plot_solution(snapnr):
                     yerr=T_std_ref,
                     label=code,
                     zorder=1 + c,
-                    **refplotkwargs
+                    **refplotkwargs,
                 )
 
         else:
@@ -165,22 +164,25 @@ def plot_solution(snapnr):
                 # shift to bin center
                 r_ref += (r_ref[1] - r_ref[0]) * 0.5
 
-                ax1.errorbar( r_ref, xHI_ref, yerr=xHI_std_ref, zorder=1 + c, **refplotkwargs)
-                ax2.errorbar( r_ref, T_ref, yerr=T_std_ref, zorder=1 + c, **refplotkwargs)
-
+                ax1.errorbar(
+                    r_ref, xHI_ref, yerr=xHI_std_ref, zorder=1 + c, **refplotkwargs
+                )
+                ax2.errorbar(
+                    r_ref, T_ref, yerr=T_std_ref, zorder=1 + c, **refplotkwargs
+                )
 
     # Plot actual results
     # -------------------------------
 
     # gather min/max values for axis limits
-    xHI_min = 2.
-    xHI_max = 0.
+    xHI_min = 2.0
+    xHI_max = 0.0
     T_min = 1e38
-    T_max = 0.
+    T_max = 0.0
 
     for i, res in enumerate(resolutions):
         res_str = str(res)
-        filename = snapshot_base + "-" +  str(res_str) + "_" + snapnr + ".hdf5"
+        filename = snapshot_base + "-" + str(res_str) + "_" + snapnr + ".hdf5"
 
         print("working on", filename)
 
@@ -243,12 +245,16 @@ def plot_solution(snapnr):
         )
 
         if plot_smoothing_length:
-            ax1.plot([hstar_L, hstar_L], [1e-12, 5], ls="--", zorder=0, c="C"+str(i), lw=1)
-            ax2.plot([hstar_L, hstar_L], [1, 1e12], ls="--", zorder=0, c="C"+str(i), lw=1)
+            ax1.plot(
+                [hstar_L, hstar_L], [1e-12, 5], ls="--", zorder=0, c="C" + str(i), lw=1
+            )
+            ax2.plot(
+                [hstar_L, hstar_L], [1, 1e12], ls="--", zorder=0, c="C" + str(i), lw=1
+            )
 
         if plot_particles:
-            ax1.scatter(r, xHI, **scatterplot_kwargs, zorder=1, c="C"+str(i))
-            ax1.scatter(r, xHII, **scatterplot_kwargs, zorder=1, c="C"+str(i))
+            ax1.scatter(r, xHI, **scatterplot_kwargs, zorder=1, c="C" + str(i))
+            ax1.scatter(r, xHII, **scatterplot_kwargs, zorder=1, c="C" + str(i))
             # black background lines
             ax1.semilogy(
                 r_bin_centers,
@@ -271,10 +277,11 @@ def plot_solution(snapnr):
             r_bin_centers,
             xHI_binned,
             yerr=xHI_std,
-            label=str(res)+r"$^3$",
+            label=str(res) + r"$^3$",
             capsize=2,
             alpha=0.6,
-            zorder=10, c="C"+str(i),
+            zorder=10,
+            c="C" + str(i),
         )
         #  ax1.errorbar(
         #      r_bin_centers,
@@ -296,15 +303,21 @@ def plot_solution(snapnr):
                 linewidth=params["lines.linewidth"] * 2.0,
                 zorder=1,
             )
-        ax2.errorbar(r_bin_centers, T_binned, yerr=T_std, label=str(res)+r"$^3$", capsize=2, zorder=10, c="C"+str(i))
-
-
+        ax2.errorbar(
+            r_bin_centers,
+            T_binned,
+            yerr=T_std,
+            label=str(res) + r"$^3$",
+            capsize=2,
+            zorder=10,
+            c="C" + str(i),
+        )
 
     # Cosmetics and save fig
     # ------------------------
 
-    ax1.set_ylim(xHI_min*0.7, xHI_max*2)
-    ax2.set_ylim(T_min*0.7, T_max*2)
+    ax1.set_ylim(xHI_min * 0.7, xHI_max * 2)
+    ax2.set_ylim(T_min * 0.7, T_max * 2)
 
     for ax in fig.axes:
         ax.set_xlabel("r / L")

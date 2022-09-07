@@ -49,7 +49,7 @@ if __name__ == "__main__":
         print("Error: You need to provide the IC resolution as cmdline arg.")
         quit(1)
 
-    glass = h5py.File("glassCube_"+resolution+".hdf5", "r")
+    glass = h5py.File("glassCube_" + resolution + ".hdf5", "r")
     parts = glass["PartType0"]
     xp = parts["Coordinates"][:]
     h = parts["SmoothingLength"][:]
@@ -178,4 +178,4 @@ if __name__ == "__main__":
 
     w.gas.internal_energy = np.ones(xp.shape[0], dtype=np.float64) * internal_energy
 
-    w.write("ilievTest2-"+resolution+".hdf5")
+    w.write("ilievTest2-" + resolution + ".hdf5")
