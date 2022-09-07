@@ -7,6 +7,12 @@ Iliev0part2
 Iliev0part3
     Single-zone ionizing up and cooling and recombining
 
+Iliev2
+    Pure hydrogen isothermal HII region expansion for fixed density field
+
+InjectionConvergenceTest
+    Run Iliev2 test on varying underlying resolutions and compare convergence.
+
 instructions
     contains instructions on how to modify the code to be able to achieve
     certain behaviours. E.g. disable particle heating, hydrodynamics interactions,
