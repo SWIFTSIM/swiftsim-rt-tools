@@ -340,7 +340,7 @@ def plot_ionization_fronts_from_log(fig):
         )
         ax2.plot(
             times / t_rec,
-            r_ifront.to("kpc") / r_S.to("kpc"),
+            rI.to("kpc") / r_S.to("kpc"),
             label="GEARRT each step",
             zorder=31,
         )
@@ -449,7 +449,7 @@ if __name__ == "__main__":
     ax3 = fig.add_subplot(313, sharex=ax1)
 
     snaplist = spt.get_snapshot_list(snapshot_base, True, -1)
-    plot_ionization_fronts_from_snapshots(snaplist, fig)
+    #  plot_ionization_fronts_from_snapshots(snaplist, fig)
     plot_ionization_fronts_from_log(fig)
     plot_ionization_fronts_reference(fig)
 
@@ -457,14 +457,16 @@ if __name__ == "__main__":
         ax1.set_ylabel("$r_I$ [kpc]")
         ax2.set_ylabel("$r_I$ [kpc]")
         ax3.set_ylabel("$v_I$ [kpc/kyr]")
+        figname = "ionization_fronts_actual_values.png"
     else:
         ax1.set_ylabel("$r_I/r_{analyt,0}$")
         ax2.set_ylabel("$r_I/r_{S,0}$")
         ax3.set_ylabel("$v_I/(r_{S,0}/t_{rec,0})$")
         ax3.set_yscale("log")
+        figname = "ionization_fronts.png"
 
     ax3.set_xlabel("$t/t_{rec}$")
     ax2.legend()
 
     #  plt.show()
-    plt.savefig("ionization_fronts.png")
+    plt.savefig(figname)
