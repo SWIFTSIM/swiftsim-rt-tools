@@ -1,0 +1,12 @@
+Injection Convergence Test
+--------------------------------
+
+Runs the same test on varying resolutions, ranging from 16^3 to 128^3.
+
+The test is a copy of the Iliev2 test. PLEASE refer to the details described
+there on what modifications SWIFT requires to be able to correctly run the 
+test.
+
+Note that the resolution refers to the inner region of the problem. There are
+a handful of rows of extra boundary particles added in the ICs.
+
