@@ -17,7 +17,7 @@ import unyt
 from scipy import stats
 
 # which resolutions to use
-resolutions = [16, 32, 64, 128]
+resolutions = [128, 64, 32, 16]
 
 # plot vertical lines of star's smoothing length?
 # NOTE: this actually plots compact support radius of star, i.e.
