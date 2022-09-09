@@ -19,9 +19,9 @@ Details:
 - run up to 100 Myr
 
 
-To mimic the monochromatic radiation source, we need to use 2 frequency bins:
-(13.6eV, 13.6eV + dnu), and (13.6eV + dnu, inf), where we set the emission rate
-for the latter to zero.
+To mimic the monochromatic radiation source, we need to use 1 frequency bin, starting
+at the hydrogen ionizing frquency, and we then cut off the constant spectrum at a frequency
+which is very close to it.
 
 
 Notes

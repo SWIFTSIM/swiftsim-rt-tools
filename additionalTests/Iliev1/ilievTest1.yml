@@ -16,14 +16,13 @@ TimeIntegration:
   time_end:   510422.735    # 500 Myr
   dt_min:     0.0102084547  # 10 yr
   dt_max:     1020.84547    # 1 Myr
-  max_nr_rt_subcycles: 32 # use this for 128^3
-  # max_nr_rt_subcycles: 16 # use this for 64^3
+  max_nr_rt_subcycles: 64 # use this for 128^3
+  # max_nr_rt_subcycles: 32 # use this for 64^3
 
 # Parameters governing the snapshots
 Snapshots:
   basename:            output    # Common part of the name of output files
   time_first:          0.        # Time of the first output (in internal units)
-  # delta_time:          1020.8453 # 1 Myr
   delta_time:          10208.453 # 10 Myr
 
 # Parameters governing the conserved quantities statistics
@@ -39,7 +38,7 @@ SPH:
 
 # Parameters related to the initial conditions
 InitialConditions:
-  file_name:  ./ilievTest2.hdf5  # The file to read
+  file_name:  ./ilievTest1.hdf5  # The file to read
   periodic:   0                  # periodic ICs
 
 GEARRT:
@@ -58,7 +57,6 @@ GEARRT:
   mass_fraction_HeIII: 0.                           # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HeIII mass fractions to this value
   stellar_spectrum_type: 0                          # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
   stellar_spectrum_const_max_frequency_Hz: 3.28846651e+15 # (Conditional) if stellar_spectrum_type=0, use this maximal frequency for the constant spectrum. 
-
   # ---- use this value for 64^3 resolution
   # stars_max_timestep: 3.2e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
   # ---- use this value for 128^3 resolution
