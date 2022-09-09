@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 
-# ------------------------------------------------------------
+# -------------------------------------------------------------
 # Plot temperature and neutral fractions of all resolutions.
 # Plot reference solutions in background if selected to do so.
-# ------------------------------------------------------------
+#
+# This script is intended to overplot several convergence tests
+# over each other. Say you run a flux injection scheme test
+# with individual directories "Flux1", "Flux2", "Flux3", each
+# of them having resolutions 16, 32, 64, 128.
+# -------------------------------------------------------------
 
 import swiftsimio
 import matplotlib as mpl
@@ -18,6 +23,10 @@ from scipy import stats
 
 # which resolutions to use
 resolutions = [128, 64, 32, 16]
+
+# which subdirectories to look for
+subdirs = ["results_fullFlux", "results_FinterHalf", "results_noF"]
+subdir_labels = ["full flux injection", "modified flux injection", "no flux injection"]
 
 # plot vertical lines of star's smoothing length?
 # NOTE: this actually plots compact support radius of star, i.e.
@@ -46,7 +55,7 @@ params = {
     "axes.labelsize": 14,
     "axes.titlesize": 14,
     "font.size": 14,
-    "legend.fontsize": 14,
+    "legend.fontsize": 11,
     "xtick.labelsize": 12,
     "ytick.labelsize": 12,
     "xtick.direction": "in",
@@ -68,7 +77,6 @@ params = {
     "lines.linewidth": 1.0,
 }
 mpl.rcParams.update(params)
-
 
 scatterplot_kwargs = {"alpha": 0.1, "s": 2, "marker": ".", "linewidth": 0.0}
 refplotkwargs = {"alpha": 0.6, "capsize": 2}
@@ -97,7 +105,7 @@ def get_snapshot_number_list(snapshot_basename=snapshot_base):
 
     base = snapshot_basename + "-" + str(resolutions[0])
 
-    dirlist = os.listdir()
+    dirlist = os.listdir(subdirs[0])
     for f in dirlist:
         if f.startswith(base) and f.endswith("hdf5"):
             snapnr = f[len(base) + 1 : -5]
@@ -180,138 +188,151 @@ def plot_solution(snapnr):
     T_min = 1e38
     T_max = 0.0
 
-    for i, res in enumerate(resolutions):
-        res_str = str(res)
-        filename = snapshot_base + "-" + str(res_str) + "_" + snapnr + ".hdf5"
+    linestyles = [":", "--", "-"]
 
-        print("working on", filename)
+    for s, subdir in enumerate(subdirs):
+        for i, res in enumerate(resolutions):
 
-        data = swiftsimio.load(filename)
-        meta = data.metadata
-        boxsize = meta.boxsize
-        scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
+            res_str = str(res)
+            filename = snapshot_base + "-" + str(res_str) + "_" + snapnr + ".hdf5"
+            filename = os.path.join(subdir, filename)
 
-        # This is the original test setup
-        boxsize_ref = 6.6 * unyt.kpc
+            print("working on", filename)
 
-        xstar = data.stars.coordinates
-        xpart = data.gas.coordinates
-        dxp = xpart - xstar
-        r = np.sqrt(np.sum(dxp ** 2, axis=1))
-        r = r / boxsize_ref
-        #  hstar = data.stars.smoothing_lengths[0]
-        hstar = data.stars.smoothing_lengths[0] * kernel_gamma
-        hstar_L = hstar / boxsize_ref
+            data = swiftsimio.load(filename)
+            meta = data.metadata
+            boxsize = meta.boxsize
+            scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
-        # Get mass fractions
-        imf = spt.get_imf(scheme, data)
-        xH = imf.HI + imf.HII
-        xHI = imf.HI / xH
-        xHII = imf.HII / xH
+            # This is the original test setup
+            boxsize_ref = 6.6 * unyt.kpc
 
-        # get temperature
-        mu = spt.mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)
-        T = spt.gas_temperature(data.gas.internal_energies, mu, meta.gas_gamma)
+            xstar = data.stars.coordinates
+            xpart = data.gas.coordinates
+            dxp = xpart - xstar
+            r = np.sqrt(np.sum(dxp ** 2, axis=1))
+            r = r / boxsize_ref
+            #  hstar = data.stars.smoothing_lengths[0]
+            hstar = data.stars.smoothing_lengths[0] * kernel_gamma
+            hstar_L = hstar / boxsize_ref
 
-        xHI_min = min(xHI_min, xHI.min())
-        xHI_max = max(xHI_max, xHI.max())
-        T_min = min(T_min, T.min())
-        T_max = max(T_max, T.max())
+            # Get mass fractions
+            imf = spt.get_imf(scheme, data)
+            xH = imf.HI + imf.HII
+            xHI = imf.HI / xH
+            xHII = imf.HII / xH
 
-        # get profiles
-        # max r should be sqrt(3) * boxlen
-        nbins = res
-        outer_edge = 1.01
-        #  outer_edge = 1.4
-        r_bin_edges = np.linspace(0.0, outer_edge, nbins + 1)
-        r_bin_centers = 0.5 * (r_bin_edges[:-1] + r_bin_edges[1:])
-        xHI_binned, _, _ = stats.binned_statistic(
-            r, xHI, statistic="mean", bins=r_bin_edges, range=(0.0, outer_edge)
-        )
-        xHI_std, _, _ = stats.binned_statistic(
-            r, xHI, statistic="std", bins=r_bin_edges, range=(0.0, outer_edge)
-        )
-        xHII_binned, _, _ = stats.binned_statistic(
-            r, xHII, statistic="mean", bins=r_bin_edges, range=(0.0, outer_edge)
-        )
-        xHII_std, _, _ = stats.binned_statistic(
-            r, xHII, statistic="std", bins=r_bin_edges, range=(0.0, outer_edge)
-        )
-        T_binned, _, _ = stats.binned_statistic(
-            r, T, statistic="mean", bins=r_bin_edges, range=(0.0, outer_edge)
-        )
-        T_std, _, _ = stats.binned_statistic(
-            r, T, statistic="std", bins=r_bin_edges, range=(0.0, outer_edge)
-        )
+            # get temperature
+            mu = spt.mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)
+            T = spt.gas_temperature(data.gas.internal_energies, mu, meta.gas_gamma)
 
-        if plot_smoothing_length:
-            ax1.plot(
-                [hstar_L, hstar_L], [1e-12, 5], ls="--", zorder=0, c="C" + str(i), lw=1
+            xHI_min = min(xHI_min, xHI.min())
+            xHI_max = max(xHI_max, xHI.max())
+            T_min = min(T_min, T.min())
+            T_max = max(T_max, T.max())
+
+            # get profiles
+            # max r should be sqrt(3) * boxlen
+            nbins = int(res * 3)
+            outer_edge = 1.01
+            #  outer_edge = 1.4
+            r_bin_edges = np.linspace(0.0, outer_edge, nbins + 1)
+            r_bin_centers = 0.5 * (r_bin_edges[:-1] + r_bin_edges[1:])
+            xHI_binned, _, _ = stats.binned_statistic(
+                r, xHI, statistic="mean", bins=r_bin_edges, range=(0.0, outer_edge)
             )
-            ax2.plot(
-                [hstar_L, hstar_L], [1, 1e12], ls="--", zorder=0, c="C" + str(i), lw=1
+            #  xHI_std, _, _ = stats.binned_statistic(
+            #      r, xHI, statistic="std", bins=r_bin_edges, range=(0.0, outer_edge)
+            #  )
+            #  xHII_binned, _, _ = stats.binned_statistic(
+            #      r, xHII, statistic="mean", bins=r_bin_edges, range=(0.0, outer_edge)
+            #  )
+            #  xHII_std, _, _ = stats.binned_statistic(
+            #      r, xHII, statistic="std", bins=r_bin_edges, range=(0.0, outer_edge)
+            #  )
+            T_binned, _, _ = stats.binned_statistic(
+                r, T, statistic="mean", bins=r_bin_edges, range=(0.0, outer_edge)
             )
+            #  T_std, _, _ = stats.binned_statistic(
+            #      r, T, statistic="std", bins=r_bin_edges, range=(0.0, outer_edge)
+            #  )
 
-        if plot_particles:
-            ax1.scatter(r, xHI, **scatterplot_kwargs, zorder=1, c="C" + str(i))
-            ax1.scatter(r, xHII, **scatterplot_kwargs, zorder=1, c="C" + str(i))
-            # black background lines
-            ax1.semilogy(
-                r_bin_centers,
-                xHI_binned,
-                c="k",
-                linewidth=params["lines.linewidth"] * 2.0,
-                zorder=1,
-            )
-            ax1.semilogy(
-                r_bin_centers,
-                xHII_binned,
-                c="k",
-                linewidth=params["lines.linewidth"] * 2.0,
-                zorder=1,
-            )
+            if plot_smoothing_length:
+                ax1.plot(
+                    [hstar_L, hstar_L], [1e-12, 5], ls="-.", zorder=0, c="C" + str(i), lw=1
+                )
+                ax2.plot(
+                    [hstar_L, hstar_L], [1, 1e12], ls="-.", zorder=0, c="C" + str(i), lw=1
+                )
 
-        #  ax1.semilogy(r_bin_centers, xHI_binned, label=r"GEARRT $x_{\mathrm{HI}}$", zorder=2)
-        #  ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=2)
-        ax1.errorbar(
-            r_bin_centers,
-            xHI_binned,
-            yerr=xHI_std,
-            label=str(res) + r"$^3$",
-            capsize=2,
-            alpha=0.6,
-            zorder=10,
-            c="C" + str(i),
-        )
-        #  ax1.errorbar(
-        #      r_bin_centers,
-        #      xHII_binned,
-        #      yerr=xHII_std,
-        #      label=str(res)+r"$^3$",
-        #      capsize=2,
-        #      alpha=0.6,
-        #      zorder=20, c="C"+str(i),
-        #  )
+            if plot_particles:
+                ax1.scatter(r, xHI, **scatterplot_kwargs, zorder=1, c="C" + str(i))
+                ax1.scatter(r, xHII, **scatterplot_kwargs, zorder=1, c="C" + str(i))
+                # black background lines
+                ax1.semilogy(
+                    r_bin_centers,
+                    xHI_binned,
+                    c="k",
+                    linewidth=params["lines.linewidth"] * 2.0,
+                    zorder=1,
+                )
+                ax1.semilogy(
+                    r_bin_centers,
+                    xHII_binned,
+                    c="k",
+                    linewidth=params["lines.linewidth"] * 2.0,
+                    zorder=1,
+                )
 
-        if plot_particles:
-            ax2.scatter(r, T, **scatterplot_kwargs, zorder=0)
-            # black background lines
-            ax2.semilogy(
-                r_bin_centers,
-                T_binned,
-                c="k",
-                linewidth=params["lines.linewidth"] * 2.0,
-                zorder=1,
-            )
-        ax2.errorbar(
-            r_bin_centers,
-            T_binned,
-            yerr=T_std,
-            label=str(res) + r"$^3$",
-            capsize=2,
-            zorder=10,
-            c="C" + str(i),
-        )
+            label_left = None
+            if s == 0:
+                label_left = str(res) + r"$^3$"
+            label_right = None
+            if i == 0:
+                label_right = subdir_labels[s]
+            ax1.semilogy(r_bin_centers, xHI_binned, ls=linestyles[s], label=label_left, zorder=10, c="C" + str(i))
+
+            #  ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=10)
+            #  ax1.errorbar(
+            #      r_bin_centers,
+            #      xHI_binned,
+            #      yerr=xHI_std,
+            #      label=str(res) + r"$^3$",
+            #      capsize=2,
+            #      alpha=0.6,
+            #      zorder=10,
+            #      c="C" + str(i),
+            #  )
+            #  ax1.errorbar(
+            #      r_bin_centers,
+            #      xHII_binned,
+            #      yerr=xHII_std,
+            #      label=str(res)+r"$^3$",
+            #      capsize=2,
+            #      alpha=0.6,
+            #      zorder=20, c="C"+str(i),
+            #  )
+
+            if plot_particles:
+                ax2.scatter(r, T, **scatterplot_kwargs, zorder=0)
+                # black background lines
+                ax2.semilogy(
+                    r_bin_centers,
+                    T_binned,
+                    c="k",
+                    linewidth=params["lines.linewidth"] * 2.0,
+                    zorder=1,
+                )
+            #  ax2.errorbar(
+            #      r_bin_centers,
+            #      T_binned,
+            #      yerr=T_std,
+            #      label=str(res) + r"$^3$",
+            #      capsize=2,
+            #      zorder=10,
+            #      c="C" + str(i),
+            #  )
+            ax2.semilogy(r_bin_centers, T_binned, ls=linestyles[s], label=label_right, zorder=10, c="C" + str(i))
 
     # Cosmetics and save fig
     # ------------------------
@@ -332,8 +353,7 @@ def plot_solution(snapnr):
 
     fig.suptitle("Iliev+06 Test 2, $t$ = {0:.0f}".format(meta.time.to("Myr")))
     plt.tight_layout()
-    figname = filename[:-5]
-    figname = snapshot_base + "_" + snapnr
+    figname = "comparison_" + snapnr
     if plot_refs:
         figname += "-ref"
     if plot_particles:
