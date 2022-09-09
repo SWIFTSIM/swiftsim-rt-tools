@@ -370,10 +370,9 @@ def plot_ionization_fronts_reference(fig):
         "FFTE_Ifront.dat",
         "RSPH_Ifront.dat",
         "FLASH_Ifront.dat",
-        "IFT_Ifront.dat", 
+        "IFT_Ifront.dat",
         "Zeus_Ifront.dat",
     ]
-
 
     for ref in references:
         fname = "reference/" + ref
