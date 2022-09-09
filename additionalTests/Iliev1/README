@@ -21,7 +21,7 @@ Details:
 
 To mimic the monochromatic radiation source, we need to use 1 frequency bin, starting
 at the hydrogen ionizing frquency, and we then cut off the constant spectrum at a frequency
-which is very close to it.
+which is very close to it. So compile with --with-rt=GEAR_1
 
 
 Notes

@@ -10,7 +10,7 @@ then
     ./getGlass.sh
 fi
 
-if [ ! -f 'ilievTest2.hdf5' ]; then
+if [ ! -f 'ilievTest1.hdf5' ]; then
     echo "Generating ICs"
     python3 makeIC.py
 fi
@@ -19,6 +19,6 @@ fi
 ../../../swiftsim/swift \
     --hydro --threads=4 --stars --external-gravity \
     --feedback --radiation \
-    ilievTest2.yml 2>&1 | tee output.log
+    ilievTest1.yml 2>&1 | tee output.log
 
 python3 ./plotSolution.py 10
