@@ -12,7 +12,6 @@ InternalUnitSystem:
 # Parameters governing the time integration
 TimeIntegration:
   time_begin: 0.    # The starting time of the simulation (in internal units).
-  # time_end:   102084.547    # 100 Myr
   time_end:   510422.735    # 500 Myr
   dt_min:     0.0102084547  # 10 yr
   dt_max:     1020.84547    # 1 Myr
