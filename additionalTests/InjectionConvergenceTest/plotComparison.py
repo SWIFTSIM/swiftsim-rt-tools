@@ -223,7 +223,9 @@ def plot_solution(snapnr):
             xHII = imf.HII / xH
 
             # get temperature
-            mu = spt.mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)
+            mu = spt.mean_molecular_weight(
+                imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII
+            )
             T = spt.gas_temperature(data.gas.internal_energies, mu, meta.gas_gamma)
 
             xHI_min = min(xHI_min, xHI.min())
@@ -259,10 +261,20 @@ def plot_solution(snapnr):
 
             if plot_smoothing_length:
                 ax1.plot(
-                    [hstar_L, hstar_L], [1e-12, 5], ls="-.", zorder=0, c="C" + str(i), lw=1
+                    [hstar_L, hstar_L],
+                    [1e-12, 5],
+                    ls="-.",
+                    zorder=0,
+                    c="C" + str(i),
+                    lw=1,
                 )
                 ax2.plot(
-                    [hstar_L, hstar_L], [1, 1e12], ls="-.", zorder=0, c="C" + str(i), lw=1
+                    [hstar_L, hstar_L],
+                    [1, 1e12],
+                    ls="-.",
+                    zorder=0,
+                    c="C" + str(i),
+                    lw=1,
                 )
 
             if plot_particles:
@@ -290,7 +302,14 @@ def plot_solution(snapnr):
             label_right = None
             if i == 0:
                 label_right = subdir_labels[s]
-            ax1.semilogy(r_bin_centers, xHI_binned, ls=linestyles[s], label=label_left, zorder=10, c="C" + str(i))
+            ax1.semilogy(
+                r_bin_centers,
+                xHI_binned,
+                ls=linestyles[s],
+                label=label_left,
+                zorder=10,
+                c="C" + str(i),
+            )
 
             #  ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=10)
             #  ax1.errorbar(
@@ -332,7 +351,14 @@ def plot_solution(snapnr):
             #      zorder=10,
             #      c="C" + str(i),
             #  )
-            ax2.semilogy(r_bin_centers, T_binned, ls=linestyles[s], label=label_right, zorder=10, c="C" + str(i))
+            ax2.semilogy(
+                r_bin_centers,
+                T_binned,
+                ls=linestyles[s],
+                label=label_right,
+                zorder=10,
+                c="C" + str(i),
+            )
 
     # Cosmetics and save fig
     # ------------------------
