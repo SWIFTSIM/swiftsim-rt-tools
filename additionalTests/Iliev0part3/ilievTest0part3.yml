@@ -43,7 +43,7 @@ GEARRT:
   f_reduce_c: 1.                  # keep c correct as to not influence thermochemistry rates unnecessarily. 
   f_limit_cooling_time: 0.001     # Keep time steps small this way.
   CFL_condition: 1.e6             # We can only afford to use this stupidity here because in this test, we fix the radiation fields.
-  photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]      # Photon frequency group bin edges in Hz. Needs to be 1 less than the number of groups (N) requested during the configuration (--with-RT=GEAR_N). Outer edges of zero and infinity are assumed.
+  photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]      # Photon frequency group bin edges in Hz.
   star_emission_rates_LSol: [0., 0., 0.]                 # (Optional) constant star emission rates for each photon frequency group to use if use_constant_emission_rates is set, in units of Solar Luminosity.
   set_equilibrium_initial_ionization_mass_fractions: 0   # (Optional) set the initial ionization fractions depending on gas temperature assuming ionization equilibrium.
   set_initial_ionization_mass_fractions: 1          # (Optional) manually overwrite initial mass fraction of each species (using the values you set below)
