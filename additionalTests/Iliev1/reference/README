@@ -1,0 +1,27 @@
+Reference solutions for Iliev+06 Test 1.
+
+See https://arxiv.org/abs/astro-ph/0603199 and 
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests1-4.html
+
+Files:
+    *_xHI.dat : contain neutral hydrogen mass fraction
+    *_Ifront.dat: contains simulation time in Myr, I-front radius in kpc, and I-front velocity in km/s
+
+File Contents for *_xHI.dat:
+    first column: mean value
+    second column: standard deviation
+
+    all files have 128 lines, corresponding to the 128 cells in each
+    dimension that the reference tests have. The cell size is not
+    provided in these files, look it up yourself in the paper.
+
+
+Concerning the ionization front of Ritzerveld/SimpleX: Technically that data
+is available, but it's formatted weirdly. In the source repository of the data,
+there is one file for the radius, and another one for the velocities. The files
+do not have the same number of rows. For simplicity and in order to be able to
+use a single format to read the data in, I've omitted that data as a reference
+in this test.
+
+Rijkhorst/Flash, like Zeus, only had positions and time provided. I zero-padded 
+the velocities.
