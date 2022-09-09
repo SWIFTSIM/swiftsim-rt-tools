@@ -98,7 +98,7 @@ void io_write_slice(char *srcfilename, float *data, char *descriptor, int z) {
     for (int j = 0; j < NCELLS; j++) {
       int ind = get_array_index(i, j, z);
       fprintf(fp, "%.5e", data[ind]);
-      if (j < NCELLS - 2)
+      if (j < NCELLS - 1)
         fprintf(fp, ", ");
     }
     fprintf(fp, "\n");

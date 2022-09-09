@@ -65,6 +65,9 @@ default: $(EXECS)
 # $(EXEC): $(OBJECTS) $(HEADERS)
 #     $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
+readTest1: readTest1.c $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
 readTest2: readTest2.c $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
