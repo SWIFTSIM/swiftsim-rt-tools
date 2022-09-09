@@ -1,0 +1,65 @@
+MetaData:
+  run_name: Iliev06Test1
+
+# Define the system of units to use internally. 
+InternalUnitSystem:
+  UnitMass_in_cgs:     1.98848e18     # 1e-15 M_sun in grams
+  UnitLength_in_cgs:   3.08567758e+15 # 1 pc in cm
+  UnitVelocity_in_cgs: 1.e5           # 1 km/s in cm/s
+  UnitCurrent_in_cgs:  1              # Amperes
+  UnitTemp_in_cgs:     1              # Kelvin
+
+# Parameters governing the time integration
+TimeIntegration:
+  time_begin: 0.    # The starting time of the simulation (in internal units).
+  # time_end:   102084.547    # 100 Myr
+  time_end:   510422.735    # 500 Myr
+  dt_min:     0.0102084547  # 10 yr
+  dt_max:     1020.84547    # 1 Myr
+  max_nr_rt_subcycles: 32 # use this for 128^3
+  # max_nr_rt_subcycles: 16 # use this for 64^3
+
+# Parameters governing the snapshots
+Snapshots:
+  basename:            output    # Common part of the name of output files
+  time_first:          0.        # Time of the first output (in internal units)
+  # delta_time:          1020.8453 # 1 Myr
+  delta_time:          10208.453 # 10 Myr
+
+# Parameters governing the conserved quantities statistics
+Statistics:
+  time_first:          0.
+  delta_time:          1020.8453
+
+# Parameters for the hydrodynamics scheme
+SPH:
+  resolution_eta:        1.2348   # Target smoothing length in units of the mean inter-particle separation (1.2348 == 48Ngbs with the cubic spline kernel).
+  CFL_condition:         100.     # We can only afford to use this stupidity here because in this test, all hydrodynamics is supposed to be turned off.
+  minimal_temperature:   10.      # Kelvin
+
+# Parameters related to the initial conditions
+InitialConditions:
+  file_name:  ./ilievTest2.hdf5  # The file to read
+  periodic:   0                  # periodic ICs
+
+GEARRT:
+  f_reduce_c: 0.01              # reduce the speed of light for the RT solver by multiplying c with this factor
+  f_limit_cooling_time: 0.6     
+  CFL_condition: 0.9            # CFL condition for radiation transport
+  photon_groups_Hz: [3.28846551e+15]                # Photon frequency group bin edges in Hz. Needs to be 1 less than the number of groups (N) requested during the configuration (--with-RT=GEAR_N). Outer edges of zero and infinity are assumed.
+  star_emission_rates_LSol: [6.198311e+04]          # (Conditional) constant star emission rates for each photon frequency group to use if use_constant_emission_rates is set, in units of Solar Luminosity.
+  use_const_emission_rates: 1                       # (Optional) use constant emission rates for stars as defined with star_emission_rates_erg_LSol parameter
+  hydrogen_mass_fraction:  1.00                     # total hydrogen (H + H+) mass fraction in the metal-free portion of the gas
+  set_initial_ionization_mass_fractions: 1          # (Optional) manually overwrite initial mass fraction of each species (using the values you set below)
+  mass_fraction_HI: 0.999                           # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HI mass fractions to this value
+  mass_fraction_HII: 0.001                          # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HII mass fractions to this value
+  mass_fraction_HeI: 0.00                           # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HeI mass fractions to this value
+  mass_fraction_HeII: 0.                            # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HeII mass fractions to this value
+  mass_fraction_HeIII: 0.                           # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HeIII mass fractions to this value
+  stellar_spectrum_type: 0                          # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
+  stellar_spectrum_const_max_frequency_Hz: 3.28846651e+15 # (Conditional) if stellar_spectrum_type=0, use this maximal frequency for the constant spectrum. 
+
+  # ---- use this value for 64^3 resolution
+  # stars_max_timestep: 3.2e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  # ---- use this value for 128^3 resolution
+  stars_max_timestep: 1.56e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
