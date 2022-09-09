@@ -8,3 +8,4 @@ GRACKLE_INFO
 **/restart/
 **/*~
 compile_commands.json
+ionization_front_radius.txt
