@@ -164,7 +164,7 @@ def plot_solution(filename):
             )
 
     else:
-        codes = ["ART", "Crash", "IFT", "RSPH", "C2Ray", "FFTE", "OTVET", "Zeus"]
+        codes = ["ART", "C2Ray", "Crash", "FFTE", "IFT", "OTVET", "RSPH", "Zeus"]
         for c, code in enumerate(codes):
             fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
             fname_T = "reference/" + code + "_" + ref + "_profile_T.dat"

@@ -31,8 +31,8 @@ plot_actual_values = False
 
 # if True, use only a few references, and add labels.
 # Otherwise use all references, and make them grey
-#  label_refs = False
-label_refs = True
+label_refs = False
+#  label_refs = True
 
 #  Plot parameters
 params = {
@@ -303,6 +303,9 @@ def plot_ionization_fronts_from_log(fig):
     vI = dr / dt
     timesV = times[1:]
 
+    vI = vI[::20]
+    timesV = timesV[::20]
+
     if plot_actual_values:
         ax1.plot(
             times / t_rec,
@@ -363,14 +366,14 @@ def plot_ionization_fronts_reference(fig):
     """
 
     references = [
-        "C2Ray_Ifront.dat",
-        "OTVET_Ifront.dat",
-        "CRASH_Ifront.dat",
         "ART_Ifront.dat",
+        "C2Ray_Ifront.dat",
+        "CRASH_Ifront.dat",
         "FFTE_Ifront.dat",
-        "RSPH_Ifront.dat",
         "FLASH_Ifront.dat",
         "IFT_Ifront.dat",
+        "OTVET_Ifront.dat",
+        "RSPH_Ifront.dat",
         "Zeus_Ifront.dat",
     ]
 
@@ -382,6 +385,10 @@ def plot_ionization_fronts_reference(fig):
         times = times * unyt.Mpc
         rI = rI * unyt.kpc
         vI = vI * unyt.km / unyt.s
+
+        times = times[1:]
+        rI = rI[1:]
+        vI = vI[1:]
 
         # some data have missing velocities. They've been filled up
         # with zeroes. Skip plotting velocities there.
@@ -463,7 +470,7 @@ if __name__ == "__main__":
 
     snaplist = spt.get_snapshot_list(snapshot_base, True, -1)
     #  plot_ionization_fronts_from_snapshots(snaplist, fig)
-    #  plot_ionization_fronts_from_log(fig)
+    plot_ionization_fronts_from_log(fig)
     plot_ionization_fronts_reference(fig)
 
     if plot_actual_values:
@@ -472,6 +479,12 @@ if __name__ == "__main__":
         ax3.set_ylabel("$v_I$ [kpc/kyr]")
         figname = "ionization_fronts_actual_values.png"
     else:
+        ax1.set_ylim(0.95, 1.05)
+        # add line at 1
+        xlims = ax1.get_xlim()
+        ax1.plot(xlims, [1.0, 1.0], c="k", zorder=-1, ls=":", lw=1)
+        ax1.set_xlim(xlims)
+
         ax1.set_ylabel("$r_I/r_{analyt,0}$")
         ax2.set_ylabel("$r_I/r_{S,0}$")
         ax3.set_ylabel("$v_I/(r_{S,0}/t_{rec,0})$")
