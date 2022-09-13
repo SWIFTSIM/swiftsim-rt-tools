@@ -1,4 +1,4 @@
-/* Read result data for test 2 */
+/* Read result data for test 1 */
 
 #include "cell.h"
 #include "histogram.h"
