@@ -15,7 +15,7 @@ Iliev2
     Pure hydrogen isothermal HII region expansion for fixed density field
 
 Iliev4
-    16 sources in a static cosmological volume
+    16 sources in a static cosmological density field
 
 InjectionConvergenceTest
     Run Iliev2 test on varying underlying resolutions and compare convergence.

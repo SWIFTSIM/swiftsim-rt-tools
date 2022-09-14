@@ -7,16 +7,11 @@ Details:
 - hydrogen gas only.
 - the gas density distribution is fixed.
 - original test in paper was in 128^3 cells.
-
-CHECK THE REST HERE
+- run up to 0.4 Myr
 - source of ionizing radiation has black-body spectrum with T_bb = 10^5K
 - initially the gas is fully neutral and at 100K.
-- Box dimension of original test is L = 6.6kpc, but their source is in the 
-  corner of the box. So we take twice that. (plus a bit extra for boundary particles)
-- Gas number density nH = 10^-3 cm^-3
-- Ionization photon number rate is Ndot = 5 * 10^48 photons/s. This translates
-  to the luminosity L = 6.198024e+04 L_Sun.
-- run up to 100 Myr
+
+
 
 
 Notes
