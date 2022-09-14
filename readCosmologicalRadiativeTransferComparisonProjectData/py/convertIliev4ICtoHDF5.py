@@ -94,7 +94,7 @@ units.attrs["Unit length in cgs (U_L)"] = Mpc
 
 # Write Header
 header = hfile.create_group("Header")
-header.attrs["boxzise"] = [boxsize, boxsize, boxsize]
+header.attrs["Boxsize"] = [boxsize, boxsize, boxsize]
 header.attrs["Dimension"] = 3
 numpart = [nparts, 0, 0, 0, nstars, 0, 0]
 header.attrs["NumPartTypes"] = 7
