@@ -1,0 +1,11 @@
+Reference solutions for Iliev+06 Test 4.
+
+See https://arxiv.org/abs/astro-ph/0603199 and 
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests1-4.html
+
+Files:
+All files contain a slice along the midplane of size 128 x 128 cells.
+    *_T.dat : contain temperature in K
+    *_xHI.dat : contain neutral hydrogen mass fraction
+
+Codes used to create the output and output times are given in the file name.
