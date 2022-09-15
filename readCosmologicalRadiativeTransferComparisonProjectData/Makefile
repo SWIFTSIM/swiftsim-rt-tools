@@ -71,6 +71,12 @@ readTest1: readTest1.c $(HEADERS)
 readTest2: readTest2.c $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
+readTest4: readTest4.c $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+readTest4IC: readTest4IC.c $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
 
 #==================================
 #==================================
@@ -78,4 +84,4 @@ readTest2: readTest2.c $(HEADERS)
 .PHONY: clean # keeps makefile from doing something with a file named clean
 
 clean:
-	rm -f $(OBJECTS) $(EXEC)
+	rm -f $(OBJECTS) $(EXECS)

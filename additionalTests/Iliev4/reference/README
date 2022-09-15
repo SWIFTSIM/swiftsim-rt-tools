@@ -1,0 +1,17 @@
+Reference solutions for Iliev+06 Test 4.
+
+See https://arxiv.org/abs/astro-ph/0603199 and 
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests1-4.html
+
+Files:
+All files contain a slice along the midplane of size 128 x 128 cells.
+    *_T_z=64.dat : contain temperature in K
+    *_xHI_z=64.dat : contain neutral hydrogen mass fraction
+
+Codes used to create the output and output times are given in the file name.
+
+<CODE>_soft_<XMyr>_[T,xHI]_z=64.dat files contain the solutions for the 'soft' 
+blackbody spectrum with T = 3 * 10^4 K used instead of 10^5.
+
+Note that the published SimpleX temperature data is just zeros, and thus 
+skipped here.

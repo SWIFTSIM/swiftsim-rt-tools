@@ -1,4 +1,4 @@
-/* Read result data for test 1 */
+/* Read result data for test 4 */
 
 #include "cell.h"
 #include "histogram.h"
@@ -20,22 +20,17 @@ int main(int argc, char **argv) {
   io_read_header(fp);
 
   float *xHI = malloc(NCELLS * NCELLS * NCELLS * sizeof(float));
+  float *T = malloc(NCELLS * NCELLS * NCELLS * sizeof(float));
 
   io_read_scalar_field(fp, xHI);
+  io_read_scalar_field(fp, T);
 
-  /* Intended to check data */
-  /* for (int z = 0; z < NCELLS; z++) { */
-  /*   io_write_slice(filename, xHI, "xHI", z); */
-  /* } */
-
-  float *xHI_hist = NULL;
-  float *xHI_std = NULL;
-  get_profile(&xHI_hist, &xHI_std, xHI);
-  io_write_profile(filename, xHI_hist, xHI_std, HISTOGRAM_NBINS, "xHI");
+  io_write_slice(filename, xHI, "xHI", 64);
+  io_write_slice(filename, T, "T", 64);
 
   fclose(fp);
   free(xHI);
-  free(xHI_hist);
+  free(T);
 
   return 0;
 }

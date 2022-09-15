@@ -1,0 +1,43 @@
+Iliev Test 4
+-----------------------
+
+Reproducing Iliev+2006 (ui.adsabs.harvard.edu/abs/2006MNRAS.369.1625I/) Test 4
+Details:
+
+- hydrogen gas only.
+- the gas density distribution is fixed.
+- original test in paper was in 128^3 cells.
+- run up to 0.4 Myr
+- source of ionizing radiation has black-body spectrum with T_bb = 10^5K
+- for the 'soft' spectrum, source of ionizing radiation has black-body 
+  spectrum with T_bb = 3 x 10^4K
+- initially the gas is fully neutral and at 100K.
+- boxsize is 0.5 COMOVING Mpc / h
+
+
+
+
+Notes
+-------
+
+The '100c' setup is a setup to increase the speed of light by a factor of 100 in
+an attempt to mimic reference code's behaviour of having instant speed of light.
+
+The 'IlievTest4ICData.hdf5' file contains extracted data that are required to set 
+up the initial conditions propertly. While it resembles a SWIFT IC file a little,
+it is not a proper IC file itself, and SWIFT won't be able to run with it.
+Furthermore, it abuses star masses to store the halo masses for the sources of
+radiation, which then determine their luminosity. Note also that all the data in
+the 'IlievTest4ICData.hdf5' file contains *physical* values, not comoving ones.
+
+This test requires a fixed density for particles throughout the simulation.
+You can find instructions on how to fix the density field for GEAR-RT in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_turn_off_hydrodynamics_evolution.md
+
+This test also requires a treatment for boundary particles. The initial 
+conditions are set up to use a glass file for an inner region of the example,
+and an additional outer uniform particle distribution which constitutes an extra
+boundary particle layer. To accomodate the extra boundary particles, the box
+size is increased compared to the one prescribed in the Iliev+2006 paper.
+You can find instructions on how to deal with boundary particles for GEAR-RT in 
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_boundary_particles.md

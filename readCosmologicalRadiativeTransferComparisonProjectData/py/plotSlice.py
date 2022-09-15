@@ -41,7 +41,7 @@ data = np.loadtxt(infile, delimiter=",")
 fig = plt.figure(figsize=(6, 6), dpi=200)
 ax1 = fig.add_subplot(111, aspect="equal")
 
-im1 = ax1.imshow(data, origin="lower", norm=LogNorm())
+im1 = ax1.imshow(data.T, origin="lower", norm=LogNorm())
 set_colorbar(ax1, im1)
 
 plt.tight_layout()
