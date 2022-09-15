@@ -20,7 +20,7 @@ fi
 black="./black_formatting_env/bin/python3 -m black"
 
 # Formatting command
-cmd="$black -t py38 $(git ls-files | grep '\.py$')"
+cmd="$black -t py38 $(git ls-files | grep '\.py$' | grep -v 'rainbow4_colormap.py')"
 
 # Print the help
 function show_help {

@@ -6,7 +6,7 @@ set -o pipefail
 
 if [ ! -e IlievTest4ICData.hdf5 ]
 then
-    echo "Fetching initial glass file for Iliev Test 2 example ..."
+    echo "Fetching data file for Iliev Test 4 example ..."
     ./getICData.sh
 fi
 

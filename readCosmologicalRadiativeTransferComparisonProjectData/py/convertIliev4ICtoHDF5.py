@@ -44,9 +44,6 @@ h = 0.7
 boxsize = a * 0.5 / h  # physical Mpc
 dx = boxsize / ncells  # physical Mpc
 
-#  nmin = 2.433395e-05
-#  nmax = 0.1242255
-
 
 def convert_n_to_M(n):
     """

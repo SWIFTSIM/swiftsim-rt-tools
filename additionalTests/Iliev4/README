@@ -21,7 +21,7 @@ Notes
 -------
 
 The '100c' setup is a setup to increase the speed of light by a factor of 100 in
-an attempt to mimic reference code's behaviour of having instand speed of light.
+an attempt to mimic reference code's behaviour of having instant speed of light.
 
 The 'IlievTest4ICData.hdf5' file contains extracted data that are required to set 
 up the initial conditions propertly. While it resembles a SWIFT IC file a little,
