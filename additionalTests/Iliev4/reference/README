@@ -9,3 +9,6 @@ All files contain a slice along the midplane of size 128 x 128 cells.
     *_xHI.dat : contain neutral hydrogen mass fraction
 
 Codes used to create the output and output times are given in the file name.
+
+Note that the published SimpleX temperature data is just zeros, and thus 
+skipped here.

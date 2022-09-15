@@ -61,7 +61,7 @@ if __name__ == "__main__":
     shift = border_particle_width * dx
     xp += shift
     xs += shift
-    boxsize += 2* shift
+    boxsize += 2 * shift
 
     npart_border = (nparts + 2 * border_particle_width) ** 3 - nparts ** 3
     xp_border = np.zeros((npart_border, 3))
@@ -110,8 +110,6 @@ if __name__ == "__main__":
     mp = mp * unitM
     ms = ms * unitM
 
-
-
     w = Writer(unit_system=cosmo_units, box_size=boxsize, dimension=3)
 
     # write particle positions and smoothing lengths
@@ -121,7 +119,7 @@ if __name__ == "__main__":
     w.stars.coordinates = xs
     # you  got to give all particle types an ID, otherwise swiftsimio
     # will generate the IDs itself
-    w.stars.particle_ids = np.arange(nparts**3+1, nparts**3+1+xs.shape[0], 1)
+    w.stars.particle_ids = np.arange(nparts ** 3 + 1, nparts ** 3 + 1 + xs.shape[0], 1)
     w.gas.velocities = np.zeros(xp.shape) * (unitL / unyt.Myr)
     w.stars.velocities = np.zeros(xs.shape) * (unitL / unyt.Myr)
     w.gas.masses = mp
