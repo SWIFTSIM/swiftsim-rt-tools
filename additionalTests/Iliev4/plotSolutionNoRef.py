@@ -59,6 +59,7 @@ except IndexError:
     plot_all = True
 
 mpl.rcParams["text.usetex"] = True
+mpl.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def set_colorbar(ax, im):
@@ -103,9 +104,7 @@ def plot_result(filename):
     data.gas.mXHI = imf.HI * data.gas.masses.to("M_Sun")
 
     mu = spt.mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)
-    print(data.gas.masses)
     data.gas.mT = spt.gas_temperature(data.gas.internal_energies, mu, gamma) * data.gas.masses.to("M_Sun")
-    print(data.gas.mT)
 
     mass_weighted_HI_map = slice_gas(
         data, project="mXHI", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
@@ -114,8 +113,6 @@ def plot_result(filename):
         data, project="mT", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
     )
     
-    print(mass_weighted_temperature_map)
-
     HI_map = mass_weighted_HI_map / mass_map
     HI_map = HI_map[cutoff:-cutoff, cutoff:-cutoff]
 

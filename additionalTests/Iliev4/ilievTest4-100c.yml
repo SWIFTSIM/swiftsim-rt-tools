@@ -1,5 +1,5 @@
 MetaData:
-  run_name: Iliev06Test4
+  run_name: Iliev06Test4-100c
 
 # Define the system of units to use internally. 
 InternalUnitSystem:
@@ -13,10 +13,10 @@ InternalUnitSystem:
 TimeIntegration:
   time_begin: 0.          # The starting time of the simulation (in internal units).
   time_end:   408.8048    # 0.4 Myr
-  dt_min:     0.02495146  # 0.4 Myr / 128**2 = 24.4 yr
+  dt_min:     0.001 
   # dt_max:     3.1937875   # 0.4 / 128 Myr = 3.125 kyr
   dt_max: 51.1
-  max_nr_rt_subcycles: 32
+  max_nr_rt_subcycles: 1024
 
 # Parameters governing the snapshots
 Snapshots:
@@ -41,7 +41,7 @@ InitialConditions:
   periodic:   0                  # periodic ICs
 
 GEARRT:
-  f_reduce_c: 1.00                                       # reduce the speed of light for the RT solver by multiplying c with this factor
+  f_reduce_c: 100.                                       # reduce the speed of light for the RT solver by multiplying c with this factor
   f_limit_cooling_time: 0.6     
   CFL_condition: 0.9                                     # CFL condition for radiation transport
   photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]              # Photon frequency group bin edges in Hz.
@@ -56,4 +56,4 @@ GEARRT:
   # mass_fraction_HeIII: 0.                               # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HeIII mass fractions to this value
   stellar_spectrum_type: 1                               # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
   stellar_spectrum_blackbody_temperature_K: 1.e5         # (Conditional) if stellar_spectrum_type=1, use this temperature (in K) for the blackbody spectrum.
-  stars_max_timestep: 8.e-01                             # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  stars_max_timestep: 6.3e-03                            # (Optional) restrict the maximal timestep of stars to this value (in internal units)

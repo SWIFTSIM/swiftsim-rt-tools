@@ -75,6 +75,7 @@ int main(int argc, char **argv) {
   }
 
   fprintf(ofp, "# cell index i,j,k, density in cm^-3\n");
+  fprintf(ofp, "# redshift %.6g\n", redshift);
   for (int i = 0; i < 128; i++) {
     for (int j = 0; j < 128; j++) {
       for (int k = 0; k < 128; k++) {

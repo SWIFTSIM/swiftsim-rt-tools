@@ -24,6 +24,16 @@ for fname in [densityfile, starfile]:
         print("Didn't find file", fname)
         quit(1)
 
+# read in redshift
+with open(densityfile) as f:
+    f.readline()
+    redshiftline = f.readline()
+    redshiftline = redshiftline.strip()
+    split = redshiftline.split()
+    redshift = float(split[-1])
+
+a = 1. / (1. + redshift)
+
 Mpc = 3.08567758e24  # cm
 m_p = 1.67262311e-24  # g
 M_Sun = 1.98841586e33  # g
@@ -31,8 +41,8 @@ Myr = 3600 * 24 * 365 * 1e6  # s
 
 ncells = 128
 h = 0.7
-boxsize = 0.5 / h  # Mpc
-dx = boxsize / ncells  # Mpc
+boxsize = a *  0.5 / h # physical Mpc
+dx = boxsize / ncells  # physical Mpc
 
 #  nmin = 2.433395e-05
 #  nmax = 0.1242255
@@ -48,6 +58,7 @@ def convert_n_to_M(n):
     rho_gpcm3 = n * m_p
     mass_g = (rho_gpcm3 * Mpc ** 3) * V_Mpc3
     mass_Msun = mass_g / M_Sun
+
     return mass_Msun
 
 
@@ -96,6 +107,7 @@ units.attrs["Unit length in cgs (U_L)"] = Mpc
 header = hfile.create_group("Header")
 header.attrs["Boxsize"] = [boxsize, boxsize, boxsize]
 header.attrs["Dimension"] = 3
+header.attrs["Redshift"] = redshift
 numpart = [nparts, 0, 0, 0, nstars, 0, 0]
 header.attrs["NumPartTypes"] = 7
 header.attrs["NumPart_ThisFile"] = numpart
@@ -136,5 +148,34 @@ for i in range(nstars):
 
 star_positions[:] = star_pos_arr[:]
 star_mass[:] = star_mass_arr[:]
+
+
+
+# add README
+
+README="""
+This file contains the initial conditions for the Iliev et al. 2006 "Test 4".
+While it mimics a regular SWIFT/gadgetoid IC file in some parts, this is not
+a valid IC file. Instead, it only stores some required data in a portable 
+format. In particular, the gas and star coordinates and masses.
+
+Some Notes:
+
+- all values are stored in !!physical!! units, not comoving units that are shown
+  in the Iliev et al. 2006 paper and others. This includes in particular the
+  coordinates and boxsizes.
+- gas (PartType0) masses and positions are prepared to be used directly as-is
+- star (PartType4) particles' masses are not true star masses, but contain the
+  halo mass that is used to determine their emission rates (see eq. 13 in Iliev
+  et al. 2006)
+"""
+
+meta = hfile.create_group("Metadata")
+
+readme = hfile.create_dataset("Metadata/README", (1,), dtype=h5py.string_dtype())
+readme[0] = README
+
+
+
 
 hfile.close()
