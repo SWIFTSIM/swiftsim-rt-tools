@@ -10,12 +10,13 @@
 import sys
 import swiftsimio
 import unyt
+import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size, ImageGrid
 from matplotlib.colors import LogNorm
 from swiftsimio.visualisation.slice import slice_gas
-import numpy as np
+from rainbow4_colormap import rainbow4
 
 import stromgren_plotting_tools as spt
 
@@ -25,27 +26,28 @@ import stromgren_plotting_tools as spt
 snapshot_base = "output"
 
 # parameters for imshow plots
-imshow_kwargs = {"origin": "lower", 
-                    #  "cmap":"cividis",
-                    "cmap":"inferno",
-                }
+imshow_kwargs = {
+    "origin": "lower",
+    "cmap": rainbow4
+    #  "cmap":"cividis",
+}
 
 # parameters for swiftsimio slices
-slice_kwargs = {"resolution": 1000, "parallel": True}
+slice_kwargs = {"resolution": 512, "parallel": True}
 
 
 # which reference to plot
 # must be a string!
-ref = "0.05Myr"
+#  ref = "0.05Myr"
 #  ref = "0.1Myr"
 #  ref = "0.2Myr"
 #  ref = "0.3Myr"
-#  ref = "0.4Myr"
+ref = "0.4Myr"
 
 Tmin = 100
 Tmax = 1e5
 xHImin = 1e-6
-xHImax = 1.
+xHImax = 1.2
 
 # -----------------------------------------------------------------------
 
@@ -62,49 +64,12 @@ mpl.rcParams["text.usetex"] = True
 mpl.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
-
 def get_ref_data(code, quantity):
 
-    datafile = "reference/"+code + "_" + ref + "_slice_"+quantity+"_z=64.dat"
+    datafile = "reference/" + code + "_" + ref + "_slice_" + quantity + "_z=64.dat"
     print("reading", datafile)
     res = np.loadtxt(datafile, delimiter=",")
     return res
-
-
-
-def tick_cosmetics(row, col, ax):
-
-    # cosmetics
-    #---------------
-    if col > 0:
-        left = False
-    else:
-        left = True
-    if row == nrows - 1:
-        bottom = True
-    else:
-        bottom = False
-
-    ax.tick_params(
-        axis="both",  # changes apply to the x-axis
-        which="both",  # both major and minor ticks are affected
-        bottom=bottom,  # ticks along the bottom edge are off
-        top=False,  # ticks along the top edge are off
-        left=left,  # ticks along the top edge are off
-        right=False,  # ticks along the top edge are off
-        labelbottom=bottom,  # labels along the bottom edge are off
-        labeltop=False,  # labels along the bottom edge are off
-        labelleft=left,  # labels along the bottom edge are off
-        labelright=False,
-    )  # labels along the bottom edge are off
-
-    #  if row == 0:
-    #      ax.set_title("title", fontsize=14)
-    #  if col == 0:
-    #      ax.set_ylabel(r"$r_{max} = $ " + str(row + 1))
-
-    return
-
 
 
 def plot_result(filename):
@@ -119,7 +84,7 @@ def plot_result(filename):
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
     # cut off boundary particles
-    cutoff = int(4 / (128 + 4) * slice_kwargs["resolution"])
+    cutoff = int(4 / (128 + 8) * slice_kwargs["resolution"])
 
     mass_map = slice_gas(
         data, project="masses", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
@@ -131,7 +96,9 @@ def plot_result(filename):
     data.gas.mXHI = imf.HI * data.gas.masses.to("M_Sun")
 
     mu = spt.mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)
-    data.gas.mT = spt.gas_temperature(data.gas.internal_energies, mu, gamma) * data.gas.masses.to("M_Sun")
+    data.gas.mT = spt.gas_temperature(
+        data.gas.internal_energies, mu, gamma
+    ) * data.gas.masses.to("M_Sun")
 
     mass_weighted_HI_map = slice_gas(
         data, project="mXHI", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
@@ -139,51 +106,30 @@ def plot_result(filename):
     mass_weighted_temperature_map = slice_gas(
         data, project="mT", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
     )
-    
+
+    mass_map = mass_map[cutoff:-cutoff, cutoff:-cutoff]
+    mass_weighted_temperature_map = mass_weighted_temperature_map[
+        cutoff:-cutoff, cutoff:-cutoff
+    ]
+    mass_weighted_HI_map = mass_weighted_HI_map[cutoff:-cutoff, cutoff:-cutoff]
+
     HI_map = mass_weighted_HI_map / mass_map
-    HI_map = HI_map[cutoff:-cutoff, cutoff:-cutoff]
-
     temperature_map = mass_weighted_temperature_map / mass_map
-    temperature_map = temperature_map[cutoff:-cutoff, cutoff:-cutoff]
-    temperature_map = temperature_map.to("K")
 
-    #  im1 = ax1.imshow(
-    #      HI_map.T,
-    #      **imshow_kwargs,
-    #      norm=LogNorm(vmin=1.0e-5, vmax=1.0),
-    #      cmap="cividis",
-    #  )
-    #  set_colorbar(ax1, im1)
-    #  ax1.set_title("Neutral Hydrogen Mass Fraction [1]")
-    #
-    #  im2 = ax2.imshow(
-    #      temperature_map.T,
-    #      **imshow_kwargs,
-    #      norm=LogNorm(vmin=1e2, vmax=5e4),
-    #      cmap="inferno",
-    #  )
-    #  set_colorbar(ax2, im2)
-    #  ax2.set_title(r"Temperature [K]")
-    #
-
-
-    references = [ "C2Ray", "Crash", "FFTE"]
+    references = ["C2Ray", "Crash", "FFTE"]
     nrows = 2
     ncols = len(references) + 1
 
-    fig = plt.figure(figsize=(5. * ncols,  nrows*5.6), dpi=200)
+    fig = plt.figure(figsize=(5.0 * ncols, nrows * 5.6), dpi=200)
     figname = filename[:-5] + ".png"
 
     global imshow_kwargs
     imshow_kwargs["extent"] = [
         0.0 * meta.boxsize[0].v,
-        (1. - 8/(128 + 8)) * meta.boxsize[0].to("kpc").v,
+        (1.0 - 8 / (128 + 8)) * meta.boxsize[0].to("kpc").v,
         0.0 * meta.boxsize[1].v,
-        (1. - 8/(128 + 8)) * meta.boxsize[0].to("kpc").v,
+        (1.0 - 8 / (128 + 8)) * meta.boxsize[0].to("kpc").v,
     ]
-
-
-
 
     axrows = [[] for r in range(nrows)]
     # loop over each row (T, xHI)
@@ -213,22 +159,25 @@ def plot_result(filename):
 
         if col == 0:
             # plot your own data
-            im = ax.imshow(HI_map.T,**imshow_kwargs, norm=LogNorm(vmin=xHImin, vmax=xHImax),)
+            im = ax.imshow(
+                HI_map.T, **imshow_kwargs, norm=LogNorm(vmin=xHImin, vmax=xHImax)
+            )
             ax.set_title("Neutral Hydrogen fraction GEARRT")
 
         else:
             # plot reference data
             code = references[col - 1]
             refdata = get_ref_data(code, "xHI")
-            im = ax.imshow(refdata.T,**imshow_kwargs, norm=LogNorm(vmin=xHImin, vmax=xHImax),)
-            ax.set_title("Neutral Hydrogen fraction "+code)
+            im = ax.imshow(
+                refdata.T, **imshow_kwargs, norm=LogNorm(vmin=xHImin, vmax=xHImax)
+            )
+            ax.set_title("Neutral Hydrogen fraction " + code)
 
         # Add colorbar to every row
         axcols.cbar_axes[0].colorbar(im)
 
         ax.set_xlabel("[kpc]")
         ax.set_ylabel("[kpc]")
-
 
     # Plot Temperature
     axcols = axrows[1]
@@ -236,25 +185,25 @@ def plot_result(filename):
 
         if col == 0:
             # plot your own data
-            im = ax.imshow(temperature_map.T,**imshow_kwargs, norm=LogNorm(vmin=Tmin, vmax=Tmax),)
+            im = ax.imshow(
+                temperature_map.T, **imshow_kwargs, norm=LogNorm(vmin=Tmin, vmax=Tmax)
+            )
             ax.set_title("Temperature GEARRT")
 
         else:
             # plot reference data
             code = references[col - 1]
             refdata = get_ref_data(code, "T")
-            im = ax.imshow(refdata.T,**imshow_kwargs, norm=LogNorm(vmin=Tmin, vmax=Tmax),)
-            ax.set_title("Temperature "+code)
+            im = ax.imshow(
+                refdata.T, **imshow_kwargs, norm=LogNorm(vmin=Tmin, vmax=Tmax)
+            )
+            ax.set_title("Temperature " + code)
 
         # Add colorbar to every row
         axcols.cbar_axes[0].colorbar(im)
 
         ax.set_xlabel("[kpc]")
         ax.set_ylabel("[kpc]")
-
-
-
-
 
     title = filename.replace("_", "\_")  # exception handle underscore for latex
     if meta.cosmology is not None:

@@ -33,6 +33,7 @@ import matplotlib as mpl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
 from swiftsimio.visualisation.slice import slice_gas
+from rainbow4_colormap import rainbow4
 
 import stromgren_plotting_tools as spt
 
@@ -86,13 +87,13 @@ def plot_result(filename):
     global imshow_kwargs
     imshow_kwargs["extent"] = [
         0.0 * meta.boxsize[0].v,
-        (1. - 8/(128 + 8)) * meta.boxsize[0].to("kpc").v,
+        (1.0 - 8 / (128 + 8)) * meta.boxsize[0].to("kpc").v,
         0.0 * meta.boxsize[1].v,
-        (1. - 8/(128 + 8)) * meta.boxsize[0].to("kpc").v,
+        (1.0 - 8 / (128 + 8)) * meta.boxsize[0].to("kpc").v,
     ]
 
     # cut off boundary particles
-    cutoff = int(4 / (128 + 4) * slice_kwargs["resolution"])
+    cutoff = int(4 / (128 + 8) * slice_kwargs["resolution"])
 
     mass_map = slice_gas(
         data, project="masses", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
@@ -104,7 +105,9 @@ def plot_result(filename):
     data.gas.mXHI = imf.HI * data.gas.masses.to("M_Sun")
 
     mu = spt.mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)
-    data.gas.mT = spt.gas_temperature(data.gas.internal_energies, mu, gamma) * data.gas.masses.to("M_Sun")
+    data.gas.mT = spt.gas_temperature(
+        data.gas.internal_energies, mu, gamma
+    ) * data.gas.masses.to("M_Sun")
 
     mass_weighted_HI_map = slice_gas(
         data, project="mXHI", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
@@ -112,7 +115,7 @@ def plot_result(filename):
     mass_weighted_temperature_map = slice_gas(
         data, project="mT", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
     )
-    
+
     HI_map = mass_weighted_HI_map / mass_map
     HI_map = HI_map[cutoff:-cutoff, cutoff:-cutoff]
 
@@ -129,8 +132,9 @@ def plot_result(filename):
     im1 = ax1.imshow(
         HI_map.T,
         **imshow_kwargs,
-        norm=LogNorm(vmin=1.0e-5, vmax=1.0),
-        cmap="cividis",
+        norm=LogNorm(vmin=1.0e-7, vmax=1.2),
+        cmap=rainbow4,
+        #  cmap = "cividis"
     )
     set_colorbar(ax1, im1)
     ax1.set_title("Neutral Hydrogen Mass Fraction [1]")
@@ -138,8 +142,9 @@ def plot_result(filename):
     im2 = ax2.imshow(
         temperature_map.T,
         **imshow_kwargs,
-        norm=LogNorm(vmin=1e2, vmax=5e4),
-        cmap="inferno",
+        norm=LogNorm(vmin=1e2, vmax=1e5),
+        cmap=rainbow4,
+        #  cmap = "inferno"
     )
     set_colorbar(ax2, im2)
     ax2.set_title(r"Temperature [K]")

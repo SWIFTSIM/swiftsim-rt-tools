@@ -32,7 +32,7 @@ with open(densityfile) as f:
     split = redshiftline.split()
     redshift = float(split[-1])
 
-a = 1. / (1. + redshift)
+a = 1.0 / (1.0 + redshift)
 
 Mpc = 3.08567758e24  # cm
 m_p = 1.67262311e-24  # g
@@ -41,7 +41,7 @@ Myr = 3600 * 24 * 365 * 1e6  # s
 
 ncells = 128
 h = 0.7
-boxsize = a *  0.5 / h # physical Mpc
+boxsize = a * 0.5 / h  # physical Mpc
 dx = boxsize / ncells  # physical Mpc
 
 #  nmin = 2.433395e-05
@@ -150,10 +150,9 @@ star_positions[:] = star_pos_arr[:]
 star_mass[:] = star_mass_arr[:]
 
 
-
 # add README
 
-README="""
+README = """
 This file contains the initial conditions for the Iliev et al. 2006 "Test 4".
 While it mimics a regular SWIFT/gadgetoid IC file in some parts, this is not
 a valid IC file. Instead, it only stores some required data in a portable 
@@ -174,8 +173,6 @@ meta = hfile.create_group("Metadata")
 
 readme = hfile.create_dataset("Metadata/README", (1,), dtype=h5py.string_dtype())
 readme[0] = README
-
-
 
 
 hfile.close()
