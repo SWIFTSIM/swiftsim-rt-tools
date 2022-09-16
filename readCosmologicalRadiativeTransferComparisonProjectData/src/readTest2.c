@@ -41,6 +41,8 @@ int main(int argc, char **argv) {
   get_profile(&T_hist, &T_std, T);
   io_write_profile(filename, T_hist, T_std, HISTOGRAM_NBINS, "T");
 
+  io_check_reached_EOF(fp);
+
   fclose(fp);
   free(xHI);
   free(xHI_hist);

@@ -85,6 +85,8 @@ int main(int argc, char **argv) {
     }
   }
 
+  io_check_reached_EOF(fp);
+
   /* cleanup */
   fclose(fp);
   free(density_field);

@@ -71,6 +71,9 @@ readTest1: readTest1.c $(HEADERS)
 readTest2: readTest2.c $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
+readTest3: readTest3.c $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
 readTest4: readTest4.c $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 

@@ -28,6 +28,8 @@ int main(int argc, char **argv) {
   io_write_slice(filename, xHI, "xHI", 64);
   io_write_slice(filename, T, "T", 64);
 
+  io_check_reached_EOF(fp);
+
   fclose(fp);
   free(xHI);
   free(T);
