@@ -43,7 +43,7 @@ GEARRT:
   f_reduce_c: 100.                                       # reduce the speed of light for the RT solver by multiplying c with this factor
   f_limit_cooling_time: 0.6     
   CFL_condition: 0.9                                     # CFL condition for radiation transport
-  photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]              # Photon frequency group bin edges in Hz.
+  photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]      # Photon frequency group bin edges in Hz.
   stellar_luminosity_model: IlievTest4                   # Which stellar luminosity model to use
   hydrogen_mass_fraction:  1.00                          # total hydrogen (H + H+) mass fraction in the metal-free portion of the gas
   set_equilibrium_initial_ionization_mass_fractions: 1   # (Optional) set the initial ionization fractions depending on gas temperature assuming ionization equilibrium.

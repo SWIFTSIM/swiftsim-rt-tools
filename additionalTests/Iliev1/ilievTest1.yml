@@ -11,7 +11,7 @@ InternalUnitSystem:
 
 # Parameters governing the time integration
 TimeIntegration:
-  time_begin: 0.    # The starting time of the simulation (in internal units).
+  time_begin: 0.            # The starting time of the simulation (in internal units).
   time_end:   510422.735    # 500 Myr
   dt_min:     0.0102084547  # 10 yr
   dt_max:     1020.84547    # 1 Myr
@@ -39,14 +39,14 @@ SPH:
 InitialConditions:
   file_name:  ./ilievTest1.hdf5  # The file to read
   periodic:   0                  # periodic ICs
-
+  
 GEARRT:
-  f_reduce_c: 0.01              # reduce the speed of light for the RT solver by multiplying c with this factor
+  f_reduce_c: 0.01                                  # reduce the speed of light for the RT solver by multiplying c with this factor
   f_limit_cooling_time: 0.6     
-  CFL_condition: 0.9            # CFL condition for radiation transport
-  photon_groups_Hz: [3.288525e+15]                  # Photon frequency group bin edges in Hz.
-  star_emission_rates_LSol: [2.846e+04]          # (Conditional) constant star emission rates for each photon frequency group to use if use_constant_emission_rates is set, in units of Solar Luminosity.
-  use_const_emission_rates: 1                       # (Optional) use constant emission rates for stars as defined with star_emission_rates_erg_LSol parameter
+  CFL_condition: 0.9                                # CFL condition for radiation transport
+  photon_groups_Hz: [3.288525e+15]                  # Photon frequency group bin edges in Hz. Needs to be 1 less than the number of groups (N) requested during the configuration (--with-RT=GEAR_N). Outer edges of zero and infinity are assumed.
+  const_stellar_luminosities_LSol: [2.846e+04]      # (Conditional) constant star emission rates for each photon frequency group to use if use_constant_emission_rates is set, in units of Solar Luminosity.
+  stellar_luminosity_model: const                   # (Optional) use constant emission rates for stars as defined with star_emission_rates_erg_LSol parameter
   hydrogen_mass_fraction:  1.00                     # total hydrogen (H + H+) mass fraction in the metal-free portion of the gas
   set_initial_ionization_mass_fractions: 1          # (Optional) manually overwrite initial mass fraction of each species (using the values you set below)
   mass_fraction_HI: 0.999                           # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HI mass fractions to this value
@@ -55,8 +55,8 @@ GEARRT:
   mass_fraction_HeII: 0.                            # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HeII mass fractions to this value
   mass_fraction_HeIII: 0.                           # (Conditional) If overwrite_initial_ionization_fractions=1, needed to set initial HeIII mass fractions to this value
   stellar_spectrum_type: 0                          # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
-  stellar_spectrum_const_max_frequency_Hz: 3.2885254e+15 # (Conditional) if stellar_spectrum_type=0, use this maximal frequency for the constant spectrum. 
+  stellar_spectrum_const_max_frequency_Hz: 3.2885254e+15  # (Conditional) if stellar_spectrum_type=0, use this maximal frequency for the constant spectrum. 
   # ---- use this value for 64^3 resolution
-  # stars_max_timestep: 3.2e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  # stars_max_timestep: 3.2e+01                       # (Optional) restrict the maximal timestep of stars to this value (in internal units)
   # ---- use this value for 128^3 resolution
-  stars_max_timestep: 1.56e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  stars_max_timestep: 1.56e+01                      # (Optional) restrict the maximal timestep of stars to this value (in internal units)

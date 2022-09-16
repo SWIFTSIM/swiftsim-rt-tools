@@ -50,7 +50,7 @@ GEARRT:
   CFL_condition: 0.9            # CFL condition for radiation transport
   photon_groups_Hz: [3.2880e+15, 6.5760e+15, 9.8640e+15, 1.3152e+16, 1.6440e+16, 1.9728e+16, 2.3016e+16, 2.6304e+16, 2.9592e+16, 3.2880e+16]  # Hz
   star_emission_rates_LSol: [2.221e+04, 2.020e+04, 1.153e+04, 5.122e+03, 1.952e+03, 6.705e+02, 2.140e+02, 6.461e+01, 1.869e+01, 7.158e+00]
-  use_const_emission_rates: 1                            # (Optional) use constant emission rates for stars as defined with star_emission_rates_erg_LSol parameter
+  stellar_luminosity_model: const                        # (Optional) use constant emission rates for stars as defined with star_emission_rates_erg_LSol parameter
   hydrogen_mass_fraction:  1.00                          # total hydrogen (H + H+) mass fraction in the metal-free portion of the gas
   set_equilibrium_initial_ionization_mass_fractions: 1   # (Optional) set the initial ionization fractions depending on gas temperature assuming ionization equilibrium.
   stellar_spectrum_type: 1                               # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
