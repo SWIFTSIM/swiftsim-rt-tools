@@ -1,0 +1,98 @@
+Iliev Test 3
+-----------------------
+
+Reproducing Iliev+2006 (ui.adsabs.harvard.edu/abs/2006MNRAS.369.1625I/) Test 3
+Details:
+
+- hydrogen gas only.
+- use black-body spectrum with T_bb = 10^5K
+- use constant ionizing photon flux F = 10^6 / s / cm^2
+- flux is emitted from the y = 0 side of the box.
+- the contents of the box are separated into an "environment" and a dense spherical clump.
+- the "environment" has n = 2 x 10^4 cm^-3 and T = 8000K
+- the clump has n = 200 n_environment = 0.04 cm^-3, T = 40K
+- clump radius is 0.8 kpc centered at (5, 3.3, 3.3) kpc
+- Box size is 6.6kpc
+- original test in paper was in 128^3 cells.
+
+
+Notes
+-------
+
+This test requires a fixed density for particles throughout the simulation.
+You can find instructions on how to fix the density field for GEAR-RT in
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_turn_off_hydrodynamics_evolution.md
+
+This test also requires a treatment for boundary particles. The initial 
+conditions are set up to use a glass file for an inner region of the example,
+and an additional outer uniform particle distribution which constitutes an extra
+boundary particle layer. To accomodate the extra boundary particles, the box
+size is increased compared to the one prescribed in the Iliev+2006 paper.
+You can find instructions on how to deal with boundary particles for GEAR-RT in 
+swiftsim-rt-tools/additionalTests/instructions/GEARRT_boundary_particles.md
+
+Boundary particles that "swallow" up radiation at the edges are marked by having a
+particle ID > 1000000000. For this test, we also need a 'wall' of radiation being
+emitted from the y = 0 plane. Boundary particles along this plane are marked by 
+having a particle ID > 2000000000. For these particles, you need to modify the 
+treatment of boundary particles:
+
+```
+  __attribute__((always_inline)) INLINE static void
+  rt_tchem_set_boundary_particles_for_test(struct part* restrict p) {
+
+    if (p->id >= 1000000000) {
+      for (int g = 0; g < RT_NGROUPS; g++) {
+        p->rt_data.radiation[g].energy_density = 0.f;
+        p->rt_data.radiation[g].flux[0] = 0.f;
+        p->rt_data.radiation[g].flux[1] = 0.f;
+        p->rt_data.radiation[g].flux[2] = 0.f;
+      }
+    }
+
+    /* Now add this for the radiation source */
+    /* ------------------------------------- */
+
+    const double cred_inv = rt_params.reduced_lightspeed_inv;
+    /* flux units assuming U_M = 1.98848e18g, U_L = 3.08567758e+15, U_V = 1.e5 */
+    const double flux_units = 6.802181e-14;
+
+    /* In case of 1 group */
+    fluxes[1] = {4.744e-05 * flux_units};
+    energy_densities[1] = {fluxes[0] * cred_inv};
+
+    /* In case of 3 groups */
+    fluxes[3] = { 1.350e-05 * flux_units, 2.779e-05 * flux_units, 6.152e-06 * flux_units };
+    energy_densities[3] = { fluxes[0] * cred_inv, fluxes[1] * cred_inv, fluxes[2] * cred_inv };
+
+    if (p->id >= 2000000000) {
+      for (int g = 0; g < RT_NGROUPS; g++) {
+        p->rt_data.radiation[g].energy_density = energy_densities[g];
+        p->rt_data.radiation[g].flux[0] = 0.f;
+        p->rt_data.radiation[g].flux[1] = fluxes[g];
+        p->rt_data.radiation[g].flux[2] = 0.f;
+      }
+    }
+  }
+```
+
+The fluxes for 3 Groups are :
+
+Bin   0:  3.288e+15 -  5.945e+15 [Hz]  Flux =    1.350e-05 [erg/s/cm^2]    3.528e-39 [L_Sol/cm^2]
+Bin   1:  5.945e+15 -  1.316e+16 [Hz]  Flux =    2.779e-05 [erg/s/cm^2]    7.261e-39 [L_Sol/cm^2]
+Bin   2:  1.316e+16 -  5.879e+17 [Hz]  Flux =    6.152e-06 [erg/s/cm^2]    1.607e-39 [L_Sol/cm^2]
+
+For a single bin:
+
+Bin   0:  3.288e+15 -  5.879e+17 [Hz]  Flux =    4.744e-05 [erg/s/cm^2]    1.240e-38 [L_Sol/cm^2]
+
+
+The conversion from cgs to internal units, assuming the internal units set in
+the ilievTest3.yml file:
+  UnitMass_in_cgs:     1.98848e18     # 1e-15 M_sun in grams
+  UnitLength_in_cgs:   3.08567758e+15 # 1 pc in cm
+  UnitVelocity_in_cgs: 1.e5           # 1 km/s in cm/s
+
+are:
+
+    flux_units = 6.802181e-14 [erg/s/cm^2]
