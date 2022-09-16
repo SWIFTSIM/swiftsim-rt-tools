@@ -272,12 +272,21 @@ void read_swift_params(struct swift_params *params) {
                                   photon_groups_Hz);
   }
 
-  use_const_emission_rates = parser_get_opt_param_int(
-      params, "GEARRT:use_const_emission_rates", /* default = */ 0);
+  use_const_emission_rates = 0;
+
+  char stellar_model_str[80];
+  parser_get_param_string(params, "GEARRT:stellar_luminosity_model",
+                          stellar_model_str);
+  if (strcmp(stellar_model_str, "const") == 0)
+    use_const_emission_rates = 1;
+
   star_emission_rates = malloc(RT_NGROUPS * sizeof(double));
+
   if (use_const_emission_rates) {
-    parser_get_param_double_array(params, "GEARRT:star_emission_rates_LSol",
+    parser_get_param_double_array(params,
+                                  "GEARRT:const_stellar_luminosities_LSol",
                                   RT_NGROUPS, star_emission_rates);
+
   } else {
     error("This check isn't set up to run without constant stellar emission "
           "rates (yet)");
@@ -752,7 +761,8 @@ int main(void) {
   /* TODO: make this a cmdline arg? */
   /* This needs to be the parameter filename that you plan
    * on running SWIFT with for your simulation */
-  char *sim_run_params_filename = "swift_parameters.yml";
+  /* char *sim_run_params_filename = "swift_parameters.yml"; */
+  char *sim_run_params_filename = "ilievTest0part2.yml";
   /* This is the parameter filename for the params that you
    * either set up manually or extracted from the ICs using
    * the provided script. */
