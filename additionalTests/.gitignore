@@ -11,3 +11,6 @@ statistics.txt
 *slm
 *out
 *.log
+generate_simulation_parameter_file.py
+*.xmf
+swift-*

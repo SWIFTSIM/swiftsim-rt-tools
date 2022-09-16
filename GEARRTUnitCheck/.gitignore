@@ -3,3 +3,7 @@ ilievTest0part2.yml
 GEARRT_unit_checks
 simulation_parameters.yml
 *.dat
+ion_equil.yml
+rt_advection2D.yml
+stromgrenSphere-3D.yml
+swift_parameters.yml
