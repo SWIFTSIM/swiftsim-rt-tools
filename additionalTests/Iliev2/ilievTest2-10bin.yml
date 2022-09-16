@@ -48,7 +48,7 @@ GEARRT:
   f_reduce_c: 0.01              # reduce the speed of light for the RT solver by multiplying c with this factor
   f_limit_cooling_time: 0.6     
   CFL_condition: 0.9            # CFL condition for radiation transport
-  photon_groups_Hz: [3.288e+15, 5.945e+15, 13.157e+15, 2.0369e+16, 2.7581e+16, 3.4793e+16, 4.2005e+16, 4.9217e+16, 5.6429e+16, 6.3641e+16]  # Hz
+  photon_groups_Hz: [ 3.29e+15, 6.58e+15, 9.86e+15, 1.32e+16, 1.64e+16, 1.97e+16, 2.3e+16, 2.63e+16, 2.96e+16, 3.29e+16 ] # Hz
   star_emission_rates_LSol: [1.764e+04, 3.631e+04, 7.257e+03, 7.247e+02, 5.250e+01, 3.170e+00, 1.703e-01, 8.432e-03, 3.932e-04, 1.829e-05]
   use_const_emission_rates: 1                            # (Optional) use constant emission rates for stars as defined with star_emission_rates_erg_LSol parameter
   hydrogen_mass_fraction:  1.00                          # total hydrogen (H + H+) mass fraction in the metal-free portion of the gas
