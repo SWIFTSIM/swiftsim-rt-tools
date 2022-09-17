@@ -39,6 +39,7 @@ params = {
     "axes.labelsize": 14,
     "axes.titlesize": 14,
     "font.size": 14,
+    "font.family": "serif",
     "legend.fontsize": 14,
     "xtick.labelsize": 12,
     "ytick.labelsize": 12,
@@ -49,7 +50,7 @@ params = {
     "xtick.major.width": 1.5,
     "ytick.major.width": 1.5,
     "axes.linewidth": 1.5,
-    #  "text.usetex": True,
+    "text.usetex": True,
     "figure.subplot.left": 0.145,
     "figure.subplot.right": 0.99,
     "figure.subplot.bottom": 0.075,
@@ -310,24 +311,21 @@ def plot_ionization_fronts_from_log(fig):
         ax1.plot(
             times / t_rec,
             rI.to("kpc"),
-            ls="--",
-            label="GEARRT each step",
+            label="GEARRT",
             alpha=0.7,
             zorder=31,
         )
         ax2.plot(
             times / t_rec,
             rI.to("kpc"),
-            ls="--",
-            label="GEARRT each step",
+            label="GEARRT",
             alpha=0.7,
             zorder=31,
         )
         ax3.plot(
             timesV / t_rec,
             vI.to("kpc/kyr"),
-            ls="--",
-            label="GEARRT each step",
+            label="GEARRT",
             alpha=0.7,
             zorder=31,
         )
@@ -337,21 +335,19 @@ def plot_ionization_fronts_from_log(fig):
         ax1.plot(
             times / t_rec,
             rI.to("kpc") / r_ifront_ana.to("kpc"),
-            ls="--",
-            label="GEARRT each step",
+            label="GEARRT",
             zorder=31,
         )
         ax2.plot(
             times / t_rec,
             rI.to("kpc") / r_S.to("kpc"),
-            label="GEARRT each step",
+            label="GEARRT",
             zorder=31,
         )
         ax3.plot(
             timesV / t_rec,
             vI.to("kpc/kyr") / (r_S.to("kpc") / t_rec.to("kyr")).to("kpc/kyr"),
-            ls="--",
-            label="GEARRT each step",
+            label="GEARRT",
             zorder=31,
         )
 
@@ -482,16 +478,20 @@ if __name__ == "__main__":
         ax1.set_ylim(0.95, 1.05)
         # add line at 1
         xlims = ax1.get_xlim()
-        ax1.plot(xlims, [1.0, 1.0], c="k", zorder=-1, ls=":", lw=1)
+        ax1.plot(xlims, [1.0, 1.0], c="k", zorder=-1, ls="--", lw=2)
         ax1.set_xlim(xlims)
 
-        ax1.set_ylabel("$r_I/r_{analyt,0}$")
+        ax1.set_ylabel("$r_I/r_{\mathrm{analyt},0}$")
         ax2.set_ylabel("$r_I/r_{S,0}$")
-        ax3.set_ylabel("$v_I/(r_{S,0}/t_{rec,0})$")
+        ax3.set_ylabel("$v_I/(r_{S,0}/t_{\mathrm{rec},0})$")
         ax3.set_yscale("log")
         figname = "ionization_fronts.png"
 
-    ax3.set_xlabel("$t/t_{rec}$")
+    ax1.grid()
+    ax2.grid()
+    ax3.grid()
+
+    ax3.set_xlabel("$t/t_{\mathrm{rec}}$")
     ax2.legend()
 
     #  plt.show()

@@ -28,8 +28,8 @@ snapshot_base = "output"
 # parameters for imshow plots
 imshow_kwargs = {
     "origin": "lower",
-    "cmap": rainbow4
-    #  "cmap":"cividis",
+    #  "cmap": rainbow4
+    "cmap":"cividis",
 }
 
 # parameters for swiftsimio slices
@@ -49,19 +49,37 @@ Tmax = 1e5
 xHImin = 1e-6
 xHImax = 1.2
 
+#  Plot parameters
+params = {
+    "axes.labelsize": 14,
+    "axes.titlesize": 14,
+    "font.size": 14,
+    "font.family": "serif",
+    #  "legend.fontsize": 14,
+    #  "xtick.labelsize": 12,
+    #  "ytick.labelsize": 12,
+    "xtick.direction": "in",
+    "ytick.direction": "in",
+    "xtick.top": True,
+    "ytick.right": True,
+    #  "xtick.major.width": 1.5,
+    #  "ytick.major.width": 1.5,
+    "axes.linewidth": 1.5,
+    "text.usetex": True,
+    "figure.subplot.left": 0.05,
+    "figure.subplot.right": 0.95,
+    "figure.subplot.bottom": 0.05,
+    "figure.subplot.top": 0.93,
+    "figure.subplot.wspace": 0.18,
+    "figure.subplot.hspace": 0.06,
+    #  "lines.markersize": 1,
+    #  "lines.linewidth": 2.0,
+    "mpl_toolkits.legacy_colorbar": False,
+}
+mpl.rcParams.update(params)
+
+
 # -----------------------------------------------------------------------
-
-
-# Read in cmdline arg: Are we plotting only one snapshot, or all?
-plot_all = False
-snapnr = -1
-try:
-    snapnr = int(sys.argv[1])
-except IndexError:
-    plot_all = True
-
-mpl.rcParams["text.usetex"] = True
-mpl.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def get_ref_data(code, quantity):
@@ -120,7 +138,7 @@ def plot_result(filename):
     nrows = 2
     ncols = len(references) + 1
 
-    fig = plt.figure(figsize=(5.0 * ncols, nrows * 5.6), dpi=200)
+    fig = plt.figure(figsize=(5.0 * ncols, nrows * 5.25), dpi=200)
     figname = filename[:-5] + ".png"
 
     global imshow_kwargs
@@ -176,7 +194,6 @@ def plot_result(filename):
         # Add colorbar to every row
         axcols.cbar_axes[0].colorbar(im)
 
-        ax.set_xlabel("[kpc]")
         ax.set_ylabel("[kpc]")
 
     # Plot Temperature
@@ -205,7 +222,7 @@ def plot_result(filename):
         ax.set_xlabel("[kpc]")
         ax.set_ylabel("[kpc]")
 
-    title = filename.replace("_", "\_")  # exception handle underscore for latex
+    title = "Iliev+06 Test 4"
     if meta.cosmology is not None:
         title += ", $z$ = {0:.2e}".format(meta.z)
     title += ", $t$ = {0:.2f}".format(meta.time.to("Myr"))
@@ -218,7 +235,6 @@ def plot_result(filename):
 
 if __name__ == "__main__":
 
-    snaplist = spt.get_snapshot_list(snapshot_base, plot_all, snapnr)
-
-    for f in snaplist:
-        plot_result(f)
+    snapnr = int(sys.argv[1])
+    snap = snapshot_base + "_" + str(snapnr).zfill(4) + ".hdf5"
+    plot_result(snap)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-# --------------------------------------------
-# Plot temperature and neutral fractions.
-# --------------------------------------------
+# ---------------------------------------------------
+# Plots temperature and mass fractions
+# ---------------------------------------------------
 
 import swiftsimio
 import matplotlib as mpl
@@ -20,9 +20,9 @@ from scipy import stats
 
 #  ref = "10Myr"
 #  ref = "30Myr"
-ref = "100Myr"
+#  ref = "100Myr"
 #  ref = "200Myr"
-#  ref = "500Myr"
+ref = "500Myr"
 
 # plot individual particle data?
 plot_particles = False
@@ -36,6 +36,7 @@ params = {
     "axes.labelsize": 14,
     "axes.titlesize": 14,
     "font.size": 14,
+    "font.family": 'serif',
     "legend.fontsize": 14,
     "xtick.labelsize": 12,
     "ytick.labelsize": 12,
@@ -46,7 +47,7 @@ params = {
     "xtick.major.width": 1.5,
     "ytick.major.width": 1.5,
     "axes.linewidth": 1.5,
-    #  "text.usetex": True,
+    "text.usetex": True,
     "figure.figsize": (5, 4),
     "figure.subplot.left": 0.045,
     "figure.subplot.right": 0.99,
@@ -55,7 +56,7 @@ params = {
     "figure.subplot.wspace": 0.15,
     "figure.subplot.hspace": 0.12,
     "lines.markersize": 1,
-    "lines.linewidth": 2.0,
+    "lines.linewidth": 1.0,
 }
 mpl.rcParams.update(params)
 
@@ -133,38 +134,8 @@ def plot_solution(filename):
 
     # First the references
     if label_refs:
-        codes = ["RSPH", "C2Ray", "OTVET"]
-        for c, code in enumerate(["C2Ray", "RSPH", "OTVET"]):
-            fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
-            fname_T = "reference/" + code + "_" + ref + "_profile_T.dat"
-
-            xHI_ref, xHI_std_ref = np.loadtxt(fname_xHI, delimiter=",", unpack=True)
-            T_ref, T_std_ref = np.loadtxt(fname_T, delimiter=",", unpack=True)
-            r_ref = np.linspace(0.0, 1.0, T_ref.shape[0])
-            # shift to bin center
-            r_ref += (r_ref[1] - r_ref[0]) * 0.5
-
-            ax1.errorbar(
-                r_ref,
-                xHI_ref,
-                yerr=xHI_std_ref,
-                label=code,
-                alpha=0.6,
-                capsize=2,
-                zorder=1 + c,
-            )
-            ax2.errorbar(
-                r_ref,
-                T_ref,
-                yerr=T_std_ref,
-                label=code,
-                alpha=0.6,
-                capsize=2,
-                zorder=1 + c,
-            )
-
-    else:
-        codes = ["ART", "C2Ray", "Crash", "FFTE", "IFT", "OTVET", "RSPH", "Zeus"]
+        #  codes = ["RSPH", "C2Ray", "OTVET"]
+        codes = ["ART", "Crash", "IFT", "RSPH", "C2Ray", "FFTE", "OTVET", "Zeus"]
         for c, code in enumerate(codes):
             fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
             fname_T = "reference/" + code + "_" + ref + "_profile_T.dat"
@@ -175,12 +146,14 @@ def plot_solution(filename):
             # shift to bin center
             r_ref += (r_ref[1] - r_ref[0]) * 0.5
 
+            #  ax1.plot( r_ref, xHI_ref, label=code, alpha=0.4, zorder=1 + c,)
+            #  ax2.plot( r_ref, T_ref, label=code, alpha=0.4, zorder=1 + c,)
             ax1.errorbar(
                 r_ref,
                 xHI_ref,
                 yerr=xHI_std_ref,
-                c="grey",
-                alpha=0.6,
+                label=code,
+                alpha=0.4,
                 capsize=2,
                 zorder=1 + c,
             )
@@ -188,11 +161,32 @@ def plot_solution(filename):
                 r_ref,
                 T_ref,
                 yerr=T_std_ref,
-                c="grey",
-                alpha=0.6,
+                label=code,
+                alpha=0.4,
                 capsize=2,
                 zorder=1 + c,
             )
+
+    else:
+        codes = ["ART", "Crash", "IFT", "RSPH", "C2Ray", "FFTE", "OTVET", "Zeus"]
+        for c, code in enumerate(codes):
+            fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
+            fname_T = "reference/" + code + "_" + ref + "_profile_T.dat"
+
+            xHI_ref, xHI_std_ref = np.loadtxt(fname_xHI, delimiter=",", unpack=True)
+            T_ref, T_std_ref = np.loadtxt(fname_T, delimiter=",", unpack=True)
+            r_ref = np.linspace(0.0, 1.0, T_ref.shape[0])
+            # shift to bin center
+            r_ref += (r_ref[1] - r_ref[0]) * 0.5
+
+            if code == codes[-1]:
+                label = "references"
+            else:
+                label = None
+            ax1.plot(r_ref, xHI_ref, label=label, alpha=0.6, zorder=1 + c, c="grey")
+            ax2.plot(r_ref, T_ref, label=label, alpha=0.6, zorder=1 + c, c="grey")
+            #  ax1.errorbar( r_ref, xHI_ref, yerr=xHI_std_ref, c="grey", alpha=0.6, capsize=2, zorder=1 + c, label=label,)
+            #  ax2.errorbar( r_ref, T_ref, yerr=T_std_ref, c="grey", alpha=0.6, capsize=2, zorder=1 + c, label=label,)
 
     if plot_particles:
         ax1.scatter(r, xHI, **scatterplot_kwargs, zorder=0)
@@ -212,28 +206,7 @@ def plot_solution(filename):
             linewidth=params["lines.linewidth"] * 2.0,
             zorder=1,
         )
-    #  ax1.semilogy(r_bin_centers, xHI_binned, label=r"GEARRT $x_{\mathrm{HI}}$", zorder=2)
-    #  ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=2)
-    ax1.errorbar(
-        r_bin_centers,
-        xHI_binned,
-        yerr=xHI_std,
-        label=r"GEARRT $x_{\mathrm{HI}}$",
-        capsize=2,
-        alpha=0.6,
-        zorder=20,
-    )
-    ax1.errorbar(
-        r_bin_centers,
-        xHII_binned,
-        yerr=xHII_std,
-        label=r"GEARRT $x_{\mathrm{HII}}$",
-        capsize=2,
-        alpha=0.6,
-        zorder=20,
-    )
 
-    if plot_particles:
         ax2.scatter(r, T, **scatterplot_kwargs, zorder=0)
         # black background lines
         ax2.semilogy(
@@ -243,10 +216,36 @@ def plot_solution(filename):
             linewidth=params["lines.linewidth"] * 2.0,
             zorder=1,
         )
-    #  ax2.semilogy(r_bin_centers, T_binned, label=r"GEARRT", zorder=2)
-    ax2.errorbar(
-        r_bin_centers, T_binned, yerr=T_std, label=r"GEARRT", capsize=2, zorder=20
-    )
+
+
+
+    if label_refs:
+        # if we're labelling references, show errorbars
+        ax1.errorbar(
+            r_bin_centers,
+            xHI_binned,
+            yerr=xHI_std,
+            label=r"GEARRT $x_{\mathrm{HI}}$",
+            capsize=2,
+            zorder=21,
+            lw=2,
+        )
+        ax1.errorbar(
+            r_bin_centers,
+            xHII_binned,
+            yerr=xHII_std,
+            label=r"GEARRT $x_{\mathrm{HII}}$",
+            capsize=2,
+            zorder=20,
+            lw=2
+        )
+        ax2.errorbar(
+            r_bin_centers, T_binned, yerr=T_std, label=r"GEARRT", capsize=2, zorder=20
+        )
+    else:
+        ax1.semilogy(r_bin_centers, xHI_binned, label=r"GEARRT $x_{\mathrm{HI}}$", zorder=20, lw=2)
+        ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=20, lw=2)
+        ax2.semilogy(r_bin_centers, T_binned, label=r"GEARRT", zorder=20, lw=2)
 
     for ax in fig.axes:
         ax.set_xlabel("r / L")
@@ -255,6 +254,7 @@ def plot_solution(filename):
         ax.set_xlim(0.0, 1.0)
         ax.set_yscale("log")
         ax.legend()
+        ax.grid()
 
     ax1.set_ylabel("Hydrogen Fractions")
     ax2.set_ylabel("Temperature [K]")
@@ -263,7 +263,7 @@ def plot_solution(filename):
     plt.tight_layout()
     figname = filename[:-5]
     figname += ".png"
-    plt.savefig(figname, dpi=200)
+    plt.savefig(figname, dpi=300)
     plt.close()
 
 

@@ -56,19 +56,20 @@ params = {
     "axes.labelsize": 14,
     "axes.titlesize": 14,
     "font.size": 14,
+    "font.family": "serif",
     #  "legend.fontsize": 14,
     #  "xtick.labelsize": 12,
     #  "ytick.labelsize": 12,
-    #  "xtick.direction": "in",
-    #  "ytick.direction": "in",
-    #  "xtick.top": True,
-    #  "ytick.right": True,
+    "xtick.direction": "in",
+    "ytick.direction": "in",
+    "xtick.top": True,
+    "ytick.right": True,
     #  "xtick.major.width": 1.5,
     #  "ytick.major.width": 1.5,
     "axes.linewidth": 1.5,
     "text.usetex": True,
     "figure.subplot.left": 0.015,
-    "figure.subplot.right": 0.99,
+    "figure.subplot.right": 0.98,
     "figure.subplot.bottom": 0.05,
     "figure.subplot.top": 0.98,
     "figure.subplot.wspace": 0.15,
@@ -224,7 +225,7 @@ def plot_result(filename):
         ax.set_xlabel("[kpc]")
         ax.set_ylabel("[kpc]")
 
-    title = filename.replace("_", "\_")  # exception handle underscore for latex
+    title = "Iliev+06 Test 3"
     if meta.cosmology is not None:
         title += ", $z$ = {0:.2e}".format(meta.z)
     title += ", $t$ = {0:.1f}".format(meta.time.to("Myr"))
