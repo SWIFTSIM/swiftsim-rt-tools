@@ -172,7 +172,7 @@ def plot_result(filename):
     ax2.set_title(r"Temperature [K]")
 
     ax1.set_xlim(0.6, 0.85)
-    ax2.set_xlim(0.6, 1.)
+    ax2.set_xlim(0.6, 1.0)
     for ax in fig.axes:
         ax.set_xlabel("x/L")
         ax.grid("x/L")

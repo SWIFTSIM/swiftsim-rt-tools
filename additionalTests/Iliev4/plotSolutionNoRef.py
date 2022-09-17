@@ -135,7 +135,7 @@ def plot_result(filename):
         **imshow_kwargs,
         norm=LogNorm(vmin=1.0e-7, vmax=1.2),
         #  cmap=rainbow4,
-        cmap = "cividis"
+        cmap="cividis",
     )
     set_colorbar(ax1, im1)
     ax1.set_title("Neutral Hydrogen Mass Fraction [1]")
@@ -145,7 +145,7 @@ def plot_result(filename):
         **imshow_kwargs,
         norm=LogNorm(vmin=1e2, vmax=1e5),
         #  cmap=rainbow4,
-        cmap = "inferno"
+        cmap="inferno",
     )
     set_colorbar(ax2, im2)
     ax2.set_title(r"Temperature [K]")

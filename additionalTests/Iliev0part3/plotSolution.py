@@ -64,7 +64,7 @@ params = {
     "figure.subplot.bottom": 0.05,
     "figure.subplot.top": 0.99,
     "figure.subplot.wspace": 0.15,
-    "figure.subplot.hspace": 0.,
+    "figure.subplot.hspace": 0.0,
     "lines.linewidth": 1.2,
 }
 mpl.rcParams.update(params)
@@ -285,7 +285,7 @@ if __name__ == "__main__":
     ax2.loglog(t, T, label="GEARRT")
 
     # Cosmetics
-    #------------
+    # ------------
 
     ax1.set_ylabel(r"neutral fraction [1]", usetex=True)
     ax2.set_ylabel(r"gas temperature [K]", usetex=True)

@@ -308,27 +308,9 @@ def plot_ionization_fronts_from_log(fig):
     timesV = timesV[::20]
 
     if plot_actual_values:
-        ax1.plot(
-            times / t_rec,
-            rI.to("kpc"),
-            label="GEARRT",
-            alpha=0.7,
-            zorder=31,
-        )
-        ax2.plot(
-            times / t_rec,
-            rI.to("kpc"),
-            label="GEARRT",
-            alpha=0.7,
-            zorder=31,
-        )
-        ax3.plot(
-            timesV / t_rec,
-            vI.to("kpc/kyr"),
-            label="GEARRT",
-            alpha=0.7,
-            zorder=31,
-        )
+        ax1.plot(times / t_rec, rI.to("kpc"), label="GEARRT", alpha=0.7, zorder=31)
+        ax2.plot(times / t_rec, rI.to("kpc"), label="GEARRT", alpha=0.7, zorder=31)
+        ax3.plot(timesV / t_rec, vI.to("kpc/kyr"), label="GEARRT", alpha=0.7, zorder=31)
 
     else:
         r_ifront_ana = r_I(times)
@@ -338,12 +320,7 @@ def plot_ionization_fronts_from_log(fig):
             label="GEARRT",
             zorder=31,
         )
-        ax2.plot(
-            times / t_rec,
-            rI.to("kpc") / r_S.to("kpc"),
-            label="GEARRT",
-            zorder=31,
-        )
+        ax2.plot(times / t_rec, rI.to("kpc") / r_S.to("kpc"), label="GEARRT", zorder=31)
         ax3.plot(
             timesV / t_rec,
             vI.to("kpc/kyr") / (r_S.to("kpc") / t_rec.to("kyr")).to("kpc/kyr"),

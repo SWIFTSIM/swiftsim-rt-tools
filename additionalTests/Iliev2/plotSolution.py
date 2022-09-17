@@ -36,7 +36,7 @@ params = {
     "axes.labelsize": 14,
     "axes.titlesize": 14,
     "font.size": 14,
-    "font.family": 'serif',
+    "font.family": "serif",
     "legend.fontsize": 14,
     "xtick.labelsize": 12,
     "ytick.labelsize": 12,
@@ -217,8 +217,6 @@ def plot_solution(filename):
             zorder=1,
         )
 
-
-
     if label_refs:
         # if we're labelling references, show errorbars
         ax1.errorbar(
@@ -237,14 +235,26 @@ def plot_solution(filename):
             label=r"GEARRT $x_{\mathrm{HII}}$",
             capsize=2,
             zorder=20,
-            lw=2
+            lw=2,
         )
         ax2.errorbar(
             r_bin_centers, T_binned, yerr=T_std, label=r"GEARRT", capsize=2, zorder=20
         )
     else:
-        ax1.semilogy(r_bin_centers, xHI_binned, label=r"GEARRT $x_{\mathrm{HI}}$", zorder=20, lw=2)
-        ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=20, lw=2)
+        ax1.semilogy(
+            r_bin_centers,
+            xHI_binned,
+            label=r"GEARRT $x_{\mathrm{HI}}$",
+            zorder=20,
+            lw=2,
+        )
+        ax1.semilogy(
+            r_bin_centers,
+            xHII_binned,
+            label=r"GEARRT $x_{\mathrm{HII}}$",
+            zorder=20,
+            lw=2,
+        )
         ax2.semilogy(r_bin_centers, T_binned, label=r"GEARRT", zorder=20, lw=2)
 
     for ax in fig.axes:

@@ -29,7 +29,7 @@ snapshot_base = "output"
 imshow_kwargs = {
     "origin": "lower",
     #  "cmap": rainbow4
-    "cmap":"cividis",
+    "cmap": "cividis",
 }
 
 # parameters for swiftsimio slices
