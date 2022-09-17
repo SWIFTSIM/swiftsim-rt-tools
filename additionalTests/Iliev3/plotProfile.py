@@ -53,15 +53,40 @@ ref = "15Myr"
 snapshot_base = "output"
 
 # parameters for swiftsimio slices
-slice_kwargs = {"resolution": 64, "parallel": True}
+slice_kwargs = {"resolution": 128, "parallel": True}
 #  slice_kwargs = {"resolution": 128, "parallel": True}
 
+#  Plot parameters
+params = {
+    "axes.labelsize": 14,
+    "axes.titlesize": 14,
+    "font.size": 14,
+    "font.family": "serif",
+    "legend.fontsize": 14,
+    "xtick.labelsize": 12,
+    "ytick.labelsize": 12,
+    "xtick.direction": "in",
+    "ytick.direction": "in",
+    "xtick.top": True,
+    "ytick.right": True,
+    "xtick.major.width": 1.5,
+    "ytick.major.width": 1.5,
+    "axes.linewidth": 1.5,
+    "text.usetex": True,
+    "figure.subplot.left": 0.145,
+    "figure.subplot.right": 0.99,
+    "figure.subplot.bottom": 0.075,
+    "figure.subplot.top": 0.99,
+    "figure.subplot.wspace": 0.15,
+    "figure.subplot.hspace": 0.0,
+    "figure.dpi": 200,
+    "lines.markersize": 1,
+    "lines.linewidth": 2.0,
+}
+mpl.rcParams.update(params)
+
+
 # -----------------------------------------------------------------------
-
-
-# Read in cmdline arg: Are we plotting only one snapshot, or all?
-
-mpl.rcParams["text.usetex"] = True
 
 
 def plot_result(filename):
@@ -110,7 +135,7 @@ def plot_result(filename):
     HI_profile = HI_map.T[int(n / 2), shiftint:-shiftint]
     T_profile = temperature_map.T[int(n / 2), shiftint:-shiftint]
 
-    fig = plt.figure(figsize=(12, 6), dpi=200)
+    fig = plt.figure(figsize=(10, 5.5), dpi=200)
     if plot_refs:
         figname = filename[:-5] + "-Profiles.png"
     else:
@@ -146,13 +171,16 @@ def plot_result(filename):
     ax2.semilogy(x / L_test, T_profile, label="GEARRT")
     ax2.set_title(r"Temperature [K]")
 
+    ax1.set_xlim(0.6, 0.85)
+    ax2.set_xlim(0.6, 1.0)
     for ax in fig.axes:
         ax.set_xlabel("x/L")
+        ax.grid("x/L")
 
-    title = filename.replace("_", "\_")  # exception handle underscore for latex
+    title = "Iliev+06 Test 3"
     if meta.cosmology is not None:
         title += ", $z$ = {0:.2e}".format(meta.z)
-    title += ", $t$ = {0:.2f}".format(meta.time.to("Myr"))
+    title += ", $t$ = {0:.0f}".format(meta.time.to("Myr"))
     fig.suptitle(title)
 
     plt.tight_layout()

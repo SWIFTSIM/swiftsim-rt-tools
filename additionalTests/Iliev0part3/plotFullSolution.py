@@ -366,4 +366,4 @@ if __name__ == "__main__":
         ax.set_xlabel("Time [$" + time_units.latex_representation() + "$]")
 
     plt.tight_layout()
-    plt.savefig("ilievTest0part3.png")
+    plt.savefig("ilievTest0part3-Full.png")

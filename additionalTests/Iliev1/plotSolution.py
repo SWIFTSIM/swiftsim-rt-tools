@@ -36,6 +36,7 @@ params = {
     "axes.labelsize": 14,
     "axes.titlesize": 14,
     "font.size": 14,
+    "font.family": "serif",
     "legend.fontsize": 14,
     "xtick.labelsize": 12,
     "ytick.labelsize": 12,
@@ -46,8 +47,7 @@ params = {
     "xtick.major.width": 1.5,
     "ytick.major.width": 1.5,
     "axes.linewidth": 1.5,
-    #  "text.usetex": True,
-    "figure.figsize": (5, 4),
+    "text.usetex": True,
     "figure.subplot.left": 0.045,
     "figure.subplot.right": 0.99,
     "figure.subplot.bottom": 0.05,
@@ -117,7 +117,7 @@ def plot_solution(filename):
         r, xHII, statistic="std", bins=r_bin_edges, range=(0.0, 1.4)
     )
 
-    fig = plt.figure(figsize=(5.5, 5.5))
+    fig = plt.figure(figsize=(5.5, 5.5), dpi=200)
     ax1 = fig.add_subplot(111)
 
     # First the references
@@ -210,15 +210,15 @@ def plot_solution(filename):
         zorder=20,
     )
 
-    for ax in fig.axes:
-        ax.set_xlabel("r / L")
-        # note: L is the box size of the original test, not the actual run
-        # with GEARRT
-        ax.set_xlim(0.0, 1.0)
-        ax.set_yscale("log")
-        ax.legend()
+    ax1.set_xlabel("r / L")
+    # note: L is the box size of the original test, not the actual run
+    # with GEARRT
+    ax1.set_xlim(0.0, 1.0)
+    ax1.set_yscale("log")
+    ax1.legend()
+    ax1.grid()
 
-    ax1.set_ylabel("Hydrogen Fractions")
+    ax1.set_ylabel("Hydrogen Fractions [1]")
 
     fig.suptitle("Iliev+06 Test 1, $t$ = {0:.0f}".format(meta.time.to("Myr")))
     plt.tight_layout()
