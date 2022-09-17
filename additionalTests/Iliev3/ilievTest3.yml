@@ -22,12 +22,12 @@ TimeIntegration:
 Snapshots:
   basename:            output    # Common part of the name of output files
   time_first:          0.        # Time of the first output (in internal units)
-  delta_time:          1916.272  # 15/8 Myr
+  delta_time:          1022.68   # 1 Myr
 
 # Parameters governing the conserved quantities statistics
 Statistics:
   time_first:          0.
-  delta_time:          1916.272 # 15/8 Myr
+  delta_time:          1022.68   # 1 Myr
 
 # Parameters for the hydrodynamics scheme
 SPH:
