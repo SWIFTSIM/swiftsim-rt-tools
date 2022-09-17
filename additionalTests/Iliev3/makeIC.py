@@ -32,8 +32,8 @@ import h5py
 
 gamma = 5.0 / 3.0
 
-resolution = 64
-#  resolution = 128
+#  resolution = 64
+resolution = 128
 
 border_particle_width = 4
 
