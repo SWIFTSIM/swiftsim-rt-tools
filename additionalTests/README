@@ -31,5 +31,10 @@ instructions
 MiniStromgren_3D
     A small 3D Stromgren sphere test. Useful for quick tests during development.
 
+rainbow4_colormap.py
+    A colormap that is hurtful to the eyes, but very similar to what was used
+    in the Iliev et al. papers, intended to facilitate easy comparisons with
+    the original plots.
+
 stromgren_plotting_tools.py
     A collection of commonly used functions for plotting
