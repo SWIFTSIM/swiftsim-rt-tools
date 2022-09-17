@@ -104,7 +104,7 @@ if __name__ == "__main__":
                     xp_border[ind, 1] = y
                     xp_border[ind, 2] = z
 
-                    if y < shift:
+                    if i < border_particle_width:
                         # mark special boundary particles
                         pid_border[ind] *= 2
 
