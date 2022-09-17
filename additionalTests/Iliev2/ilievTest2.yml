@@ -16,7 +16,7 @@ TimeIntegration:
   time_end:   510422.735    # 500 Myr
   dt_min:     0.0102084547  # 10 yr
   dt_max:     1020.84547    # 1 Myr
-  max_nr_rt_subcycles: 32 # use this for 128^3
+  max_nr_rt_subcycles: 64 # use this for 128^3
   # max_nr_rt_subcycles: 16 # use this for 64^3
 
 # Parameters governing the snapshots
@@ -53,4 +53,7 @@ GEARRT:
   set_equilibrium_initial_ionization_mass_fractions: 1   # (Optional) set the initial ionization fractions depending on gas temperature assuming ionization equilibrium.
   stellar_spectrum_type: 1                               # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
   stellar_spectrum_blackbody_temperature_K: 1.e5         # (Conditional) if stellar_spectrum_type=1, use this temperature (in K) for the blackbody spectrum.
+  # ---- use this value for 64^3 resolution
+  # stars_max_timestep: 3.2e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  # ---- use this value for 128^3 resolution
   stars_max_timestep: 1.56e+01                           # (Optional) restrict the maximal timestep of stars to this value (in internal units)
