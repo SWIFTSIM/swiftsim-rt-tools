@@ -40,7 +40,6 @@ border_particle_width = 4
 if __name__ == "__main__":
 
     glass = h5py.File("glassCube_" + str(resolution) + ".hdf5", "r")
-    #  glass = h5py.File("glassCube_128.hdf5", "r")
 
     parts = glass["PartType0"]
     xp = parts["Coordinates"][:]

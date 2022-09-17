@@ -20,10 +20,9 @@ void extract_line_profile(float *data, float *profile, int n) {
   for (int i = 0; i < n; i++) {
 
     int check = 0;
-    for (int x = 63; x <= 64; x++) {
+    for (int y = 63; y <= 64; y++) {
       for (int z = 63; z <= 64; z++) {
-        /* int ind = get_array_index(x, i, z); */
-        int ind = get_array_index(i, x, z);
+        int ind = get_array_index(i, y, z);
         profile[i] += data[ind];
         check += 1;
       }
