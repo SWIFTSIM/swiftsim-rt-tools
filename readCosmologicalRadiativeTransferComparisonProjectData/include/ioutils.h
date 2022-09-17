@@ -23,6 +23,8 @@
 
 /**
  * Open up a file pointer and do additional checks.
+ *
+ * @param filename name of file to open.
  * */
 FILE *io_open_file(char *filename) {
 
@@ -37,6 +39,8 @@ FILE *io_open_file(char *filename) {
 
 /**
  * Read the header of the test binary file
+ *
+ * @param fp file pointer to check
  * */
 void io_read_header(FILE *fp) {
 
@@ -62,6 +66,9 @@ void io_read_header(FILE *fp) {
 
 /**
  * Read a 3D array of float scalars from binary file
+ *
+ * @param fp file pointer to check
+ * @param buffer (return) where to write read in data into
  * */
 void io_read_scalar_field(FILE *fp, float *buffer) {
 
@@ -142,4 +149,19 @@ void io_write_profile(char *srcfilename, float *profile, float *std, int n,
 
   printf("written file %s\n", outputfile);
 }
+
+/**
+ * Check that you reached the End of File.
+ *
+ * @param fp file pointer to check
+ */
+void io_check_reached_EOF(FILE *fp) {
+
+  getc(fp);
+  if (!feof(fp)) {
+    printf("Error: Didn't reach EOF\n");
+    abort();
+  }
+}
+
 #endif

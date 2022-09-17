@@ -33,6 +33,8 @@ int main(int argc, char **argv) {
   get_profile(&xHI_hist, &xHI_std, xHI);
   io_write_profile(filename, xHI_hist, xHI_std, HISTOGRAM_NBINS, "xHI");
 
+  io_check_reached_EOF(fp);
+
   fclose(fp);
   free(xHI);
   free(xHI_hist);
