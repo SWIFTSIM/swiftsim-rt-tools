@@ -39,7 +39,7 @@ snapshot_base = "output"
 imshow_kwargs = {
     "origin": "lower",
     #  "cmap": rainbow4
-    "cmap":"cividis",
+    "cmap": "cividis",
 }
 
 # parameters for swiftsimio slices
@@ -75,14 +75,12 @@ params = {
     "figure.subplot.hspace": 0.06,
     #  "lines.markersize": 1,
     #  "lines.linewidth": 2.0,
-    "mpl_toolkits.legacy_colorbar":False
+    "mpl_toolkits.legacy_colorbar": False,
 }
 mpl.rcParams.update(params)
 
 
 # -----------------------------------------------------------------------
-
-
 
 
 def get_ref_data(code, quantity):
@@ -137,7 +135,7 @@ def plot_result(filename):
     HI_map = mass_weighted_HI_map / mass_map
     temperature_map = mass_weighted_temperature_map / mass_map
 
-    references = [ "C2Ray", "Coral", "Crash", "FFTE", "Flash", "IFT", "RSPH" ]
+    references = ["C2Ray", "Coral", "Crash", "FFTE", "Flash", "IFT", "RSPH"]
     nrows = 2
     ncols = len(references) + 1
 

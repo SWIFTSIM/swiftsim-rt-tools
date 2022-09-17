@@ -99,19 +99,16 @@ def plot_result(filename):
 
     temperature_map = mass_weighted_temperature_map / mass_map
 
-
     n = HI_map.shape[0]
-    x = np.linspace(0.5/n, (n-0.5), n) / n * meta.boxsize[0]
+    x = np.linspace(0.5 / n, (n - 0.5), n) / n * meta.boxsize[0]
 
     L_test = 6.6 * unyt.kpc
     shift = (meta.boxsize[0] - L_test) * 0.5
     shiftint = int(shift / meta.boxsize[0] * n)
     x = x[shiftint:-shiftint] - shift
 
-
-    HI_profile = HI_map.T[int(n/2), shiftint:-shiftint]
-    T_profile = temperature_map.T[int(n/2), shiftint:-shiftint]
-
+    HI_profile = HI_map.T[int(n / 2), shiftint:-shiftint]
+    T_profile = temperature_map.T[int(n / 2), shiftint:-shiftint]
 
     fig = plt.figure(figsize=(12, 6), dpi=200)
     if plot_refs:
@@ -122,32 +119,31 @@ def plot_result(filename):
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
 
-
     # first the references
     if plot_refs:
-        codes = [ "C2Ray", "Coral", "Crash", "FFTE", "Flash", "IFT", "RSPH" ]
+        codes = ["C2Ray", "Coral", "Crash", "FFTE", "Flash", "IFT", "RSPH"]
         for code in codes:
-            Trefname = "reference/"+code + "_"+ref+"_profile_"+"T.dat"
-            xHIrefname = "reference/"+code + "_"+ref+"_profile_"+"xHI.dat"
+            Trefname = "reference/" + code + "_" + ref + "_profile_" + "T.dat"
+            xHIrefname = "reference/" + code + "_" + ref + "_profile_" + "xHI.dat"
 
             Tref = np.loadtxt(Trefname)
             xHIref = np.loadtxt(xHIrefname)
             nref = Tref.shape[0]
 
-            xref = np.linspace(0., 1., nref)
+            xref = np.linspace(0.0, 1.0, nref)
 
             if label_refs:
                 ax1.plot(xref, xHIref, label=code)
                 ax2.plot(xref, Tref, label=code)
             else:
-                ax1.plot(xref, xHIref, c='grey', alpha=0.6)
-                ax2.plot(xref, Tref, c='grey', alpha=0.6)
+                ax1.plot(xref, xHIref, c="grey", alpha=0.6)
+                ax2.plot(xref, Tref, c="grey", alpha=0.6)
 
-    ax1.semilogy(x/L_test, HI_profile, label="GEARRT")
+    ax1.semilogy(x / L_test, HI_profile, label="GEARRT")
     ax1.set_title("Neutral Hydrogen Mass Fraction [1]")
     ax1.legend()
 
-    ax2.semilogy(x/L_test, T_profile, label="GEARRT")
+    ax2.semilogy(x / L_test, T_profile, label="GEARRT")
     ax2.set_title(r"Temperature [K]")
 
     for ax in fig.axes:
@@ -171,4 +167,3 @@ if __name__ == "__main__":
     snapnr = int(sys.argv[1])
     snap = snapshot_base + "_" + str(snapnr).zfill(4) + ".hdf5"
     plot_result(snap)
-

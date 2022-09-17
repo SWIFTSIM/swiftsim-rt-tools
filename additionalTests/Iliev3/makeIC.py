@@ -39,7 +39,7 @@ border_particle_width = 4
 
 if __name__ == "__main__":
 
-    glass = h5py.File("glassCube_"+str(resolution)+".hdf5", "r")
+    glass = h5py.File("glassCube_" + str(resolution) + ".hdf5", "r")
     #  glass = h5py.File("glassCube_128.hdf5", "r")
 
     parts = glass["PartType0"]
@@ -48,15 +48,12 @@ if __name__ == "__main__":
     glass.close()
     nparts = resolution
 
-
     # Double-check all particles for boundaries
     for i in range(3):
         mask = xp[:, i] < 0.0
         xp[mask, i] += 1.0
         mask = xp[:, i] > 1.0
         xp[mask, i] -= 1.0
-
-
 
     # Set up metadata
     unitL = unyt.Mpc
@@ -110,8 +107,6 @@ if __name__ == "__main__":
 
                     ind += 1
 
-
-
     if ind != (nparts + 2 * border_particle_width) ** 3 - nparts ** 3:
         print("oh no")
         quit()
@@ -129,8 +124,8 @@ if __name__ == "__main__":
     xp *= edgelen
     h *= edgelen
 
-    x_clump = np.array([5., 3.3, 3.3]).T * unyt.kpc + shift * edgelen
-    r = np.sqrt(np.sum((x_clump - xp)**2, axis=1))
+    x_clump = np.array([5.0, 3.3, 3.3]).T * unyt.kpc + shift * edgelen
+    r = np.sqrt(np.sum((x_clump - xp) ** 2, axis=1))
     is_clump = r <= 0.8 * unyt.kpc
 
     # set up quantities assuming they're outside the clump
@@ -146,7 +141,7 @@ if __name__ == "__main__":
 
     masses = np.ones(xp.shape[0]) * mpart
 
-    nH_clump = 0.04 * unyt.cm**(-3)
+    nH_clump = 0.04 * unyt.cm ** (-3)
     rho_clump = nH_clump * unyt.proton_mass
     Mtot_clump = rho_clump * edgelen ** 3
     mpart_clump = Mtot_clump / xp.shape[0]
@@ -168,8 +163,6 @@ if __name__ == "__main__":
     u_clump = spt.internal_energy(T_clump, mu_clump, gamma)
 
     internal_energy[is_clump] = u_clump.to(u.units)
-
-
 
     # write file
 

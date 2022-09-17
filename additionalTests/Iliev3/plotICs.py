@@ -76,7 +76,6 @@ def plot_result(filename):
     """
     print("working on", filename)
 
-
     data = swiftsimio.load(filename)
     meta = data.metadata
 
@@ -104,7 +103,6 @@ def plot_result(filename):
     mass_weighted_u_map = slice_gas(
         data, project="mu", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
     )
-
 
     m_img = mass_weighted_m_map / mass_map
     m_img = m_img[cutoff:-cutoff, cutoff:-cutoff]
