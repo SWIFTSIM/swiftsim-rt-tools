@@ -11,6 +11,12 @@
 #define INTSIZE 4
 #define FLOATSIZE 4
 
+/* Allow specific tests to modify how long you assume
+ * the fortran record length is */
+#ifndef RECORDLEN
+#define RECORDLEN 1
+#endif
+
 #define check_record(read, expect)                                             \
   ({                                                                           \
     if (read != expect) {                                                      \
@@ -44,17 +50,33 @@ FILE *io_open_file(char *filename) {
  * */
 void io_read_header(FILE *fp) {
 
-  int header = 0, footer = 0;
+  int header[RECORDLEN];
+  int footer[RECORDLEN];
+  for (int i = 0; i < RECORDLEN; i++) {
+    header[i] = 0;
+    footer[i] = 0;
+  }
   int gridDim[3] = {0, 0, 0};
 
-  header = 0;
-  footer = 0;
-  fread(&header, INTSIZE, 1, fp);
+  fread(header, INTSIZE, RECORDLEN, fp);
   fread(gridDim, INTSIZE, 3, fp);
-  fread(&footer, INTSIZE, 1, fp);
+  fread(footer, INTSIZE, RECORDLEN, fp);
+
+  /* If != 12, we abort later. Print me some info to screen. */
+  if (header[0] != 12 || footer[0] != 12){
+    printf("Debug output:");
+    for (int i = 0; i < RECORDLEN; i++)
+      printf("header[%d] = %d\n", i, header[i]);
+
+    printf("griddim %d %d %d\n", gridDim[0], gridDim[1], gridDim[2]);
+
+    for (int i = 0; i < RECORDLEN; i++)
+      printf("footer[%d] = %d\n", i, footer[i]);
+  }
+
   /* Header and footer shall be enclosed by 12 */
-  check_record(header, 12);
-  check_record(footer, 12);
+  check_record(header[0], 12);
+  check_record(footer[0], 12);
 
   if (gridDim[0] != NCELLS || gridDim[1] != NCELLS || gridDim[2] != NCELLS) {
     printf(
@@ -72,14 +94,19 @@ void io_read_header(FILE *fp) {
  * */
 void io_read_scalar_field(FILE *fp, float *buffer) {
 
-  int header = 0, footer = 0;
+  int header[RECORDLEN];
+  int footer[RECORDLEN];
+  for (int i = 0; i < RECORDLEN; i++) {
+    header[i] = 0;
+    footer[i] = 0;
+  }
   const int expect = 4 * NCELLS * NCELLS * NCELLS;
 
-  fread(&header, INTSIZE, 1, fp);
-  check_record(header, expect);
+  fread(header, INTSIZE, RECORDLEN, fp);
+  check_record(header[0], expect);
   fread(buffer, FLOATSIZE, NCELLS * NCELLS * NCELLS, fp);
-  fread(&footer, INTSIZE, 1, fp);
-  check_record(footer, expect);
+  fread(footer, INTSIZE, RECORDLEN, fp);
+  check_record(footer[0], expect);
 }
 
 /**
@@ -101,6 +128,10 @@ void io_write_slice(char *srcfilename, float *data, char *descriptor, int z) {
   strcat(outputfile, addname);
 
   FILE *fp = fopen(outputfile, "w");
+  if (fp == NULL) {
+    printf("couldn't open file '%s'\n", outputfile);
+    abort();
+  }
   for (int i = 0; i < NCELLS; i++) {
     for (int j = 0; j < NCELLS; j++) {
       int ind = get_array_index(i, j, z);
@@ -137,6 +168,10 @@ void io_write_profile(char *srcfilename, float *profile, float *std, int n,
   strcat(outputfile, addname);
 
   FILE *fp = fopen(outputfile, "w");
+  if (fp == NULL) {
+    printf("couldn't open file '%s'\n", outputfile);
+    abort();
+  }
   for (int i = 0; i < n; i++) {
     if (std != NULL) {
       fprintf(fp, "%.6e, %.6e\n", profile[i], std[i]);
