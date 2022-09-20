@@ -54,7 +54,6 @@ snapshot_base = "output"
 
 # parameters for swiftsimio slices
 slice_kwargs = {"resolution": 128, "parallel": True}
-#  slice_kwargs = {"resolution": 128, "parallel": True}
 
 #  Plot parameters
 params = {

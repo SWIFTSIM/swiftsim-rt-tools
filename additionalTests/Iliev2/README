@@ -13,8 +13,8 @@ Details:
   corner of the box. So we take twice that. (plus a bit extra for boundary particles)
 - Gas number density nH = 10^-3 cm^-3
 - Ionization photon number rate is Ndot = 5 * 10^48 photons/s. This translates
-  to the luminosity L = 6.198024e+04 L_Sun.
-- run up to 100 Myr
+  to the luminosity L = 6.198024e+04 L_Sun. (for one photon group)
+- run up to 500 Myr
 
 
 Notes

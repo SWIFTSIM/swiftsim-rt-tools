@@ -29,8 +29,8 @@ import stromgren_plotting_tools as spt
 #  ref = "5Myr"
 ref = "15Myr"
 
-#  resolution = 128
-resolution = 64
+resolution = 128
+#  resolution = 64
 
 # snapshot basename
 snapshot_base = "output"

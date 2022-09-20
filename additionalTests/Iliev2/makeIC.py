@@ -114,7 +114,7 @@ if __name__ == "__main__":
                     xp_border[ind, 2] = z
                     ind += 1
 
-    if ind != (nparts + 2 * border_particle_width) ** 3 - nparts ** 3:
+    if ind != npart_border:
         print("oh no")
         quit()
 
