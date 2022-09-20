@@ -41,7 +41,7 @@ resolution = 128
 
 if __name__ == "__main__":
 
-    glass = h5py.File("glassCube_"+str(resolution)+".hdf5", "r")
+    glass = h5py.File("glassCube_" + str(resolution) + ".hdf5", "r")
     parts = glass["PartType0"]
     xp = parts["Coordinates"][:]
     h = parts["SmoothingLength"][:]
@@ -69,7 +69,6 @@ if __name__ == "__main__":
         mask = xp[:, i] > 1.0
         xp[mask, i] -= 1.0
 
-
     # Add border particles
     border_particle_width = 4
     dx = 1.0 / (resolution + 2 * border_particle_width)
@@ -81,7 +80,9 @@ if __name__ == "__main__":
 
     # Set up metadata
     unitL = unyt.Mpc
-    edgelen = 15.0 * 1e-3 * (resolution + 2 * border_particle_width) / resolution *  unitL
+    edgelen = (
+        15.0 * 1e-3 * (resolution + 2 * border_particle_width) / resolution * unitL
+    )
     edgelen = edgelen.to(unitL)
     boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
 

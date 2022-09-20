@@ -63,7 +63,7 @@ void io_read_header(FILE *fp) {
   fread(footer, INTSIZE, RECORDLEN, fp);
 
   /* If != 12, we abort later. Print me some info to screen. */
-  if (header[0] != 12 || footer[0] != 12){
+  if (header[0] != 12 || footer[0] != 12) {
     printf("Debug output:");
     for (int i = 0; i < RECORDLEN; i++)
       printf("header[%d] = %d\n", i, header[i]);

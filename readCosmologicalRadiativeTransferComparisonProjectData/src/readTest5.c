@@ -28,7 +28,6 @@
 #include "histogram.h"
 #include "ioutils.h"
 
-
 int main(int argc, char **argv) {
 
   if (argc != 2) {
@@ -70,7 +69,7 @@ int main(int argc, char **argv) {
   get_profile(&T_hist, &T_std, T);
   get_profile(&P_hist, &P_std, P);
 
-  io_write_profile(filename, xHI_hist, xHI_std,  NCELLS, "xHI");
+  io_write_profile(filename, xHI_hist, xHI_std, NCELLS, "xHI");
   io_write_profile(filename, T_hist, T_std, NCELLS, "T");
   io_write_profile(filename, P_hist, P_std, NCELLS, "P");
 
@@ -86,8 +85,6 @@ int main(int argc, char **argv) {
   free(P);
   free(P_hist);
   free(P_std);
-
-
 
   /* Read second file */
   char filename2[80] = "\0";
@@ -124,7 +121,7 @@ int main(int argc, char **argv) {
 
   io_write_profile(filename, rho_hist, rho_std, NCELLS, "n");
   io_write_profile(filename, mach_hist, mach_std, NCELLS, "mach");
-  io_write_profile(filename, xHII_hist, xHII_std,  NCELLS, "xHII");
+  io_write_profile(filename, xHII_hist, xHII_std, NCELLS, "xHII");
 
   io_check_reached_EOF(fp2);
 
@@ -139,7 +136,6 @@ int main(int argc, char **argv) {
   free(mach);
   free(mach_hist);
   free(mach_std);
-
 
   return 0;
 }
