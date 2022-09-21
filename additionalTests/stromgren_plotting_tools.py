@@ -376,6 +376,29 @@ def get_abundances(scheme, data):
     return sA
 
 
+def get_soundspeed_from_internal_energy(data):
+    """
+    Compute the local sound speed
+    """
+
+    u = data.gas.internal_energies
+    gamma = data.metadata.gas_gamma
+
+    return np.sqrt(u * gamma / (gamma - 1))
+
+
+def get_soundspeed_from_density_pressure(data):
+    """
+    Compute the local sound speed
+    """
+
+    gamma = data.metadata.gas_gamma
+    P = data.gas.pressures
+    rho = data.gas.densities
+
+    return np.sqrt(gamma * P / rho)
+
+
 def trim_paramstr(paramstr):
     """
     clean up strings in the form [x,y,z,...]

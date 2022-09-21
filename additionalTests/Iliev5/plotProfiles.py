@@ -8,7 +8,7 @@
 import swiftsimio
 import matplotlib as mpl
 
-mpl.use("Agg")
+#  mpl.use("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
 import sys
@@ -20,7 +20,7 @@ import h5py
 # plot references?
 plot_refs = True
 # if plotting references, label them or make them all grey?
-label_refs = True
+label_refs = False
 
 # chose which reference to plot
 ref = "10Myr"
@@ -72,11 +72,10 @@ def read_reference(code, ref):
 
     """
 
-    filename = "reference/"+code + ".hdf5"
+    filename = "reference/" + code + ".hdf5"
     f = h5py.File(filename, "r")
     profiles = f["profiles"]
     profiles_age = profiles[ref]
-
 
     P = unyt.unyt_array(profiles_age["P"], profiles_age["P"].attrs["unyts"])
     P_std = unyt.unyt_array(profiles_age["P_std"], profiles_age["P_std"].attrs["unyts"])
@@ -85,20 +84,26 @@ def read_reference(code, ref):
     T_std = unyt.unyt_array(profiles_age["T_std"], profiles_age["T_std"].attrs["unyts"])
 
     xHI = unyt.unyt_array(profiles_age["xHI"], profiles_age["xHI"].attrs["unyts"])
-    xHI_std = unyt.unyt_array(profiles_age["xHI_std"], profiles_age["xHI_std"].attrs["unyts"])
+    xHI_std = unyt.unyt_array(
+        profiles_age["xHI_std"], profiles_age["xHI_std"].attrs["unyts"]
+    )
 
     xHII = unyt.unyt_array(profiles_age["xHII"], profiles_age["xHII"].attrs["unyts"])
-    xHII_std = unyt.unyt_array(profiles_age["xHII_std"], profiles_age["xHII_std"].attrs["unyts"])
+    xHII_std = unyt.unyt_array(
+        profiles_age["xHII_std"], profiles_age["xHII_std"].attrs["unyts"]
+    )
 
     n = unyt.unyt_array(profiles_age["n"], profiles_age["n"].attrs["unyts"])
     n_std = unyt.unyt_array(profiles_age["n_std"], profiles_age["n_std"].attrs["unyts"])
 
     mach = unyt.unyt_array(profiles_age["mach"], profiles_age["mach"].attrs["unyts"])
-    mach_std = unyt.unyt_array(profiles_age["mach_std"], profiles_age["mach_std"].attrs["unyts"])
+    mach_std = unyt.unyt_array(
+        profiles_age["mach_std"], profiles_age["mach_std"].attrs["unyts"]
+    )
+
+    f.close()
 
     return T, T_std, P, P_std, xHI, xHI_std, xHII, xHII_std, n, n_std, mach, mach_std
-
-
 
 
 def plot_solution(filename):
@@ -112,7 +117,7 @@ def plot_solution(filename):
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
     # This is the original test setup
-    boxsize_ref = 30 * unyt.kpc
+    boxsize_ref = 15 * unyt.kpc
 
     xstar = data.stars.coordinates
     xpart = data.gas.coordinates
@@ -135,8 +140,13 @@ def plot_solution(filename):
     xHII = imf.HII / xH
 
     P = data.gas.pressures[mask].to("g/cm/s**2")
-    # TODO
-    mach = np.ones(P.shape[0])
+
+    vels = data.gas.velocities[mask]
+    vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
+    cs = spt.get_soundspeed_from_internal_energy(data)
+    cs = cs[mask]
+    mach = vnorm / cs
+
     number_density = data.gas.densities[mask]
     number_density = number_density.to("kg/cm**3") / unyt.proton_mass
 
@@ -180,12 +190,11 @@ def plot_solution(filename):
         r, number_density, statistic="std", bins=r_bin_edges, range=(0.0, 1.1)
     )
     mach_binned, _, _ = stats.binned_statistic(
-        r, number_density, statistic="mean", bins=r_bin_edges, range=(0.0, 1.1)
+        r, mach, statistic="mean", bins=r_bin_edges, range=(0.0, 1.1)
     )
     mach_std, _, _ = stats.binned_statistic(
-        r, number_density, statistic="std", bins=r_bin_edges, range=(0.0, 1.1)
+        r, mach, statistic="std", bins=r_bin_edges, range=(0.0, 1.1)
     )
-
 
     fig = plt.figure(figsize=(18, 11))
     ax1 = fig.add_subplot(231)
@@ -201,16 +210,26 @@ def plot_solution(filename):
     ax5.set_title(r"Pressure [g cm$^{-1}$ s$^{-2}$]")
     ax6.set_title(r"Mach Number [1]")
 
-
     if plot_refs:
 
-        codes = ["C2Ray+Capreole", "Enzo", "Flash", "HART", "Licorice", "RH1D", "RSPH", "Zeus"]
+        codes = [
+            "C2Ray+Capreole",
+            "Enzo",
+            "Flash",
+            "HART",
+            "Licorice",
+            "RH1D",
+            "RSPH",
+            "Zeus",
+        ]
 
         for code in codes:
 
-            Tref, Tref_std, Pref, Pref_std, xHIref, xHIref_std, xHIIref, xHIIref_std, nref, nref_std, machref, machref_std = read_reference(code, ref)
+            Tref, Tref_std, Pref, Pref_std, xHIref, xHIref_std, xHIIref, xHIIref_std, nref, nref_std, machref, machref_std = read_reference(
+                code, ref
+            )
 
-            rref = np.linspace(0., 1., Tref.shape[0])
+            rref = np.linspace(0.0, 1.0, Tref.shape[0])
             dx = 0.5 * (rref[1] - rref[0])
             rref += dx
 
@@ -224,13 +243,64 @@ def plot_solution(filename):
                 ax6.semilogy(rref, machref, label=label, alpha=0.6)
 
             else:
-                label = None
-                ax1.errorbar(rref, xHIref, yerr=xHIref_std, label=label, **errorbarkwargs, alpha=0.6, c="grey")
-                ax2.errorbar(rref, xHIIref, yerr=xHIIref_std, label=label, **errorbarkwargs, alpha=0.6, c="grey")
-                ax3.errorbar(rref, nref, yerr=nref_std, label=label, **errorbarkwargs, alpha=0.6, c="grey")
-                ax4.errorbar(rref, Tref, yerr=Tref_std, label=label, **errorbarkwargs, alpha=0.6, c="grey")
-                ax5.errorbar(rref, Pref, yerr=Pref_std, label=label, **errorbarkwargs, alpha=0.6, c="grey")
-                ax6.errorbar(rref, machref, yerr=machref_std, label=label, **errorbarkwargs, alpha=0.6, c="grey")
+                if code == codes[-1]:
+                    label = "reference"
+                else:
+                    label = None
+                ax1.errorbar(
+                    rref,
+                    xHIref,
+                    yerr=xHIref_std,
+                    label=label,
+                    **errorbarkwargs,
+                    alpha=0.4,
+                    c="grey",
+                )
+                ax2.errorbar(
+                    rref,
+                    xHIIref,
+                    yerr=xHIIref_std,
+                    label=label,
+                    **errorbarkwargs,
+                    alpha=0.4,
+                    c="grey",
+                )
+                ax3.errorbar(
+                    rref,
+                    nref,
+                    yerr=nref_std,
+                    label=label,
+                    **errorbarkwargs,
+                    alpha=0.4,
+                    c="grey",
+                )
+                ax4.errorbar(
+                    rref,
+                    Tref,
+                    yerr=Tref_std,
+                    label=label,
+                    **errorbarkwargs,
+                    alpha=0.4,
+                    c="grey",
+                )
+                ax5.errorbar(
+                    rref,
+                    Pref,
+                    yerr=Pref_std,
+                    label=label,
+                    **errorbarkwargs,
+                    alpha=0.4,
+                    c="grey",
+                )
+                ax6.errorbar(
+                    rref,
+                    machref,
+                    yerr=machref_std,
+                    label=label,
+                    **errorbarkwargs,
+                    alpha=0.4,
+                    c="grey",
+                )
 
     label = r"GEARRT"
     if label_refs:
@@ -242,25 +312,43 @@ def plot_solution(filename):
         ax6.semilogy(r_bin_centers, mach_binned, label=label)
 
     else:
-        ax1.errorbar(r_bin_centers, xHI_binned, yerr=xHI_std, label=label, **errorbarkwargs)
-        ax2.errorbar(r_bin_centers, xHII_binned, yerr=xHII_std, label=label, **errorbarkwargs)
+        ax1.errorbar(
+            r_bin_centers, xHI_binned, yerr=xHI_std, label=label, **errorbarkwargs
+        )
+        ax2.errorbar(
+            r_bin_centers, xHII_binned, yerr=xHII_std, label=label, **errorbarkwargs
+        )
         ax3.errorbar(r_bin_centers, n_binned, yerr=n_std, label=label, **errorbarkwargs)
         ax4.errorbar(r_bin_centers, T_binned, yerr=T_std, label=label, **errorbarkwargs)
         ax5.errorbar(r_bin_centers, P_binned, yerr=P_std, label=label, **errorbarkwargs)
-        ax6.errorbar(r_bin_centers, mach_binned, yerr=mach_std, label=label, **errorbarkwargs)
-
+        ax6.errorbar(
+            r_bin_centers, mach_binned, yerr=mach_std, label=label, **errorbarkwargs
+        )
 
     for ax in fig.axes:
         ax.set_xlabel("r / L")
         # note: L is the box size of the original test, not the actual run
         # with GEARRT
         ax.set_xlim(0.0, 1.01)
+        ax.grid()
     ax1.set_yscale("log")
-    ax2.set_yscale("log")
-    ax4.set_yscale("log")
-    ax6.set_yscale("log")
-    ax1.legend()
+    ax1.set_ylim(5e-6, 1.2)
 
+    ax2.set_yscale("log")
+    ax2.set_ylim(5e-6, 1.2)
+
+    ax3.set_yscale("log")
+    ax3.set_ylim(2.5e-4, 2.5e-3)
+
+    ax4.set_yscale("log")
+    ax4.set_ylim(80, 5e4)
+
+    ax5.set_yscale("log")
+    ax5.set_ylim(1e-17, 5e-15)
+
+    ax6.set_yscale("log")
+    ax6.set_ylim(1e-4, 1.0)
+    ax1.legend()
 
     fig.suptitle("Iliev+09 Test 5, $t$ = {0:.0f}".format(meta.time.to("Myr")))
     #  plt.tight_layout()
