@@ -81,7 +81,7 @@ if __name__ == "__main__":
     # Set up metadata
     unitL = unyt.Mpc
     edgelen = (
-        15.0 * 1e-3 * (resolution + 2 * border_particle_width) / resolution * unitL
+        30.0 * 1e-3 * (resolution + 2 * border_particle_width) / resolution * unitL
     )
     edgelen = edgelen.to(unitL)
     boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
