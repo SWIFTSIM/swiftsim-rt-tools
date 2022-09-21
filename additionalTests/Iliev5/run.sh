@@ -21,4 +21,4 @@ fi
     --feedback --radiation \
     ilievTest5.yml 2>&1 | tee output.log
 
-# python3 ./plotSolution.py 10
+python3 ./plotProfiles.py 51
