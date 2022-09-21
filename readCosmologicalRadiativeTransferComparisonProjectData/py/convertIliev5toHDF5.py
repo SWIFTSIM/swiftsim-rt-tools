@@ -27,7 +27,7 @@ quantity_descriptions = [
     "gas number density",
 ]
 # units (representation for unyt) of the quantities, in order
-quantity_units = ["1", "1", "g/s**2", "K", "1", "cm**(-3)"]
+quantity_units = ["1", "1", "g/cm/s**2", "K", "1", "cm**(-3)"]
 
 ncells = 128
 
