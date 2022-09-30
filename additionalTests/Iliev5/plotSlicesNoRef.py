@@ -151,6 +151,8 @@ def plot_result(filename):
     vels = data.gas.velocities
     vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
     cs = spt.get_soundspeed_from_internal_energy(data)
+    # use formula cs = sqrt(p/rho) for *isothermal* sound speed
+    cs = cs / np.sqrt(meta.gas_gamma)
     mach = vnorm / cs
     data.gas.mmach = mach * data.gas.masses.to("M_Sun")
 

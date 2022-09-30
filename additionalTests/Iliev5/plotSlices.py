@@ -260,6 +260,13 @@ def get_swift_output(filename):
     vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
     cs = spt.get_soundspeed_from_internal_energy(data)
     mach = vnorm / cs
+
+    vels = data.gas.velocities
+    vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
+    cs = spt.get_soundspeed_from_density_pressure(data)
+    # use formula cs = sqrt(p/rho) for *isothermal* sound speed
+    cs = cs / np.sqrt(meta.gas_gamma)
+    mach = vnorm / cs
     data.gas.mmach = mach * data.gas.masses.to("M_Sun")
 
     data.gas.mP = data.gas.pressures * data.gas.masses.to("M_Sun")
