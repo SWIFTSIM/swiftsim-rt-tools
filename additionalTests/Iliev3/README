@@ -17,6 +17,10 @@ Details:
 - original test in paper was in 128^3 cells.
 
 
+The default test takes a glass file as the underlying particle distribution. A
+second version with a uniform grid is provided as well.
+
+
 Notes
 -------
 
