@@ -37,21 +37,35 @@ Name Conversions
 The raw data is named after the authors, not after the codes used to generate 
 them. For convenience, here's a translation table:
 
-    Name            Code 
-    -----------------------
-    Mellema         C2Ray
-    Gnedin          OTVET
-    Crash           Crash
-    Susa            RSPH
-    Nakamoto        ART
-    Razoumov        FFTE
-    Ritzerveld      SimpleX
-    Zeus            Zeus
-    Rijkhorst       Flash-HC
-    Alvarez         IFT
-    Coral*          Coral
+For hydrostatical codes:
 
-* Iliev, Raga, Mellema, Shapiro
+    Name                Code 
+    ----------------------------------
+    Mellema             C2Ray
+    Gnedin              OTVET
+    Crash*              Crash
+    Susa                RSPH
+    Nakamoto            ART
+    Razoumov            FFTE
+    Ritzerveld          SimpleX
+    Zeus**              Zeus
+    Rijkhorst           Flash-HC
+    Alvarez             IFT
+    Coral***            Coral
+
+For RHD codes:
+
+    Enzo                Enzo
+    Mellema             Capreole+C2Ray
+    Mellema_TVD         TVD+C2Ray
+    Gnedin/hart         HART
+    RH1D                RH1D
+    Zeus                Zeus
+
+
+* Maselli, Ferrara, Ciardi
+** Whalen, Smidt, Norman
+*** Iliev, Raga, Mellema, Shapiro
 
 
 Usage

@@ -141,6 +141,7 @@ void get_std(float *data, float *mean, int *count, float **std) {
 
   check_is_NULL(std);
   *std = s;
+  free(c);
 }
 
 /**
@@ -174,6 +175,9 @@ void get_profile(float **profile, float **std, float *data) {
 
   check_is_NULL(profile);
   *profile = prof;
+
+  free(hist);
+  free(count);
 }
 
 #endif

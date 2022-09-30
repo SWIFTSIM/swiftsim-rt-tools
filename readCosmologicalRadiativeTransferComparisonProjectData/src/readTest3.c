@@ -70,6 +70,8 @@ int main(int argc, char **argv) {
   fclose(fp);
   free(xHI);
   free(T);
+  free(xHI_profile);
+  free(T_profile);
 
   return 0;
 }

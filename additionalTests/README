@@ -20,6 +20,9 @@ Iliev3
 Iliev4
     16 sources in a static cosmological density field
 
+Iliev5
+    Pure hydrogen HII region expansion.
+
 InjectionConvergenceTest
     Run Iliev2 test on varying underlying resolutions and compare convergence.
 
