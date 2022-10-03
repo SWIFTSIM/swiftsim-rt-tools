@@ -19,11 +19,11 @@
 ##############################################################################
 
 
-# ----------------------------------------------------
-# Plot slices of hydrogen mass fractions, gas number
-# densities, temperature, pressure, and mach number
-# in combination with references
-# ----------------------------------------------------
+# ---------------------------------------------------------------
+# Plot slices of neutral hydrogen mass fraction, hydrogen ion
+# mass fraction, gas number density, temperature, pressure, and
+# mach number without reference solutions.
+# ---------------------------------------------------------------
 
 import sys
 import swiftsimio
@@ -31,24 +31,15 @@ import gc
 import unyt
 from matplotlib import pyplot as plt
 import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size, ImageGrid
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
 from swiftsimio.visualisation.slice import slice_gas
 import numpy as np
-import h5py
 
 from rainbow4_colormap import rainbow4
 import stromgren_plotting_tools as spt
 
 # Parameters users should/may tweak
-
-# chose which reference to plot
-ref = "10Myr"
-#  ref = "30Myr"
-#  ref = "100Myr"
-#  ref = "200Myr"
-#  ref = "500Myr"
-
 
 # snapshot basename
 snapshot_base = "output"
@@ -76,16 +67,15 @@ params = {
     "ytick.major.width": 1.5,
     "axes.linewidth": 1.5,
     "text.usetex": True,
-    "figure.subplot.left": 0.05,
-    "figure.subplot.right": 0.95,
-    "figure.subplot.bottom": 0.035,
-    "figure.subplot.top": 0.93,
+    "figure.subplot.left": 0.145,
+    "figure.subplot.right": 0.99,
+    "figure.subplot.bottom": 0.075,
+    "figure.subplot.top": 0.99,
     "figure.subplot.wspace": 0.15,
-    "figure.subplot.hspace": 0.20,
+    "figure.subplot.hspace": 0.0,
     "figure.dpi": 200,
     "lines.markersize": 1,
     "lines.linewidth": 2.0,
-    "mpl_toolkits.legacy_colorbar": False,
 }
 mpl.rcParams.update(params)
 
@@ -93,135 +83,38 @@ mpl.rcParams.update(params)
 # -----------------------------------------------------------------------
 
 
-def read_reference(code, ref, quantity):
+# Read in cmdline arg: Are we plotting only one snapshot, or all?
+plot_all = False
+snapnr = -1
+try:
+    snapnr = int(sys.argv[1])
+except IndexError:
+    plot_all = True
+
+mpl.rcParams["text.usetex"] = True
+mpl.rcParams["mpl_toolkits.legacy_colorbar"] = False
+
+
+def set_colorbar(ax, im):
     """
-    Read in the reference file
-
-    code: which code to read in
-    ref: which refernce (age) to read in
-    quantity: which quantity to read in
+    Adapt the colorbar a bit for axis object <ax> and
+    imshow instance <im>
     """
-
-    filename = "reference/" + code + ".hdf5"
-    f = h5py.File(filename, "r")
-    slices = f["slices"]
-    slice_age = slices[ref]
-
-    quant = unyt.unyt_array(slice_age[quantity], slice_age[quantity].attrs["unyts"])
-    f.close()
-
-    return quant
-
-
-def plot_result(
-    swift_slice, simulation_time, filename, quantity, quantity_label, norm_limits
-):
-    """
-    Create and save the plot
-    swift_slice:  slice image data of swift output
-    simulation_time: unyt quantity of output time
-    filname: file name that was rad in
-    quantity: which quantity is being plotted
-    quantity_label: label of the quantity for the title
-    norm_limits: tuple with min/max val for colorbar
-    """
-
-    fig = plt.figure(figsize=(15, 17), dpi=200)
-    figname = filename[:-5] + "-Slice-" + quantity + ".png"
-
-    # grab all slice data into a single list
-    slices = [swift_slice]
-    slice_names = ["GEARRT"]
-
-    codes = [
-        "C2Ray+Capreole",
-        "Enzo",
-        "Flash",
-        "HART",
-        "Licorice",
-        "RH1D",
-        "RSPH",
-        "Zeus",
-    ]
-
-    for code in codes:
-        refslice = read_reference(code, ref, quantity)
-        slices.append(refslice)
-        slice_names.append(code)
-
-    ncols = 3
-    nrows = 3
-    axrows = [[] for r in range(nrows)]
-    for r in range(nrows):
-
-        # set up every column
-        axcols = ImageGrid(
-            fig,
-            (nrows, 1, r + 1),
-            nrows_ncols=(1, ncols),
-            axes_pad=0.1,
-            share_all=True,
-            label_mode="L",
-            cbar_mode="edge",
-            cbar_location="right",
-            cbar_size="7%",
-            cbar_pad="2%",
-        )
-
-        # and store it
-        axrows[r] = axcols
-
-    minnorm = norm_limits[0]
-    maxnorm = norm_limits[1]
-
-    ind = 0
-    for r in range(nrows):
-        axcols = axrows[r]
-
-        for c in range(ncols):
-            ax = axcols[c]
-
-            data = slices[ind]
-            im = ax.imshow(
-                data.T,
-                **imshow_kwargs,
-                norm=LogNorm(vmin=minnorm, vmax=maxnorm),
-                #  cmap=rainbow4,
-                cmap="cividis",
-            )
-            ax.set_title(slice_names[ind])
-
-            ind += 1
-            ax.set_ylabel("[kpc]")
-            ax.set_xlabel("[kpc]")
-
-        axcols.cbar_axes[0].colorbar(im)
-
-    title = "Iliev+09 Test 5"
-    title += ", $t$ = {0:.0f}".format(simulation_time.to("Myr"))
-    title += ", " + quantity_label
-    fig.suptitle(title)
-
-    #  plt.tight_layout()
-    plt.savefig(figname)
-    print("saved figure", figname)
-    plt.close()
-    gc.collect()
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    plt.colorbar(im, cax=cax)
     return
 
 
-def get_swift_output(filename):
+def plot_result(filename):
     """
-    Read in the swift data, and make slices.
+    Create and save the plot
     """
-
     print("working on", filename)
 
     data = swiftsimio.load(filename)
     meta = data.metadata
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
-    global simulation_time
-    simulation_time = meta.time
 
     ntot = data.gas.masses.shape[0]
     # assume base number of parts is a power of 2
@@ -254,15 +147,11 @@ def get_swift_output(filename):
     data.gas.mXHI = imf.HI * data.gas.masses.to("M_Sun")
     data.gas.mXHII = imf.HII * data.gas.masses.to("M_Sun")
     data.gas.mm = data.gas.masses.to("M_Sun") ** 2
+    # todo: get actual mach nr
 
     vels = data.gas.velocities
     vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
     cs = spt.get_soundspeed_from_internal_energy(data)
-    mach = vnorm / cs
-
-    vels = data.gas.velocities
-    vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
-    cs = spt.get_soundspeed_from_density_pressure(data)
     # use formula cs = sqrt(p/rho) for *isothermal* sound speed
     cs = cs / np.sqrt(meta.gas_gamma)
     mach = vnorm / cs
@@ -318,52 +207,97 @@ def get_swift_output(filename):
     mach_map = mass_weighted_mach_map / mass_map
     mach_map = mass_weighted_mach_map[cutoff:-cutoff, cutoff:-cutoff]
 
-    slices = {
-        "xHI": HI_map,
-        "xHII": HII_map,
-        "n": number_density_map,
-        "T": temperature_map,
-        "P": pressure_map,
-        "mach": mach_map,
-    }
+    fig = plt.figure(figsize=(18, 12), dpi=200)
+    figname = filename[:-5] + "-NoRef.png"
 
-    return slices, simulation_time
+    ax1 = fig.add_subplot(231)
+    ax2 = fig.add_subplot(232)
+    ax3 = fig.add_subplot(233)
+    ax4 = fig.add_subplot(234)
+    ax5 = fig.add_subplot(235)
+    ax6 = fig.add_subplot(236)
+
+    im1 = ax1.imshow(
+        HI_map.T,
+        **imshow_kwargs,
+        norm=LogNorm(vmin=1.0e-7, vmax=1.2),
+        #  cmap=rainbow4,
+        cmap="cividis",
+    )
+    set_colorbar(ax1, im1)
+    ax1.set_title("Neutral Hydrogen Mass Fraction [1]")
+
+    im2 = ax2.imshow(
+        HII_map.T,
+        **imshow_kwargs,
+        norm=LogNorm(vmin=1.0e-7, vmax=1.2),
+        #  cmap=rainbow4,
+        cmap="cividis",
+    )
+    set_colorbar(ax2, im2)
+    ax2.set_title("Ionized Hydrogen Mass Fraction [1]")
+
+    im3 = ax3.imshow(
+        number_density_map.T,
+        **imshow_kwargs,
+        norm=LogNorm(vmin=2.5e-4, vmax=2.5e-3),
+        #  cmap=rainbow4,
+        cmap="cividis",
+    )
+    set_colorbar(ax3, im3)
+    ax3.set_title(r"Hydrogen Number Density [cm$^{-3}$]")
+
+    im4 = ax4.imshow(
+        temperature_map.T,
+        **imshow_kwargs,
+        norm=LogNorm(vmin=80, vmax=1e5),
+        #  cmap=rainbow4,
+        cmap="cividis",
+    )
+    set_colorbar(ax4, im4)
+    ax4.set_title(r"Temperature [K]")
+
+    im5 = ax5.imshow(
+        pressure_map.T,
+        **imshow_kwargs,
+        norm=LogNorm(vmin=1e-17, vmax=1e-14),
+        #  cmap=rainbow4,
+        cmap="cividis",
+    )
+    set_colorbar(ax5, im5)
+    ax5.set_title(r"Pressure [g cm$^{-1}$ s$^{-2}$]")
+
+    im6 = ax6.imshow(
+        mach_map.T,
+        **imshow_kwargs,
+        norm=LogNorm(),
+        #  norm=LogNorm(vmin=1e-3, vmax=1e1),
+        #  cmap=rainbow4,
+        cmap="cividis",
+    )
+    set_colorbar(ax6, im6)
+    ax6.set_title(r"Mach Number [1]")
+
+    for ax in [ax1, ax2, ax3, ax4, ax5, ax6]:
+        ax.set_xlabel("[kpc]")
+        ax.set_ylabel("[kpc]")
+
+    title = "Iliev+09 Test 6"
+    if meta.cosmology is not None:
+        title += ", $z$ = {0:.2e}".format(meta.z)
+    title += ", $t$ = {0:.0f}".format(meta.time.to("Myr"))
+    fig.suptitle(title)
+
+    plt.tight_layout()
+    plt.savefig(figname)
+    plt.close()
+    gc.collect()
+    return
 
 
 if __name__ == "__main__":
 
-    snapnr = int(sys.argv[1])
-    snap = snapshot_base + "_" + str(snapnr).zfill(4) + ".hdf5"
+    snaplist = spt.get_snapshot_list(snapshot_base, plot_all, snapnr)
 
-    # mach and n might need some rework.
-    quantities = [
-        "xHI",
-        "xHII",
-        #  "n",
-        "T",
-        "P",
-        #  "mach",
-    ]
-    quantity_labels = {
-        "xHI": "Neutral Hydrogen Mass Fraction [1]",
-        "xHII": "Ionized Hydrogen Mass Fraction [1]",
-        "n": r"Hydrogen Number Density [cm$^{-3}$]",
-        "T": r"Temperature [K]",
-        "P": r"Pressure [g cm$^{-1}$ s$^{-2}$]",
-        "mach": r"Mach Number [1]",
-    }
-    norm_limits = {
-        "xHI": (1e-7, 1.2),
-        "xHII": (1e-7, 1.2),
-        "n": (2.5e-4, 2.5e-3),
-        "T": (80, 1e5),
-        "P": (1e-17, 1e-14),
-        "mach": (1e-3, 1.0),
-    }
-
-    swift_slices, simtime = get_swift_output(snap)
-
-    for q in quantities:
-        plot_result(
-            swift_slices[q], simtime, snap, q, quantity_labels[q], norm_limits[q]
-        )
+    for f in snaplist:
+        plot_result(f)
