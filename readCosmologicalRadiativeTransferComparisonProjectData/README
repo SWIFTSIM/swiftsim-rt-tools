@@ -96,6 +96,13 @@ Two simple python scripts to plot results (slices, profiles) are provided.
 Notes
 ---------------
 
+Some files (Tests 5 and 6 for Flash, Licorice, and Zeus) use a different record
+length for the output files. Look at the top of the corresponding result reader
+programs to see how to deal with that. (You need to comment/uncomment a single line.)
+
+
+
+
 Following the source code (`frit-4.1.2/docs/writeIFrIT.[cf]`), apparently the 
 files have been written using
 

@@ -21,8 +21,7 @@ OPTIONS = -std=c11
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
-# -fsanitize=address
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror -fsanitize=address
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
@@ -81,6 +80,9 @@ readTest4IC: readTest4IC.c $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 readTest5: readTest5.c $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+readTest6: readTest6.c $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 
