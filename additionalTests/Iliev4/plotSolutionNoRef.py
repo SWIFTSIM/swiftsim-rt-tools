@@ -133,7 +133,7 @@ def plot_result(filename):
     im1 = ax1.imshow(
         HI_map.T,
         **imshow_kwargs,
-        norm=LogNorm(vmin=1.0e-7, vmax=1.2),
+        norm=LogNorm(vmin=1.0e-8, vmax=1.2),
         #  cmap=rainbow4,
         cmap="cividis",
     )
