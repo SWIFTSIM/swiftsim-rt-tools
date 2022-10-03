@@ -16,7 +16,8 @@ Details:
 - Ionization photon number rate is Ndot = 5 * 10^48 photons/s. This translates
   to the luminosity L = 6.198024e+04 L_Sun.
 - Initial ionization fraction: x = 1.2 * 10^-3
-- run up to 500 Myr
+- run up to 500 Myr. Reference solutions are available for 10 Myr, 30 Myr, 100 Myr,
+  200 Myr, and 500 Myr.
 
 
 To mimic the monochromatic radiation source, we need to use 1 frequency bin, starting

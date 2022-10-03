@@ -7,12 +7,13 @@ Details:
 - hydrogen gas only.
 - the gas density distribution is fixed.
 - original test in paper was in 128^3 cells.
-- run up to 0.4 Myr
 - source of ionizing radiation has black-body spectrum with T_bb = 10^5K
 - for the 'soft' spectrum, source of ionizing radiation has black-body 
   spectrum with T_bb = 3 x 10^4K
 - initially the gas is fully neutral and at 100K.
 - boxsize is 0.5 COMOVING Mpc / h
+- run up to 0.4 Myr. Reference solutions are available for 0.05 Myr, 0.1 Myr,
+  0.2 Myr, and 0.4 Myr.
 
 
 
