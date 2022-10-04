@@ -43,8 +43,8 @@ gamma = 5.0 / 3.0
 # else put the star particle among gas particles
 replace_gas = True
 
-resolution = 64
-#  resolution = 128
+#  resolution = 64
+resolution = 128
 
 r_0 = 91.5 * unyt.pc
 n_0 = 3.2 / unyt.cm**3

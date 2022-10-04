@@ -23,9 +23,9 @@ plot_refs = True
 label_refs = False
 
 # chose which reference to plot
-#  ref = "1Myr"
+ref = "1Myr"
 #  ref = "3Myr"
-ref = "10Myr"
+#  ref = "10Myr"
 #  ref = "25Myr"
 #  ref = "75Myr"
 
