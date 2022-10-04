@@ -34,90 +34,128 @@ import numpy as np
 import h5py
 from scipy import stats
 
-# TODO: remove
-from matplotlib import pyplot as plt
-
 gamma = 5.0 / 3.0
 
-# switch to replace the central gas particle with a star
-# else put the star particle among gas particles
-replace_gas = True
+resolution = 64
+#  resolution = 128
 
-#  resolution = 64
-resolution = 128
+# Select how many particles in the radius of the inner flat region
+# you want. You might need to play with this parameter a bit to
+# get a resolution similar to the desired one.
+# this also determines the particle mass.
+#  N_inner = 32 # this results in roughly 128^3 particles
+N_inner = 16 # this results in roughly 64^3 particles
 
-r_0 = 91.5 * unyt.pc
+
+unitL = unyt.kpc
+unitM = 1e10 * unyt.M_Sun
+
+# Do everything without units to start with.
+edgelen_units = 1.6 * unyt.kpc
+edgelen_units = edgelen_units.to(unitL)
+edgelen = edgelen_units.to(unitL).v
+
+r_0 = (91.5 * unyt.pc).to(unitL).v
+r_0_relative = (91.5 * unyt.pc / (edgelen_units)).to("1").v
 n_0 = 3.2 / unyt.cm**3
-rho_0 = n_0 * unyt.proton_mass
 
-def reference_density(ri):
-    """
-    return density at radius ri
-    ri shall be a unyt quantity
-    """
-    if ri <= r_0:
-        return rho_0
-    else:
-        return rho_0 * (r_0 / ri)**2
-
+rho_0_units = n_0 * unyt.proton_mass
+rho_0 = rho_0_units.to(unitM/unitL**3).v
 
 
 if __name__ == "__main__":
 
-    glass = h5py.File("glassCube_" + str(resolution) + ".hdf5", "r")
-    parts = glass["PartType0"]
-    xp = parts["Coordinates"][:]
-    h = parts["SmoothingLength"][:]
-    glass.close()
+    print("creating ICs")
+    boxsize = np.array([1.0, 1.0, 1.0]) * edgelen_units
 
-    r = np.sqrt(np.sum((0.5 - xp) ** 2, axis=1))
+    # Get the inner flat region < r_0
+    dx_inner = r_0_relative / N_inner
 
-    if replace_gas:
-        # replace a central gas particle with a star particle
-        rmin = np.argmin(r)
-        xs = xp[rmin]
-        xp = np.delete(xp, rmin, axis=0)
-        h = np.delete(h, rmin)
-    else:
-        # find particles closest to the center
-        # and select a couple of them to put the star in their middle
-        mininds = np.argsort(r)
-        center_parts = xp[mininds[:4]]
-        xs = center_parts.sum(axis=0) / center_parts.shape[0]
+    x_inner = np.zeros((2*N_inner)**3)
+    y_inner = np.zeros((2*N_inner)**3)
+    z_inner = np.zeros((2*N_inner)**3)
+    ind = 0
 
-    # Double-check all particles for boundaries
-    for i in range(3):
-        mask = xp[:, i] < 0.0
-        xp[mask, i] += 1.0
-        mask = xp[:, i] > 1.0
-        xp[mask, i] -= 1.0
+    for i in range(-N_inner, N_inner):
+        xi = dx_inner * (i + 0.5)
+        for j in range(-N_inner, N_inner):
+            yi = dx_inner * (j + 0.5)
+            for k in range(-N_inner, N_inner):
+                zi = dx_inner * (k + 0.5)
 
-    # Add border particles
+                r = np.sqrt(xi**2 + yi**2 + zi**2)
+                if r <= r_0_relative:
+                    x_inner[ind] = (0.5 + xi)
+                    y_inner[ind] = (0.5 + yi)
+                    z_inner[ind] = (0.5 + zi)
+                    ind += 1
+
+    xp_inner = np.vstack((x_inner[:ind], y_inner[:ind], z_inner[:ind])).T
+    xp_inner *= edgelen
+
+
+
+    # get particle mass
+    V_inner = 4. / 3. * np.pi * r_0**3
+    m_inner = rho_0 * V_inner
+    mpart = m_inner / ind
+
+    # with the known particle mass, we can now determine how many particles
+    # of the same mass will fit in a sphere with radius r_0 -> box diagonal / 2
+    r_diagonal = np.sqrt(3) * 0.5 * edgelen
+    Mtot = 4. * np.pi * rho_0 * r_0**2 * (r_diagonal - (r_0 + dx_inner * edgelen))
+    N_outer = int(Mtot / mpart + 0.5)
+
+
+
+    # get r^-2 profile. This corresponds to a mass distribusion
+    # which is uniform in radius.
+    rng = np.random.default_rng(31415926)
+    radius = rng.uniform(low=r_0 + dx_inner * edgelen, high=r_diagonal, size=N_outer)
+
+    # draw random numbers between 0 and 1
+    cos_theta = rng.uniform(low=-1., high=1., size=N_outer)
+    sin_theta = np.sqrt(1. - cos_theta**2)
+    phi = 2 * np.pi * rng.uniform(size=N_outer)
+    xp_outer = np.zeros((N_outer, 3))
+    xp_outer[:, 0] = radius * sin_theta * np.cos(phi)
+    xp_outer[:, 1] = radius * sin_theta * np.sin(phi)
+    xp_outer[:, 2] = radius * cos_theta
+
+    # move sphere to center of box
+    xp_outer += 0.5 * edgelen
+
+    mask = xp_outer[:,0] > 0.
+    mask = np.logical_and(mask, xp_outer[:,0] < edgelen)
+    mask = np.logical_and(mask, xp_outer[:,1] > 0.)
+    mask = np.logical_and(mask, xp_outer[:,1] < edgelen)
+    mask = np.logical_and(mask, xp_outer[:,2] > 0.)
+    mask = np.logical_and(mask, xp_outer[:,2] < edgelen)
+    xp_outer = xp_outer[mask]
+
+    xp = np.concatenate((xp_inner, xp_outer))
+    print("num parts - resolution**3", xp.shape[0] - resolution**3, "ratio", ( xp.shape[0] - resolution**3)/ resolution**3)
+
+
+    # generate particle IDs
+    pid = np.arange(1000000001, 1000000001 + xp.shape[0], 1)
+
+
+    # generate boundary particles
     border_particle_width = 4
     dx = 1.0 / (resolution + 2 * border_particle_width)
-    scale = resolution / (resolution + 2 * border_particle_width)
-    shift = 0.5 * (1.0 - scale)
-    if scale < 0:
-        print("scale =", scale, "???")
-        quit()
+    # scale up edge length to fit border particles
+    scale = (resolution + 2 * border_particle_width) / resolution
+    edgelen_units = edgelen_units * scale
+    edgelen = edgelen * scale
+    boxsize = boxsize * scale
 
-    # Set up metadata
-    unitL = unyt.Mpc
-    edgelen = (
-        1.6 * 1e-3 * (resolution + 2 * border_particle_width) / resolution * unitL
-    )
-    edgelen = edgelen.to(unitL)
-    boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
-
-    # scale positions down
-    xp *= scale
-    xp += shift
-    pid = np.arange(1000000001, 1000000001 + h.shape[0], 1)
+    # shift actual particles
+    shift = border_particle_width * dx
+    xp += shift * edgelen
 
     npart_border = (resolution + 2 * border_particle_width) ** 3 - resolution ** 3
-
     xp_border = np.zeros((npart_border, 3))
-    h_border = np.ones((npart_border))
     pid_border = np.arange(1, npart_border + 1, 1)
     ind = 0
 
@@ -143,59 +181,30 @@ if __name__ == "__main__":
         print("oh no")
         quit()
 
-    h_mean = np.mean(h)
-    # take estimate for sml
-    h_border = h_border * h_mean
+    xp_border *= edgelen
 
     # concatenate arraays
     xp = np.concatenate((xp, xp_border), axis=0)
-    h = np.concatenate((h, h_border), axis=0)
     pid = np.concatenate((pid, pid_border), axis=0)
 
 
-    # Get density profile by adapting particle masses.
-    # update r to include boundary particles
-    r = np.sqrt(np.sum((0.5 - xp) ** 2, axis=1))
-    nbins = 2 * resolution
-    r_bin_edges = np.linspace(0.0, 0.5 * np.sqrt(3), nbins + 1)
-    r_bin_centers = 0.5 * (r_bin_edges[:-1] + r_bin_edges[1:])
-
-    partnumber, _, binnumber = stats.binned_statistic(
-        r, np.ones(r.shape), statistic="sum", bins=r_bin_edges
-    )
-
-    density_expect = np.zeros(r_bin_centers.shape) * rho_0
-    for i,ri in enumerate(r_bin_centers):
-        ri_units = ri * edgelen
-        rho_i = reference_density(ri_units)
-        density_expect[i] = rho_i
-
-    shell_volumes = 4. / 3 * np.pi * (r_bin_edges[1:]**3 - r_bin_edges[:-1]**3) * edgelen**3
-    av_mass = density_expect * shell_volumes / partnumber
-
-    masses = np.ones(r.shape) * av_mass[binnumber-1]
-    masses = masses.to(cosmo_units["mass"])
-
-    # For particles with r > boxlen_ref, this estimate will be wrong
-    # because of missing particles. Instead, try to get a better 
-    # estimat using an average particle volume.
-    V_average = edgelen**3 / r.shape[0]
-
-    for i in range(r.shape[0]):
-        if r[i] > 0.5:
-            rho_expect = reference_density(r[i]*edgelen)
-            m_expect = rho_expect * V_average
-            masses[i] = m_expect.to(masses.units)
-
-    # convert to correct units
-    xp *= edgelen
-    h *= edgelen
+    # add units to coordinates
+    xp = xp * unitL
 
     xs = unyt.unyt_array(
-        [np.array([xs[0] * edgelen, xs[1] * edgelen, xs[2] * edgelen])], unitL
+        [np.array([0.5 * edgelen, 0.5 * edgelen, 0.5 * edgelen])], unitL
     )
 
-    w = Writer(unit_system=cosmo_units, box_size=boxsize, dimension=3)
+
+    # get star IDs
+    sid_start = 1000000001 + xp.shape[0]+2
+    sid_stop = sid_start + 1
+    sid = np.arange(sid_start, sid_stop, 1)
+
+
+
+    # Write data down
+    w = Writer(unit_system=cosmo_units, box_size=boxsize.to(cosmo_units["length"]), dimension=3)
 
     # write particle positions and smoothing lengths
     w.gas.coordinates = xp
@@ -204,15 +213,16 @@ if __name__ == "__main__":
     w.stars.coordinates = xs
     # you  got to give all particle types an ID, otherwise swiftsimio
     # will generate the IDs itself
-    w.stars.particle_ids = np.ones(1, dtype=int) * 2000000001
+    w.stars.particle_ids = sid
     w.gas.velocities = np.zeros(xp.shape) * (unitL / unyt.Myr)
     w.stars.velocities = np.zeros(xs.shape) * (unitL / unyt.Myr)
-    w.gas.smoothing_length = h
-    w.stars.smoothing_length = w.gas.smoothing_length[:1]
+    #  w.gas.smoothing_length = h
+    w.gas.generate_smoothing_lengths(boxsize=boxsize, dimension=3)
+    w.stars.smoothing_length = np.ones(xs.shape[0]) * w.gas.smoothing_length.mean()
 
     # get gas masses
-    w.gas.masses = masses
-    w.stars.masses = np.ones(xs.shape[0], dtype=np.float64) * w.gas.masses.max()
+    w.gas.masses = np.ones(xp.shape[0]) * mpart * unitM
+    w.stars.masses = np.ones(xs.shape[0], dtype=np.float64) * mpart * unitM
 
 
     # get gas internal energy for a given temperature and composition

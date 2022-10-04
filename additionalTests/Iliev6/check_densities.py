@@ -24,7 +24,7 @@ dxp = xpart - xstar
 r = np.sqrt(np.sum(dxp ** 2, axis=1))
 r = r / boxsize_ref
 
-nbins = int(np.cbrt(xpart.shape[0]) + 0.5)
+nbins = 64
 r_bin_edges = np.linspace(0.0, 1.7, nbins + 1)
 r_bin_centers = 0.5 * (r_bin_edges[:-1] + r_bin_edges[1:])
 rho_binned, _, _ = stats.binned_statistic(
@@ -42,13 +42,28 @@ rho_std = rho_std * data.gas.densities.units
 r_0 = 91.5 * unyt.pc
 n_0 = 3.2 / unyt.cm**3
 rho_0 = n_0 * unyt.proton_mass
-density_expect = np.zeros(r_bin_centers.shape) * rho_0
+density_expect = np.zeros(r_bin_centers.shape)
 for i,ri in enumerate(r_bin_centers):
     ri_units = ri * boxsize_ref
     if ri_units <= r_0:
         density_expect[i] = rho_0
     else:
-        density_expect[i] = rho_0 * (r_0 / ri_units)**2
+        ror = (r_0 / ri_units).to("1")
+        density_expect[i] = rho_0 * ror**2
+density_expect = density_expect * rho_0.units
+
+
+
+
+ratio = np.zeros(r_bin_centers.shape)
+for i in range(r_bin_centers.shape[0]):
+    ratio[i] = 1. - rho_binned[i] / density_expect[i] 
+
+print("ratio:", ratio)
+print("ratio avg:", ratio.mean())
+print("ratio min:", ratio.min())
+print("ratio max:", ratio.max())
+
 
 
 
