@@ -44,7 +44,7 @@ resolution = 64
 # get a resolution similar to the desired one.
 # this also determines the particle mass.
 #  N_inner = 32 # this results in roughly 128^3 particles
-N_inner = 16 # this results in roughly 64^3 particles
+N_inner = 16  # this results in roughly 64^3 particles
 
 
 unitL = unyt.kpc
@@ -57,10 +57,10 @@ edgelen = edgelen_units.to(unitL).v
 
 r_0 = (91.5 * unyt.pc).to(unitL).v
 r_0_relative = (91.5 * unyt.pc / (edgelen_units)).to("1").v
-n_0 = 3.2 / unyt.cm**3
+n_0 = 3.2 / unyt.cm ** 3
 
 rho_0_units = n_0 * unyt.proton_mass
-rho_0 = rho_0_units.to(unitM/unitL**3).v
+rho_0 = rho_0_units.to(unitM / unitL ** 3).v
 
 
 if __name__ == "__main__":
@@ -71,9 +71,9 @@ if __name__ == "__main__":
     # Get the inner flat region < r_0
     dx_inner = r_0_relative / N_inner
 
-    x_inner = np.zeros((2*N_inner)**3)
-    y_inner = np.zeros((2*N_inner)**3)
-    z_inner = np.zeros((2*N_inner)**3)
+    x_inner = np.zeros((2 * N_inner) ** 3)
+    y_inner = np.zeros((2 * N_inner) ** 3)
+    z_inner = np.zeros((2 * N_inner) ** 3)
     ind = 0
 
     for i in range(-N_inner, N_inner):
@@ -83,30 +83,26 @@ if __name__ == "__main__":
             for k in range(-N_inner, N_inner):
                 zi = dx_inner * (k + 0.5)
 
-                r = np.sqrt(xi**2 + yi**2 + zi**2)
+                r = np.sqrt(xi ** 2 + yi ** 2 + zi ** 2)
                 if r <= r_0_relative:
-                    x_inner[ind] = (0.5 + xi)
-                    y_inner[ind] = (0.5 + yi)
-                    z_inner[ind] = (0.5 + zi)
+                    x_inner[ind] = 0.5 + xi
+                    y_inner[ind] = 0.5 + yi
+                    z_inner[ind] = 0.5 + zi
                     ind += 1
 
     xp_inner = np.vstack((x_inner[:ind], y_inner[:ind], z_inner[:ind])).T
     xp_inner *= edgelen
 
-
-
     # get particle mass
-    V_inner = 4. / 3. * np.pi * r_0**3
+    V_inner = 4.0 / 3.0 * np.pi * r_0 ** 3
     m_inner = rho_0 * V_inner
     mpart = m_inner / ind
 
     # with the known particle mass, we can now determine how many particles
     # of the same mass will fit in a sphere with radius r_0 -> box diagonal / 2
     r_diagonal = np.sqrt(3) * 0.5 * edgelen
-    Mtot = 4. * np.pi * rho_0 * r_0**2 * (r_diagonal - (r_0 + dx_inner * edgelen))
+    Mtot = 4.0 * np.pi * rho_0 * r_0 ** 2 * (r_diagonal - (r_0 + dx_inner * edgelen))
     N_outer = int(Mtot / mpart + 0.5)
-
-
 
     # get r^-2 profile. This corresponds to a mass distribusion
     # which is uniform in radius.
@@ -114,8 +110,8 @@ if __name__ == "__main__":
     radius = rng.uniform(low=r_0 + dx_inner * edgelen, high=r_diagonal, size=N_outer)
 
     # draw random numbers between 0 and 1
-    cos_theta = rng.uniform(low=-1., high=1., size=N_outer)
-    sin_theta = np.sqrt(1. - cos_theta**2)
+    cos_theta = rng.uniform(low=-1.0, high=1.0, size=N_outer)
+    sin_theta = np.sqrt(1.0 - cos_theta ** 2)
     phi = 2 * np.pi * rng.uniform(size=N_outer)
     xp_outer = np.zeros((N_outer, 3))
     xp_outer[:, 0] = radius * sin_theta * np.cos(phi)
@@ -125,21 +121,24 @@ if __name__ == "__main__":
     # move sphere to center of box
     xp_outer += 0.5 * edgelen
 
-    mask = xp_outer[:,0] > 0.
-    mask = np.logical_and(mask, xp_outer[:,0] < edgelen)
-    mask = np.logical_and(mask, xp_outer[:,1] > 0.)
-    mask = np.logical_and(mask, xp_outer[:,1] < edgelen)
-    mask = np.logical_and(mask, xp_outer[:,2] > 0.)
-    mask = np.logical_and(mask, xp_outer[:,2] < edgelen)
+    mask = xp_outer[:, 0] > 0.0
+    mask = np.logical_and(mask, xp_outer[:, 0] < edgelen)
+    mask = np.logical_and(mask, xp_outer[:, 1] > 0.0)
+    mask = np.logical_and(mask, xp_outer[:, 1] < edgelen)
+    mask = np.logical_and(mask, xp_outer[:, 2] > 0.0)
+    mask = np.logical_and(mask, xp_outer[:, 2] < edgelen)
     xp_outer = xp_outer[mask]
 
     xp = np.concatenate((xp_inner, xp_outer))
-    print("num parts - resolution**3", xp.shape[0] - resolution**3, "ratio", ( xp.shape[0] - resolution**3)/ resolution**3)
-
+    print(
+        "num parts - resolution**3",
+        xp.shape[0] - resolution ** 3,
+        "ratio",
+        (xp.shape[0] - resolution ** 3) / resolution ** 3,
+    )
 
     # generate particle IDs
     pid = np.arange(1000000001, 1000000001 + xp.shape[0], 1)
-
 
     # generate boundary particles
     border_particle_width = 4
@@ -187,7 +186,6 @@ if __name__ == "__main__":
     xp = np.concatenate((xp, xp_border), axis=0)
     pid = np.concatenate((pid, pid_border), axis=0)
 
-
     # add units to coordinates
     xp = xp * unitL
 
@@ -195,16 +193,15 @@ if __name__ == "__main__":
         [np.array([0.5 * edgelen, 0.5 * edgelen, 0.5 * edgelen])], unitL
     )
 
-
     # get star IDs
-    sid_start = 1000000001 + xp.shape[0]+2
+    sid_start = 1000000001 + xp.shape[0] + 2
     sid_stop = sid_start + 1
     sid = np.arange(sid_start, sid_stop, 1)
 
-
-
     # Write data down
-    w = Writer(unit_system=cosmo_units, box_size=boxsize.to(cosmo_units["length"]), dimension=3)
+    w = Writer(
+        unit_system=cosmo_units, box_size=boxsize.to(cosmo_units["length"]), dimension=3
+    )
 
     # write particle positions and smoothing lengths
     w.gas.coordinates = xp
@@ -223,7 +220,6 @@ if __name__ == "__main__":
     # get gas masses
     w.gas.masses = np.ones(xp.shape[0]) * mpart * unitM
     w.stars.masses = np.ones(xs.shape[0], dtype=np.float64) * mpart * unitM
-
 
     # get gas internal energy for a given temperature and composition
     XH = 1.0  # hydrogen mass fraction

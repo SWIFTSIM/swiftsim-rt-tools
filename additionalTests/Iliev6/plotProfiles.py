@@ -72,21 +72,21 @@ def read_reference(code, ref):
 
     """
 
-    filename = "reference/" + code + "_"+ref+"_profiles.dat"
+    filename = "reference/" + code + "_" + ref + "_profiles.dat"
 
     data = np.loadtxt(filename)
-    xHI = data[:,0]
-    xHI_std = data[:,1]
-    xHII = data[:,2]
-    xHII_std = data[:,3]
-    n = data[:,4]
-    n_std = data[:,5]
-    T = data[:,6]
-    T_std = data[:,7]
-    P = data[:,8]
-    P_std = data[:,9]
-    mach = data[:,10]
-    mach_std = data[:,11]
+    xHI = data[:, 0]
+    xHI_std = data[:, 1]
+    xHII = data[:, 2]
+    xHII_std = data[:, 3]
+    n = data[:, 4]
+    n_std = data[:, 5]
+    T = data[:, 6]
+    T_std = data[:, 7]
+    P = data[:, 8]
+    P_std = data[:, 9]
+    mach = data[:, 10]
+    mach_std = data[:, 11]
 
     return T, T_std, P, P_std, xHI, xHI_std, xHII, xHII_std, n, n_std, mach, mach_std
 
@@ -325,7 +325,7 @@ def plot_solution(filename):
     ax2.set_ylim(5e-6, 1.2)
 
     ax3.set_yscale("log")
-    ax3.set_ylim(1.e-3, 6.)
+    ax3.set_ylim(1.0e-3, 6.0)
 
     ax4.set_yscale("log")
     ax4.set_ylim(80, 5e4)

@@ -40,24 +40,22 @@ rho_std = rho_std * data.gas.densities.units
 
 # expected density profile
 r_0 = 91.5 * unyt.pc
-n_0 = 3.2 / unyt.cm**3
+n_0 = 3.2 / unyt.cm ** 3
 rho_0 = n_0 * unyt.proton_mass
 density_expect = np.zeros(r_bin_centers.shape)
-for i,ri in enumerate(r_bin_centers):
+for i, ri in enumerate(r_bin_centers):
     ri_units = ri * boxsize_ref
     if ri_units <= r_0:
         density_expect[i] = rho_0
     else:
         ror = (r_0 / ri_units).to("1")
-        density_expect[i] = rho_0 * ror**2
+        density_expect[i] = rho_0 * ror ** 2
 density_expect = density_expect * rho_0.units
-
-
 
 
 ratio = np.zeros(r_bin_centers.shape)
 for i in range(r_bin_centers.shape[0]):
-    ratio[i] = 1. - rho_binned[i] / density_expect[i] 
+    ratio[i] = 1.0 - rho_binned[i] / density_expect[i]
 
 print("ratio:", ratio)
 print("ratio avg:", ratio.mean())
@@ -65,11 +63,11 @@ print("ratio min:", ratio.min())
 print("ratio max:", ratio.max())
 
 
-
-
-plt.figure(figsize=(5,5), dpi=200)
-plt.errorbar(r_bin_centers, rho_binned.to("g/cm**3"), yerr=rho_std.to("g/cm**3"), label="profile")
+plt.figure(figsize=(5, 5), dpi=200)
+plt.errorbar(
+    r_bin_centers, rho_binned.to("g/cm**3"), yerr=rho_std.to("g/cm**3"), label="profile"
+)
 plt.semilogy(r_bin_centers, density_expect.to("g/cm**3"), label="expected profile")
 
-figname=file[:-5]+"-density_profile.png"
+figname = file[:-5] + "-density_profile.png"
 plt.savefig(figname)

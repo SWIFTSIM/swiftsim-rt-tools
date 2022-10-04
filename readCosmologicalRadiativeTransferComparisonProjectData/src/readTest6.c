@@ -110,27 +110,22 @@ int main(int argc, char **argv) {
     printf("couldn't open file '%s'\n", outputfile);
     abort();
   }
-  fprintf(outfp, "# %10s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n", 
-      "xHI [1]", "xHI std",
-      "xHII [1]", "xHII std",
-      "n [cm^-3]", "n std",
-      "T [K]", "T std",
-      "P [g/cm/s^2]", "P std",
-      "Mach [1]", "Mach std");
+  fprintf(outfp,
+          "# %10s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n",
+          "xHI [1]", "xHI std", "xHII [1]", "xHII std", "n [cm^-3]", "n std",
+          "T [K]", "T std", "P [g/cm/s^2]", "P std", "Mach [1]", "Mach std");
   for (int i = 0; i < HISTOGRAM_NBINS; i++) {
-    fprintf(outfp, "%12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e\n", 
-        xHI_hist[i], xHI_std[i],
-        xHII_hist[i], xHII_std[i],
-        rho_hist[i], rho_std[i],
-        T_hist[i], T_std[i],
-        P_hist[i], P_std[i],
-        mach_hist[i], mach_std[i]);
+    fprintf(outfp,
+            "%12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e %12.6e "
+            "%12.6e %12.6e %12.6e\n",
+            xHI_hist[i], xHI_std[i], xHII_hist[i], xHII_std[i], rho_hist[i],
+            rho_std[i], T_hist[i], T_std[i], P_hist[i], P_std[i], mach_hist[i],
+            mach_std[i]);
   }
 
   fclose(outfp);
 
   printf("written file %s\n", outputfile);
-
 
   fclose(fp2);
 

@@ -47,8 +47,9 @@ replace_gas = True
 resolution = 128
 
 r_0 = 91.5 * unyt.pc
-n_0 = 3.2 / unyt.cm**3
+n_0 = 3.2 / unyt.cm ** 3
 rho_0 = n_0 * unyt.proton_mass
+
 
 def reference_density(ri):
     """
@@ -58,8 +59,7 @@ def reference_density(ri):
     if ri <= r_0:
         return rho_0
     else:
-        return rho_0 * (r_0 / ri)**2
-
+        return rho_0 * (r_0 / ri) ** 2
 
 
 if __name__ == "__main__":
@@ -103,9 +103,7 @@ if __name__ == "__main__":
 
     # Set up metadata
     unitL = unyt.Mpc
-    edgelen = (
-        1.6 * 1e-3 * (resolution + 2 * border_particle_width) / resolution * unitL
-    )
+    edgelen = 1.6 * 1e-3 * (resolution + 2 * border_particle_width) / resolution * unitL
     edgelen = edgelen.to(unitL)
     boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
 
@@ -152,7 +150,6 @@ if __name__ == "__main__":
     h = np.concatenate((h, h_border), axis=0)
     pid = np.concatenate((pid, pid_border), axis=0)
 
-
     # Get density profile by adapting particle masses.
     # update r to include boundary particles
     r = np.sqrt(np.sum((0.5 - xp) ** 2, axis=1))
@@ -165,25 +162,27 @@ if __name__ == "__main__":
     )
 
     density_expect = np.zeros(r_bin_centers.shape) * rho_0
-    for i,ri in enumerate(r_bin_centers):
+    for i, ri in enumerate(r_bin_centers):
         ri_units = ri * edgelen
         rho_i = reference_density(ri_units)
         density_expect[i] = rho_i
 
-    shell_volumes = 4. / 3 * np.pi * (r_bin_edges[1:]**3 - r_bin_edges[:-1]**3) * edgelen**3
+    shell_volumes = (
+        4.0 / 3 * np.pi * (r_bin_edges[1:] ** 3 - r_bin_edges[:-1] ** 3) * edgelen ** 3
+    )
     av_mass = density_expect * shell_volumes / partnumber
 
-    masses = np.ones(r.shape) * av_mass[binnumber-1]
+    masses = np.ones(r.shape) * av_mass[binnumber - 1]
     masses = masses.to(cosmo_units["mass"])
 
     # For particles with r > boxlen_ref, this estimate will be wrong
-    # because of missing particles. Instead, try to get a better 
+    # because of missing particles. Instead, try to get a better
     # estimat using an average particle volume.
-    V_average = edgelen**3 / r.shape[0]
+    V_average = edgelen ** 3 / r.shape[0]
 
     for i in range(r.shape[0]):
         if r[i] > 0.5:
-            rho_expect = reference_density(r[i]*edgelen)
+            rho_expect = reference_density(r[i] * edgelen)
             m_expect = rho_expect * V_average
             masses[i] = m_expect.to(masses.units)
 
@@ -213,7 +212,6 @@ if __name__ == "__main__":
     # get gas masses
     w.gas.masses = masses
     w.stars.masses = np.ones(xs.shape[0], dtype=np.float64) * w.gas.masses.max()
-
 
     # get gas internal energy for a given temperature and composition
     XH = 1.0  # hydrogen mass fraction

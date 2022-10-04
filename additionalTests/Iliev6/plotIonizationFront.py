@@ -124,7 +124,7 @@ def plot_ionization_fronts_from_log(fig):
     timesV = timesV * times.units
 
     ax1.plot(times.to("Myr"), rI.to("kpc"), label="GEARRT", zorder=31)
-    ax2.plot( timesV.to("Myr"), vI.to("km/s"), label="GEARRT", zorder=31,)
+    ax2.plot(timesV.to("Myr"), vI.to("km/s"), label="GEARRT", zorder=31)
 
     return
 
@@ -173,12 +173,7 @@ def plot_ionization_fronts_reference(fig):
                 label = None
 
         ax1.plot(
-            times.to("Myr"),
-            rI.to("kpc"),
-            label=label,
-            c=col,
-            alpha=alpha,
-            zorder=1,
+            times.to("Myr"), rI.to("kpc"), label=label, c=col, alpha=alpha, zorder=1
         )
 
         mask = vI > 0.0
@@ -202,7 +197,7 @@ if __name__ == "__main__":
     plot_ionization_fronts_reference(fig)
     plot_ionization_fronts_from_log(fig)
 
-    ax1.set_ylim(0.0, 1.)
+    ax1.set_ylim(0.0, 1.0)
     # add line at 1
     #  xlims = ax1.get_xlim()
     #  ax1.plot(xlims, [1.0, 1.0], c="k", zorder=-1, ls="--", lw=2)
