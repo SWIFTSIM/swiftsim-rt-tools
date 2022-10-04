@@ -1,0 +1,17 @@
+Reference solutions for Iliev+09 Test 6.
+
+See https://ui.adsabs.harvard.edu/abs/2009MNRAS.400.1283I/abstract and 
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests5-7.html
+
+Files:
+
+    *profiles.dat: contain all quantities and standard deviations of them
+        for each code and time, as indicated in the filename. Quantities
+        are hydrogen neutral and ion mass fraction, gas number density in
+        cm^-3, temperature in K, pressure in g/cm/s^2, and mach number
+        (unitless)
+
+
+The <code>_Ifront.dat files contain the time in Myr, ion front radius in kpc,
+and ion front velocity in km/s.
+
