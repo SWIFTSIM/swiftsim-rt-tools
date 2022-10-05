@@ -34,9 +34,6 @@ import numpy as np
 import h5py
 from scipy import stats
 
-# TODO: remove
-from matplotlib import pyplot as plt
-
 gamma = 5.0 / 3.0
 
 # switch to replace the central gas particle with a star

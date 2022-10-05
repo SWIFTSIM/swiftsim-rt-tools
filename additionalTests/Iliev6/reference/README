@@ -12,6 +12,6 @@ Files:
         (unitless)
 
 
-The <code>_Ifront.dat files contain the time in Myr, ion front radius in kpc,
-and ion front velocity in km/s.
+    *_Ifront.dat: contain the time in Myr, ion front radius in kpc,
+        and ion front velocity in km/s.
 

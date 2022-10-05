@@ -147,7 +147,6 @@ def plot_result(filename):
     data.gas.mXHI = imf.HI * data.gas.masses.to("M_Sun")
     data.gas.mXHII = imf.HII * data.gas.masses.to("M_Sun")
     data.gas.mm = data.gas.masses.to("M_Sun") ** 2
-    # todo: get actual mach nr
 
     vels = data.gas.velocities
     vnorm = np.sqrt(np.sum(vels ** 2, axis=1))

@@ -4,12 +4,6 @@
 set -e
 set -o pipefail
 
-if [ ! -e glassCube_128.hdf5 ]
-then
-    echo "Fetching initial glass file for Iliev Test 2 example ..."
-    ./getGlass.sh
-fi
-
 if [ ! -f 'ilievTest6.hdf5' ]; then
     echo "Generating ICs"
     python3 makeIC.py

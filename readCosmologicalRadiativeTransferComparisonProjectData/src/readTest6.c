@@ -1,6 +1,5 @@
 /* Read result data for test 6 */
 
-/* TODO: check comments here */
 /* This script assumes that the original files have been renamed
  * as follows: Form the format <codename><outputnumber>.bin and
  * <codename>_add<outputnumber>.bin to <codename><some suffix>

@@ -198,10 +198,6 @@ if __name__ == "__main__":
     plot_ionization_fronts_from_log(fig)
 
     ax1.set_ylim(0.0, 1.0)
-    # add line at 1
-    #  xlims = ax1.get_xlim()
-    #  ax1.plot(xlims, [1.0, 1.0], c="k", zorder=-1, ls="--", lw=2)
-    #  ax1.set_xlim(xlims)
 
     ax1.set_ylabel("$r_I$ [kpc]")
     ax2.set_ylabel("$v_I$ [km/s]")
@@ -216,5 +212,4 @@ if __name__ == "__main__":
     ax2.set_xlim([-1, 30])
     ax1.legend()
 
-    #  plt.show()
     plt.savefig(figname)
