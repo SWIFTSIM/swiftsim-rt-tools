@@ -23,6 +23,9 @@ Iliev4
 Iliev5
     Pure hydrogen HII region expansion.
 
+Iliev6
+    HII region expansion in 1/r^2 density profile
+
 InjectionConvergenceTest
     Run Iliev2 test on varying underlying resolutions and compare convergence.
 

@@ -19,10 +19,12 @@
 ##############################################################################
 
 
-# ----------------------------------------------------
-# Plot slices of the neutral hydrogen number density,
-# and temperature
-# ----------------------------------------------------
+# ---------------------------------------------------------------
+# Plot slices of neutral hydrogen mass fraction, hydrogen ion
+# mass fraction, gas number density, temperature, pressure, and
+# mach number without reference solutions.
+# ---------------------------------------------------------------
+
 
 import sys
 import swiftsimio
