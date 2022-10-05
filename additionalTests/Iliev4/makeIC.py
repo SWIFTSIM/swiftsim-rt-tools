@@ -20,6 +20,8 @@
 
 # ---------------------------------------------------------------------
 # Create ICs for Iliev Test 4.
+# This takes the densities prescribed by the test and puts them on
+# a regular particle grid accordingly by varying the particle masses.
 # ---------------------------------------------------------------------
 
 from swiftsimio import Writer

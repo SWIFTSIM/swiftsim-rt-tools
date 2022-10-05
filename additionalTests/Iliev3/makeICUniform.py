@@ -19,8 +19,9 @@
 ##############################################################################
 
 # ---------------------------------------------------------------------
-# Add a single star in the center of a glass distribution
-# The gas is set up with pure hydrogen gas.
+# Create Iliev Test 3 ICs: Uniform gas with a uniform spherical
+# dense clump in it. This script gives particles a uniform grid
+# as the underlying coordinate configuration.
 # ---------------------------------------------------------------------
 
 from swiftsimio import Writer
