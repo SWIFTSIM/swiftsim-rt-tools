@@ -1,0 +1,18 @@
+Reference solutions for Iliev+09 Test 7.
+
+See https://ui.adsabs.harvard.edu/abs/2009MNRAS.400.1283I/abstract and 
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests5-7.html
+
+Files:
+Codes used to create the output and output times are given in the file name.
+
+All files that contain 'slice' in the filename contain a slice along the midplane 
+of size 128 x 128 cells.
+    *_T_z=64.dat : contain temperature in K
+    *_xHI_z=64.dat : contain neutral hydrogen mass fraction
+
+All files that contain 'profile' in the filename contain the profile along the
+axis of symmetry of 128 cells.
+    *profile_Tdat : contain temperature in K
+    *profile_xHI.dat : contain neutral hydrogen mass fraction
+

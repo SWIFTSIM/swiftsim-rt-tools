@@ -1,0 +1,101 @@
+Iliev Test 7
+-----------------------
+
+Reproducing Iliev+2009 (https://ui.adsabs.harvard.edu/abs/2009MNRAS.400.1283I) Test 7
+
+Details:
+
+- hydrogen gas only.
+- use black-body spectrum with T_bb = 10^5K
+- use constant ionizing photon flux F = 10^6 / s / cm^2
+- flux is emitted from the x = 0 side of the box. (Note: online version of the paper has
+  a typo there, they write y = 0 side of box, but that doesn't correspond to the images.)
+- the contents of the box are separated into an "environment" and a dense spherical clump.
+- the "environment" has n = 2 x 10^4 cm^-3 and T = 8000K
+- the clump has n = 200 n_environment = 0.04 cm^-3, T = 40K
+- clump radius is 0.8 kpc centered at (5, 3.3, 3.3) kpc
+- Box size is 6.6kpc
+- original test in paper was in 128^3 cells.
+- run up to 15 Myr. Reference solutions are available for 1 Myr, 5 Myr, 10 Myr, 25 Myr,
+  and 50 Myr.
+
+
+
+Notes
+-------
+
+This test requires a treatment for boundary particles. An additional layer of boundary
+particles is generated for the ICs. Particles with ID < 10^9 are boundary particles. 
+They are all intended to be static and not experience hydrodynamic accelerations. (Note 
+that this is different from the ../Iliev3 test, where particles with ID > 10^9 are
+marked as boundary particles.)
+Particles with ID < 10^7 are particles along the y-z plane for x = 0. They are intended
+to emit a constant flux throughout the simulation. All others are meant to "swallow" the
+radiation to mimic transmissive boundary conditions.
+For radiation-emitting particles with ID < 10^7,  you need to modify the 
+treatment of boundary particles:
+
+
+```
+  __attribute__((always_inline)) INLINE static void
+  rt_tchem_set_boundary_particles_for_test(struct part* restrict p) {
+
+    if (p->id < 1000000000) {
+      for (int g = 0; g < RT_NGROUPS; g++) {
+        p->rt_data.radiation[g].energy_density = 0.f;
+        p->rt_data.radiation[g].flux[0] = 0.f;
+        p->rt_data.radiation[g].flux[1] = 0.f;
+        p->rt_data.radiation[g].flux[2] = 0.f;
+      }
+    }
+
+    /* Now add this for the radiation source */
+    /* ------------------------------------- */
+
+    const double cred_inv = rt_params.reduced_speed_of_light_inverse;
+    /* flux units assuming U_M = 1.98848e18g, U_L = 3.08567758e+15, U_V = 1.e5 */
+    const double flux_units = 6.802181e-14;
+
+    /* In case of 1 group */
+    /* float fluxes[1] = {4.744e-05 / flux_units}; */
+    /* float energy_densities[1] = {fluxes[0] * cred_inv}; */
+
+    /* In case of 3 groups */
+    float fluxes[3] = { 1.350e-05 / flux_units, 2.779e-05 / flux_units, 6.152e-06 / flux_units };
+    float energy_densities[3] = { fluxes[0] * cred_inv, fluxes[1] * cred_inv, fluxes[2] * cred_inv };
+
+    if (p->id < 10000000) {
+      for (int g = 0; g < RT_NGROUPS; g++) {
+        p->rt_data.radiation[g].energy_density = energy_densities[g];
+        p->rt_data.radiation[g].flux[0] = fluxes[g];
+        p->rt_data.radiation[g].flux[1] = 0.f;
+        p->rt_data.radiation[g].flux[2] = 0.f;
+      }
+    }
+  }
+```
+
+The fluxes for 3 Groups are :
+
+Bin   0:  3.288e+15 -  5.945e+15 [Hz]  Flux =    1.350e-05 [erg/s/cm^2]    3.528e-39 [L_Sol/cm^2]
+Bin   1:  5.945e+15 -  1.316e+16 [Hz]  Flux =    2.779e-05 [erg/s/cm^2]    7.261e-39 [L_Sol/cm^2]
+Bin   2:  1.316e+16 -  5.879e+17 [Hz]  Flux =    6.152e-06 [erg/s/cm^2]    1.607e-39 [L_Sol/cm^2]
+
+For a single bin:
+
+Bin   0:  3.288e+15 -  5.879e+17 [Hz]  Flux =    4.744e-05 [erg/s/cm^2]    1.240e-38 [L_Sol/cm^2]
+
+
+The conversion from cgs to internal units, assuming the internal units set in
+the ilievTest3.yml file:
+  UnitMass_in_cgs:     1.98848e18     # 1e-15 M_sun in grams
+  UnitLength_in_cgs:   3.08567758e+15 # 1 pc in cm
+  UnitVelocity_in_cgs: 1.e5           # 1 km/s in cm/s
+
+are:
+
+    flux_units = 6.802181e-14 [erg/s/cm^2]
+
+
+For GEARRT, configure SWIFT with
+    --with-rt=GEAR_3 --with-rt-riemann-solver=GLF --with-hydro=gizmo-mfv --with-riemann-solver=hllc --with-stars=basic --with-feedback=none --enable-fixed-boundary-particles=99999999
