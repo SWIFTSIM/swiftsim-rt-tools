@@ -33,8 +33,11 @@ import h5py
 
 gamma = 5.0 / 3.0
 
+# select target resolution.
+#  resolution = 64
 resolution = 128
 
+# how many border particles to use on each face.
 border_particle_width = 4
 
 
@@ -133,7 +136,10 @@ if __name__ == "__main__":
     # now shift them away from (0, 0, 0)
     xp_inner += x_clump
 
-    print("outer", n_outer, "inner", n_inner, "tot", n_outer + n_inner, "ratio", (n_outer + n_inner)/resolution**3)
+    print("Npart environment:       ", n_outer)
+    print("Npart clump:             ", n_inner)
+    print("Npart tot: (w/o boundary)", n_outer + n_inner)
+    print("Npart_tot/resolution**3: ", (n_outer + n_inner)/resolution**3)
 
 
     xp = np.concatenate((xp_outer, xp_inner), axis=0)
