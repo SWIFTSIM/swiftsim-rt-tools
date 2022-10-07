@@ -24,18 +24,17 @@
 # The ICs enforce a 1/r^2 gas density profile.
 # ---------------------------------------------------------------------
 
+import numpy as np
+import unyt
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
+
 import stromgren_plotting_tools as spt
-import unyt
-import numpy as np
-import h5py
-from scipy import stats
 
 gamma = 5.0 / 3.0
 
-resolution = 64
-#  resolution = 128
+#  resolution = 64
+resolution = 128
 
 # Select how many particles in the radius of the inner flat region
 # you want. You might need to play with this parameter a bit to
@@ -54,7 +53,7 @@ edgelen_units = edgelen_units.to(unitL)
 edgelen = edgelen_units.to(unitL).v
 
 r_0 = (91.5 * unyt.pc).to(unitL).v
-r_0_relative = (91.5 * unyt.pc / (edgelen_units)).to("1").v
+r_0_relative = (91.5 * unyt.pc / edgelen_units).to("1").v
 n_0 = 3.2 / unyt.cm ** 3
 
 rho_0_units = n_0 * unyt.proton_mass

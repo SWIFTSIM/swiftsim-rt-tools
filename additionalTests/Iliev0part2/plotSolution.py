@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-import swiftsimio
+import sys
+
 import matplotlib as mpl
 
-mpl.use("Agg")
-from matplotlib import pyplot as plt
+mpl.use("Agg")  # use this in non-interactive environments
 import numpy as np
-import sys
-import stromgren_plotting_tools as spt
-import unyt
+import swiftsimio
+from matplotlib import pyplot as plt
 from scipy import stats
 
+import stromgren_plotting_tools as spt
 
 #  Plot parameters
 params = {

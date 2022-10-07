@@ -10,16 +10,19 @@
 # of them having resolutions 16, 32, 64, 128.
 # -------------------------------------------------------------
 
-import swiftsimio
+import os
+import sys
+
 import matplotlib as mpl
 
 mpl.use("Agg")
-from matplotlib import pyplot as plt
 import numpy as np
-import sys, os
-import stromgren_plotting_tools as spt
+import swiftsimio
 import unyt
+from matplotlib import pyplot as plt
 from scipy import stats
+
+import stromgren_plotting_tools as spt
 
 # which resolutions to use
 resolutions = [128, 64, 32, 16]
@@ -44,7 +47,7 @@ plot_refs = False
 ref = "10Myr"
 
 # if True, use only a few references, and add labels.
-# Otherwise use all references, and make them grey
+# Otherwise, use all references, and make them grey
 label_refs = False
 
 # plot individual particle data?
@@ -118,8 +121,8 @@ def get_snapshot_number_list(snapshot_basename=snapshot_base):
 
 def plot_solution(snapnr):
     """
-    Plot the solution for the given snap number
-    snap number is expected to be 4 digit zero padded string,
+    Plot the solution for the given snapnr.
+    snapnr is expected to be 4 digit zero padded string,
     e.g. 0003
     """
 
@@ -132,8 +135,8 @@ def plot_solution(snapnr):
     if plot_refs:
         # First the references
         if label_refs:
-            codes = ["RSPH", "C2Ray", "OTVET"]
-            for c, code in enumerate(["C2Ray", "RSPH", "OTVET"]):
+            codes = ["C2Ray", "RSPH", "OTVET"]
+            for c, code in enumerate(codes):
                 fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
                 fname_T = "reference/" + code + "_" + ref + "_profile_T.dat"
 
@@ -201,7 +204,6 @@ def plot_solution(snapnr):
 
             data = swiftsimio.load(filename)
             meta = data.metadata
-            boxsize = meta.boxsize
             scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
             # This is the original test setup
@@ -288,13 +290,13 @@ def plot_solution(snapnr):
                     linewidth=params["lines.linewidth"] * 2.0,
                     zorder=1,
                 )
-                ax1.semilogy(
-                    r_bin_centers,
-                    xHII_binned,
-                    c="k",
-                    linewidth=params["lines.linewidth"] * 2.0,
-                    zorder=1,
-                )
+                # ax1.semilogy(
+                #     r_bin_centers,
+                #     xHII_binned,
+                #     c="k",
+                #     linewidth=params["lines.linewidth"] * 2.0,
+                #     zorder=1,
+                # )
 
             label_left = None
             if s == 0:

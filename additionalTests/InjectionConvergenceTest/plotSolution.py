@@ -5,16 +5,19 @@
 # Plot reference solutions in background if selected to do so.
 # ------------------------------------------------------------
 
-import swiftsimio
+import os
+import sys
+
 import matplotlib as mpl
 
 mpl.use("Agg")
-from matplotlib import pyplot as plt
 import numpy as np
-import sys, os
-import stromgren_plotting_tools as spt
+import swiftsimio
 import unyt
+from matplotlib import pyplot as plt
 from scipy import stats
+
+import stromgren_plotting_tools as spt
 
 # which resolutions to use
 resolutions = [128, 64, 32, 16]
@@ -124,8 +127,8 @@ def plot_solution(snapnr):
     if plot_refs:
         # First the references
         if label_refs:
-            codes = ["RSPH", "C2Ray", "OTVET"]
-            for c, code in enumerate(["C2Ray", "RSPH", "OTVET"]):
+            codes = ["C2Ray", "RSPH", "OTVET"]
+            for c, code in enumerate(codes):
                 fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
                 fname_T = "reference/" + code + "_" + ref + "_profile_T.dat"
 
@@ -188,7 +191,6 @@ def plot_solution(snapnr):
 
         data = swiftsimio.load(filename)
         meta = data.metadata
-        boxsize = meta.boxsize
         scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
         # This is the original test setup
@@ -332,7 +334,6 @@ def plot_solution(snapnr):
 
     fig.suptitle("Iliev+06 Test 2, $t$ = {0:.0f}".format(meta.time.to("Myr")))
     plt.tight_layout()
-    figname = filename[:-5]
     figname = snapshot_base + "_" + snapnr
     if plot_refs:
         figname += "-ref"

@@ -4,16 +4,18 @@
 # Plot temperature and neutral fractions.
 # --------------------------------------------
 
-import swiftsimio
+import sys
+
 import matplotlib as mpl
 
-mpl.use("Agg")
-from matplotlib import pyplot as plt
+mpl.use("Agg")  # use this in non-interactive environments
 import numpy as np
-import sys
-import stromgren_plotting_tools as spt
+import swiftsimio
 import unyt
+from matplotlib import pyplot as plt
 from scipy import stats
+
+import stromgren_plotting_tools as spt
 
 # set here which reference you want to use
 # (use string!)
@@ -81,7 +83,6 @@ def plot_solution(filename):
 
     data = swiftsimio.load(filename)
     meta = data.metadata
-    boxsize = meta.boxsize
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
     # This is the original test setup
@@ -122,8 +123,8 @@ def plot_solution(filename):
 
     # First the references
     if label_refs:
-        codes = ["RSPH", "C2Ray", "OTVET"]
-        for c, code in enumerate(["C2Ray", "RSPH", "OTVET"]):
+        codes = ["C2Ray", "RSPH", "OTVET"]
+        for c, code in enumerate(codes):
             fname_xHI = "reference/" + code + "_" + ref + "_profile_xHI.dat"
 
             xHI_ref, xHI_std_ref = np.loadtxt(fname_xHI, delimiter=",", unpack=True)
@@ -189,8 +190,7 @@ def plot_solution(filename):
             linewidth=params["lines.linewidth"] * 2.0,
             zorder=1,
         )
-    #  ax1.semilogy(r_bin_centers, xHI_binned, label=r"GEARRT $x_{\mathrm{HI}}$", zorder=2)
-    #  ax1.semilogy(r_bin_centers, xHII_binned, label=r"GEARRT $x_{\mathrm{HII}}$", zorder=2)
+
     ax1.errorbar(
         r_bin_centers,
         xHI_binned,

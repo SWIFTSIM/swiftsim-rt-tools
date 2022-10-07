@@ -5,18 +5,19 @@
 # pressure, temperature, and mach number
 # ---------------------------------------------------
 
-import swiftsimio
+import sys
+
+import h5py
 import matplotlib as mpl
 
-#  mpl.use("Agg")
-from matplotlib import pyplot as plt
+mpl.use("Agg")
 import numpy as np
-import sys
-import stromgren_plotting_tools as spt
-from swiftsimio.visualisation.slice import slice_gas
+import swiftsimio
 import unyt
-from scipy import stats
-import h5py
+from matplotlib import pyplot as plt
+from swiftsimio.visualisation.slice import slice_gas
+
+import stromgren_plotting_tools as spt
 
 # plot references?
 plot_refs = True
@@ -96,7 +97,6 @@ def plot_solution(filename):
 
     data = swiftsimio.load(filename)
     meta = data.metadata
-    boxsize = meta.boxsize
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
     ntot = data.gas.masses.shape[0]
@@ -119,7 +119,6 @@ def plot_solution(filename):
     data.gas.mXHI = imf.HI * data.gas.masses.to("M_Sun")
     data.gas.mXHII = imf.HII * data.gas.masses.to("M_Sun")
     data.gas.mm = data.gas.masses.to("M_Sun") ** 2
-    # todo: get actual mach nr
 
     vels = data.gas.velocities
     vnorm = np.sqrt(np.sum(vels ** 2, axis=1))

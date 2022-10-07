@@ -24,14 +24,15 @@
 # pressure, temperature, and neutral hydrogen mass fraction.
 # ----------------------------------------------------
 
-import sys
-import swiftsimio
 import gc
+import sys
+
+import matplotlib as mpl
+import swiftsimio
 import unyt
 from matplotlib import pyplot as plt
-import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from swiftsimio.visualisation.slice import slice_gas
 
 import stromgren_plotting_tools as spt
@@ -108,7 +109,7 @@ def plot_result(filename):
     mass_weighted_HI_map = slice_gas(
         data, project="mXHI", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
     )
-    mass_weighted_HI_map = slice_gas(
+    mass_weighted_HII_map = slice_gas(
         data, project="mXHII", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
     )
     mass_weighted_temperature_map = slice_gas(
@@ -116,7 +117,7 @@ def plot_result(filename):
     )
 
     HI_map = mass_weighted_HI_map / mass_map
-    HII_map = mass_weighted_HI_map / mass_map
+    HII_map = mass_weighted_HII_map / mass_map
     temperature_map = mass_weighted_temperature_map / mass_map
     temperature_map = temperature_map.to("K")
 
@@ -150,10 +151,10 @@ def plot_result(filename):
     #      ax.set_xlabel("[kpc]")
     #      ax.set_ylabel("[kpc]")
 
-    title = filename.replace("_", "\_")  # exception handle underscore for latex
+    title = filename.replace("_", r"\_")  # exception handle underscore for latex
     if meta.cosmology is not None:
-        title += ", $z$ = {0:.2e}".format(meta.z)
-    title += ", $t$ = {0:.1f}".format(meta.time.to("Myr"))
+        title += r", $z$ = {0:.2e}".format(meta.z)
+    title += r", $t$ = {0:.1f}".format(meta.time.to("Myr"))
     fig.suptitle(title)
 
     plt.tight_layout()

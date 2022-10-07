@@ -38,6 +38,7 @@
 import gc
 import os
 import sys
+
 import matplotlib as mpl
 import numpy as np
 import swiftsimio
@@ -45,6 +46,7 @@ import unyt
 from matplotlib import pyplot as plt
 from scipy import stats
 from scipy.optimize import curve_fit
+
 import stromgren_plotting_tools as spt
 
 # Parameters users should/may tweak
@@ -137,6 +139,8 @@ def analytical_flux_magnitude_solution(L, time, r, rmax, scheme):
         F = unyt.c.to(r.units / time.units) * E / r.units ** 3
     elif scheme.startswith("SPH M1closure"):
         F = unyt.c.to(r.units / time.units) * E
+    else:
+        raise ValueError("Scheme '", scheme, "' unknown")
 
     return r, F
 
@@ -171,15 +175,13 @@ def get_snapshot_list(snapshot_basename="output"):
     return snaplist
 
 
-def plot_photons(filename, emin, emax, fmin, fmax):
+def plot_photons(filename, emin, emax):
     """
     Create the actual plot.
 
     filename: file to work with
     emin: list of minimal nonzero energy of all snapshots
     emax: list of maximal energy of all snapshots
-    fmin: list of minimal flux magnitude of all snapshots
-    fmax: list of maximal flux magnitude of all snapshots
     """
 
     print("working on", filename)
@@ -392,16 +394,16 @@ def plot_photons(filename, emin, emax, fmin, fmax):
     # Cosmetics that all axes have in common
     # -------------------------------------------
     for ax in fig.axes:
-        ax.set_xlabel("r [$" + xlabel_units_str + "$]")
+        ax.set_xlabel(r"r [$" + xlabel_units_str + "$]")
         ax.set_yscale("log")
         ax.set_xlim(0.0, 0.501 * edgelen)
         ax.legend(fontsize="x-small")
 
     # Add title
-    title = filename.replace("_", "\_")  # exception handle underscore for latex
+    title = filename.replace("_", r"\_")  # exception handle underscore for latex
     if meta.cosmology is not None:
-        title += ", $z$ = {0:.2f}".format(meta.z)
-    title += ", $t$ = {0:.1f}".format(meta.time.to(time_units))
+        title += r", $z$ = {0:.2f}".format(meta.z)
+    title += r", $t$ = {0:.1f}".format(meta.time.to(time_units))
     fig.suptitle(title)
 
     plt.tight_layout()
@@ -462,4 +464,4 @@ if __name__ == "__main__":
     snaplist = get_snapshot_list(snapshot_base)
     emin, emax, fmagmin, fmagmax = get_plot_boundaries(snaplist)
     for f in snaplist:
-        plot_photons(f, emin, emax, fmagmin, fmagmax)
+        plot_photons(f, emin, emax)

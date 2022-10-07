@@ -25,16 +25,19 @@
 # mach number without reference solutions.
 # ---------------------------------------------------------------
 
-import sys
-import swiftsimio
 import gc
+import sys
+
+import matplotlib as mpl
+
+mpl.use("Agg")
+import numpy as np
+import swiftsimio
 import unyt
 from matplotlib import pyplot as plt
-import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from swiftsimio.visualisation.slice import slice_gas
-import numpy as np
 
 from rainbow4_colormap import rainbow4
 import stromgren_plotting_tools as spt
@@ -204,7 +207,7 @@ def plot_result(filename):
     temperature_map = temperature_map[cutoff:-cutoff, cutoff:-cutoff]
 
     mach_map = mass_weighted_mach_map / mass_map
-    mach_map = mass_weighted_mach_map[cutoff:-cutoff, cutoff:-cutoff]
+    mach_map = mach_map[cutoff:-cutoff, cutoff:-cutoff]
 
     fig = plt.figure(figsize=(18, 12), dpi=200)
     figname = filename[:-5] + "-NoRef.png"

@@ -23,12 +23,13 @@
 # weight, and mass fractions
 # -------------------------------------------
 
-import numpy as np
-from matplotlib import pyplot as plt
-import unyt
-import swiftsimio
-import os
 import copy
+import os
+
+import numpy as np
+import swiftsimio
+import unyt
+from matplotlib import pyplot as plt
 
 # arguments for plots of results
 plotkwargs = {"alpha": 0.5}
@@ -95,7 +96,7 @@ def get_snapshot_list(snapshot_basename="output"):
     and return their names as list
     """
 
-    snaplist = []
+    snap_list = []
 
     dirlist = os.listdir()
     for f in dirlist:
@@ -104,16 +105,16 @@ def get_snapshot_list(snapshot_basename="output"):
                 # skip snapshot zero.
                 print("skipping", f)
                 continue
-            snaplist.append(f)
+            snap_list.append(f)
 
-    if len(snaplist) == 0:
+    if len(snap_list) == 0:
         raise FileNotFoundError(
             "Didn't find any snapshots with basename '" + snapshot_basename + "'"
         )
 
-    snaplist = sorted(snaplist)
+    snap_list = sorted(snap_list)
 
-    return snaplist
+    return snap_list
 
 
 def get_ion_mass_fractions(swiftsimio_loaded_data):
@@ -128,6 +129,7 @@ def get_ion_mass_fractions(swiftsimio_loaded_data):
     meta = data.metadata
     gas = data.gas
     with_rt = True
+    scheme = ""
     try:
         scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
     except KeyError:
@@ -158,6 +160,9 @@ def get_ion_mass_fractions(swiftsimio_loaded_data):
                     * mamu[column]
                 )
                 setattr(imf, column, mass_function)
+        else:
+            print("Error: Unknown scheme", scheme)
+            quit(1)
     else:
         # try to find solutions for cooling only runs
         imf = {
@@ -338,7 +343,7 @@ if __name__ == "__main__":
 
     # for GEAR-RT, the flux corresponds to the energy density flux,
     # i.e. c * E_{snapshot}/V_{snapshot} = F_{snapshot}
-    # Try reconstruct the fluxes that you've injected in the test to verify
+    # Try to reconstruct the fluxes that you've injected in the test to verify
     # that you injected the right amount.
     # I expect:
     #  Bin   0:  3.288e+15 -  5.945e+15 [Hz]  Luminosity/cm^2 = 1.350e+01 [erg/s/cm^2]

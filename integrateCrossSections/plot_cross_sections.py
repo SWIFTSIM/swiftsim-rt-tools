@@ -7,7 +7,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from blackbody import B_nu, B_nu_over_h_nu, nu_peak
 import cross_section_parametrization as cs_params
 
 h_planck = 6.62606957e-27  # cm**2*g/s
@@ -17,7 +16,7 @@ E_max = 5.879e15 * 10 * h_planck
 
 
 E = np.linspace(0.0, E_max, 10000)
-cs = cs_params.photoionization_cross_section()
+cs = cs_params.PhotoionizationCrossSection()
 
 
 cs_HI = np.zeros(E.shape)

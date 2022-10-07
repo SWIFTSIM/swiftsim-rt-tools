@@ -19,17 +19,16 @@
 ##############################################################################
 
 
-import swiftsimio
+import sys
+
 import matplotlib as mpl
 
 mpl.use("Agg")
-from matplotlib import pyplot as plt
 import numpy as np
-import sys
-import stromgren_plotting_tools as spt
-import unyt
-from scipy import stats
+import swiftsimio
+from matplotlib import pyplot as plt
 
+import stromgren_plotting_tools as spt
 
 scatterplot_kwargs = {"alpha": 0.6, "s": 2, "marker": "o", "linewidth": 0.0}
 
@@ -66,9 +65,6 @@ def plot_solution(filename):
 
     # Get mass fractions
     imf = spt.get_imf(scheme, data)
-    xH = imf.HI + imf.HII
-    xHI = imf.HI / xH
-    xHII = imf.HII / xH
 
     # get temperature
     mu = spt.mean_molecular_weight(imf.HI, imf.HII, imf.HeI, imf.HeII, imf.HeIII)

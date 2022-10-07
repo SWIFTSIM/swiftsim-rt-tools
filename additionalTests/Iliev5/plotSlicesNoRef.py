@@ -26,18 +26,20 @@
 # ---------------------------------------------------------------
 
 
-import sys
-import swiftsimio
 import gc
+import sys
+
+import matplotlib as mpl
+
+mpl.use("Agg")
+import numpy as np
+import swiftsimio
 import unyt
 from matplotlib import pyplot as plt
-import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from swiftsimio.visualisation.slice import slice_gas
-import numpy as np
 
-from rainbow4_colormap import rainbow4
 import stromgren_plotting_tools as spt
 
 # Parameters users should/may tweak
@@ -148,7 +150,6 @@ def plot_result(filename):
     data.gas.mXHI = imf.HI * data.gas.masses.to("M_Sun")
     data.gas.mXHII = imf.HII * data.gas.masses.to("M_Sun")
     data.gas.mm = data.gas.masses.to("M_Sun") ** 2
-    # todo: get actual mach nr
 
     vels = data.gas.velocities
     vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
@@ -206,7 +207,7 @@ def plot_result(filename):
     temperature_map = temperature_map[cutoff:-cutoff, cutoff:-cutoff]
 
     mach_map = mass_weighted_mach_map / mass_map
-    mach_map = mass_weighted_mach_map[cutoff:-cutoff, cutoff:-cutoff]
+    mach_map = mach_map[cutoff:-cutoff, cutoff:-cutoff]
 
     fig = plt.figure(figsize=(18, 12), dpi=200)
     figname = filename[:-5] + "-NoRef.png"

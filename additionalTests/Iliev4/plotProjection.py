@@ -24,18 +24,18 @@
 # and temperature
 # ----------------------------------------------------
 
-import sys
-import swiftsimio
 import gc
-import unyt
-from matplotlib import pyplot as plt
+import sys
+
 import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+import swiftsimio
+from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from swiftsimio.visualisation.projection import project_gas
-from rainbow4_colormap import rainbow4
 
 import stromgren_plotting_tools as spt
+from rainbow4_colormap import rainbow4
 
 # Parameters users should/may tweak
 
@@ -147,10 +147,10 @@ def plot_result(filename):
         ax.set_xlabel("[kpc]")
         ax.set_ylabel("[kpc]")
 
-    title = filename.replace("_", "\_")  # exception handle underscore for latex
+    title = filename.replace(r"_", r"\_")  # exception handle underscore for latex
     if meta.cosmology is not None:
-        title += ", $z$ = {0:.2e}".format(meta.z)
-    title += ", $t$ = {0:.2f}".format(meta.time.to("Myr"))
+        title += r", $z$ = {0:.2e}".format(meta.z)
+    title += r", $t$ = {0:.2f}".format(meta.time.to("Myr"))
     fig.suptitle(title)
 
     plt.tight_layout()

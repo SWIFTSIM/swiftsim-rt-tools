@@ -20,13 +20,9 @@
 # cross-compare every intermediate step.
 # -----------------------------------------------------------------------------
 
-import numpy as np
-from matplotlib import pyplot as plt
-import unyt
-import scipy.integrate as integrate
-
-from blackbody import B_nu, B_nu_over_h_nu, nu_peak
 import cross_section_parametrization as cs_params
+import scipy.integrate as integrate
+from blackbody import B_nu, B_nu_over_h_nu, nu_peak
 
 # -----------------------------------------------------------------------------
 # USER SETUP
@@ -58,11 +54,11 @@ c = 29979245800.0  # cm/s
 
 def energy_weighted_cross_section(nu, species, cross_section, T, kB, h_planck, c):
     """
-    Return the integrand for the energy weighted cross section.
+    Return the integrand for the energy weighted cross-section.
 
     nu: frequency
     species: for which species to work with
-    cross_section: instance of photoionization_cross_section
+    cross_section: instance of PhotoionizationCrossSection
     T: temperature in K
     kB: Boltzmann constant in cgs
     h_planck: Planck's constant in cgs
@@ -76,11 +72,11 @@ def energy_weighted_cross_section(nu, species, cross_section, T, kB, h_planck, c
 
 def number_weighted_cross_section(nu, species, cross_section, T, kB, h_planck, c):
     """
-    Return the integrand for the energy weighted cross section.
+    Return the integrand for the energy weighted cross-section.
 
     nu: frequency
     species: for which species to work with
-    cross_section: instance of photoionization_cross_section
+    cross_section: instance of PhotoionizationCrossSection
     T: temperature in K
     kB: Boltzmann constant in cgs
     h_planck: Planck's constant in cgs
@@ -105,7 +101,7 @@ if __name__ == "__main__":
     csn = [[] for g in range(ngroups)]
 
     # grab an instance of the cross section parametrization
-    cs = cs_params.photoionization_cross_section()
+    cs = cs_params.PhotoionizationCrossSection()
 
     for g in range(ngroups):
         # Set integration ranges.

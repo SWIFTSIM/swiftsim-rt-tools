@@ -8,11 +8,13 @@
 # -------------------------------------------------------------------
 
 
+import os
+import sys
+
 import numpy as np
 from matplotlib import pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.colors import LogNorm
-import os, sys
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 if len(sys.argv) != 2:
     print("Error, wrong usage. Run with ./plotSlice.py dataFile.bin_slice_z=X.dat")

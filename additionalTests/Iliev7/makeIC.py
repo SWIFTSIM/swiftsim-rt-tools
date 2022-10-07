@@ -25,12 +25,12 @@
 # the particle masses remain constant.
 # ---------------------------------------------------------------------
 
+import numpy as np
+import unyt
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
+
 import stromgren_plotting_tools as spt
-import unyt
-import numpy as np
-import h5py
 
 gamma = 5.0 / 3.0
 

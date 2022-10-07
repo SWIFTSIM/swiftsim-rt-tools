@@ -15,7 +15,6 @@
 #   L = <E_photon> * Ndot
 # -----------------------------------------------------------------------------
 
-import numpy as np
 import scipy.integrate as integrate
 
 from blackbody import B_nu, B_nu_over_h_nu, nu_peak

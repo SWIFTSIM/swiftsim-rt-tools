@@ -23,14 +23,18 @@
 # Usage: ./plotProfile.py <snapshot number>
 # ----------------------------------------------------
 
-import sys
-import swiftsimio
 import gc
+import sys
+
+import matplotlib as mpl
+
+mpl.use("Agg")
+
+import numpy as np
+import swiftsimio
 import unyt
 from matplotlib import pyplot as plt
-import matplotlib as mpl
 from swiftsimio.visualisation.slice import slice_gas
-import numpy as np
 
 import stromgren_plotting_tools as spt
 

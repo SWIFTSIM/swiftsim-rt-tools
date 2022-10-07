@@ -8,15 +8,16 @@
 # ----------------------------------------------------
 
 import sys
-import swiftsimio
-import unyt
-import numpy as np
-from matplotlib import pyplot as plt
+
 import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size, ImageGrid
+
+mpl.use("Agg")
+import numpy as np
+import swiftsimio
+from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from swiftsimio.visualisation.slice import slice_gas
-from rainbow4_colormap import rainbow4
 
 import stromgren_plotting_tools as spt
 

@@ -4,12 +4,13 @@
 # Usage: check_densities <filname>
 # <filename> shall be a swift output hdf5 file
 
+import sys
+
+import numpy as np
 import swiftsimio
 import unyt
-import numpy as np
 from matplotlib import pyplot as plt
 from scipy import stats
-import sys
 
 file = sys.argv[1]
 

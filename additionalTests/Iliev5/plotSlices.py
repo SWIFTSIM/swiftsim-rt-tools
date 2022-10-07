@@ -25,19 +25,21 @@
 # in combination with references
 # ----------------------------------------------------
 
-import sys
-import swiftsimio
 import gc
+import sys
+
+import h5py
+import matplotlib as mpl
+
+mpl.use("Agg")
+import numpy as np
+import swiftsimio
 import unyt
 from matplotlib import pyplot as plt
-import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size, ImageGrid
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import ImageGrid
 from swiftsimio.visualisation.slice import slice_gas
-import numpy as np
-import h5py
 
-from rainbow4_colormap import rainbow4
 import stromgren_plotting_tools as spt
 
 # Parameters users should/may tweak
@@ -151,7 +153,7 @@ def plot_result(
 
     ncols = 3
     nrows = 3
-    axrows = [[] for r in range(nrows)]
+    axrows = [[] for _ in range(nrows)]
     for r in range(nrows):
 
         # set up every column
@@ -220,7 +222,6 @@ def get_swift_output(filename):
     data = swiftsimio.load(filename)
     meta = data.metadata
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
-    global simulation_time
     simulation_time = meta.time
 
     ntot = data.gas.masses.shape[0]
@@ -254,11 +255,6 @@ def get_swift_output(filename):
     data.gas.mXHI = imf.HI * data.gas.masses.to("M_Sun")
     data.gas.mXHII = imf.HII * data.gas.masses.to("M_Sun")
     data.gas.mm = data.gas.masses.to("M_Sun") ** 2
-
-    vels = data.gas.velocities
-    vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
-    cs = spt.get_soundspeed_from_internal_energy(data)
-    mach = vnorm / cs
 
     vels = data.gas.velocities
     vnorm = np.sqrt(np.sum(vels ** 2, axis=1))
@@ -316,7 +312,7 @@ def get_swift_output(filename):
     temperature_map = temperature_map[cutoff:-cutoff, cutoff:-cutoff]
 
     mach_map = mass_weighted_mach_map / mass_map
-    mach_map = mass_weighted_mach_map[cutoff:-cutoff, cutoff:-cutoff]
+    mach_map = mach_map[cutoff:-cutoff, cutoff:-cutoff]
 
     slices = {
         "xHI": HI_map,

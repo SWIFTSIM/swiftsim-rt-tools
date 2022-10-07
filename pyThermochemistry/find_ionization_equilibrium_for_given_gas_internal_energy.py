@@ -180,13 +180,13 @@ def plot_solution(u, T, mu, XH0, XHp, XHe0, XHep, XHepp, XH, XHe):
     # ---------------------------------------------
 
     n = T.shape[0]
-    u_theory = np.empty((n), dtype=float)
-    mu_theory = np.empty((n), dtype=float)
-    XH0_theory = np.empty((n), dtype=float)
-    XHp_theory = np.empty((n), dtype=float)
-    XHe0_theory = np.empty((n), dtype=float)
-    XHep_theory = np.empty((n), dtype=float)
-    XHepp_theory = np.empty((n), dtype=float)
+    u_theory = np.empty(n, dtype=float)
+    mu_theory = np.empty(n, dtype=float)
+    XH0_theory = np.empty(n, dtype=float)
+    XHp_theory = np.empty(n, dtype=float)
+    XHe0_theory = np.empty(n, dtype=float)
+    XHep_theory = np.empty(n, dtype=float)
+    XHepp_theory = np.empty(n, dtype=float)
 
     Tmin = T.v.min()
     Tmax = T.v.max()
@@ -268,13 +268,13 @@ def plot_solution(u, T, mu, XH0, XHp, XHe0, XHep, XHepp, XH, XHe):
 
 if __name__ == "__main__":
 
-    T_res = np.empty((npoints), dtype=float) * unyt.K
-    mu_res = np.empty((npoints), dtype=float)
-    XH0_res = np.empty((npoints), dtype=float)
-    XHp_res = np.empty((npoints), dtype=float)
-    XHe0_res = np.empty((npoints), dtype=float)
-    XHep_res = np.empty((npoints), dtype=float)
-    XHepp_res = np.empty((npoints), dtype=float)
+    T_res = np.empty(npoints, dtype=float) * unyt.K
+    mu_res = np.empty(npoints, dtype=float)
+    XH0_res = np.empty(npoints, dtype=float)
+    XHp_res = np.empty(npoints, dtype=float)
+    XHe0_res = np.empty(npoints, dtype=float)
+    XHep_res = np.empty(npoints, dtype=float)
+    XHepp_res = np.empty(npoints, dtype=float)
 
     # set dummy internal energy of gas
     #  ugas = np.linspace(u_min, u_max, npoints)

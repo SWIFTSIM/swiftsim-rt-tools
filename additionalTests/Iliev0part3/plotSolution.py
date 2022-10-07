@@ -23,13 +23,14 @@
 # weight, and mass fractions
 # -------------------------------------------
 
-import numpy as np
-from matplotlib import pyplot as plt
 import matplotlib as mpl
-import unyt
+
+mpl.use("Agg")  # use this in non-interactive environments
+import numpy as np
 import swiftsimio
-import os
-import copy
+import unyt
+from matplotlib import pyplot as plt
+
 import stromgren_plotting_tools as spt
 
 # arguments for plots of results

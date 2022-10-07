@@ -118,7 +118,7 @@ part_positions = hfile.create_dataset("PartType0/Coordinates", (nparts, 3), dtyp
 part_mass = hfile.create_dataset("PartType0/Masses", (nparts,), dtype="f")
 
 pos_arr = np.zeros((nparts, 3))
-mass_arr = np.zeros((nparts))
+mass_arr = np.zeros(nparts)
 
 for i in range(nparts):
     pos_arr[i, 0] = (xc[i] + 0.5) * dx
@@ -135,7 +135,7 @@ star_positions = hfile.create_dataset("PartType4/Coordinates", (nstars, 3), dtyp
 star_mass = hfile.create_dataset("PartType4/Masses", (nstars,), dtype="f")
 
 star_pos_arr = np.zeros((nstars, 3))
-star_mass_arr = np.zeros((nstars))
+star_mass_arr = np.zeros(nstars)
 
 for i in range(nstars):
     star_pos_arr[i, 0] = xs[i] * dx

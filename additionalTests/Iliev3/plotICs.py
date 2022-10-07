@@ -25,16 +25,18 @@
 # ----------------------------------------------------
 
 import sys
-import swiftsimio
-import unyt
-from matplotlib import pyplot as plt
-import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.colors import LogNorm
-from swiftsimio.visualisation.slice import slice_gas
-from rainbow4_colormap import rainbow4
 
-import stromgren_plotting_tools as spt
+import matplotlib as mpl
+
+mpl.use("Agg")
+
+import swiftsimio
+from matplotlib import pyplot as plt
+from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from swiftsimio.visualisation.slice import slice_gas
+
+from rainbow4_colormap import rainbow4
 
 # Parameters users should/may tweak
 

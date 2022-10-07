@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
-import swiftsimio
+import os
+
 import matplotlib as mpl
 
-#  mpl.use("Agg")
-from matplotlib import pyplot as plt
+mpl.use("Agg")  # use this in non-interactive environments
 import numpy as np
-import sys, os
-import stromgren_plotting_tools as spt
+import swiftsimio
 import unyt
+from matplotlib import pyplot as plt
 from scipy import stats
 
+import stromgren_plotting_tools as spt
 
 # -------------------------------------------------
 # This script is intended to reproduce Figure 7
-# of Iliev et al 2006
+# of Iliev et al. 2006
 # (https://arxiv.org/pdf/astro-ph/0508416.pdf)
 # -------------------------------------------------
 
@@ -140,7 +141,7 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
         imf.HeIII = imf.HeIII[mask]
         xH = imf.HI + imf.HII
         xHI = imf.HI / xH
-        xHII = imf.HII / xH
+        # xHII = imf.HII / xH
 
         # get profiles
         r = r.to(boxsize.units)
@@ -447,9 +448,9 @@ if __name__ == "__main__":
     plot_ionization_fronts_reference(fig)
 
     if plot_actual_values:
-        ax1.set_ylabel("$r_I$ [kpc]")
-        ax2.set_ylabel("$r_I$ [kpc]")
-        ax3.set_ylabel("$v_I$ [kpc/kyr]")
+        ax1.set_ylabel(r"$r_I$ [kpc]")
+        ax2.set_ylabel(r"$r_I$ [kpc]")
+        ax3.set_ylabel(r"$v_I$ [kpc/kyr]")
         figname = "ionization_fronts_actual_values.png"
     else:
         ax1.set_ylim(0.95, 1.05)
@@ -458,9 +459,9 @@ if __name__ == "__main__":
         ax1.plot(xlims, [1.0, 1.0], c="k", zorder=-1, ls="--", lw=2)
         ax1.set_xlim(xlims)
 
-        ax1.set_ylabel("$r_I/r_{\mathrm{analyt},0}$")
-        ax2.set_ylabel("$r_I/r_{S,0}$")
-        ax3.set_ylabel("$v_I/(r_{S,0}/t_{\mathrm{rec},0})$")
+        ax1.set_ylabel(r"$r_I/r_{\mathrm{analyt},0}$")
+        ax2.set_ylabel(r"$r_I/r_{S,0}$")
+        ax3.set_ylabel(r"$v_I/(r_{S,0}/t_{\mathrm{rec},0})$")
         ax3.set_yscale("log")
         figname = "ionization_fronts.png"
 
@@ -468,7 +469,7 @@ if __name__ == "__main__":
     ax2.grid()
     ax3.grid()
 
-    ax3.set_xlabel("$t/t_{\mathrm{rec}}$")
+    ax3.set_xlabel(r"$t/t_{\mathrm{rec}}$")
     ax2.legend()
 
     #  plt.show()

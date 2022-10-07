@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # ---------------------------------------------------------
-# Parametrization of photon interaction cross sections
+# Parametrization of photon interaction cross-sections
 # for a given photon frequency nu.
 #
 # The parametrization is taken from Verner et al. 1996
@@ -16,10 +16,10 @@ from math import sqrt
 nspecies = 3
 
 
-class photoionization_cross_section:
+class PhotoionizationCrossSection:
 
     """
-    Stores the parametrization of the photoionization cross section.
+    Stores the parametrization of the photoionization cross-section.
     """
 
     def __init__(self):
@@ -29,7 +29,7 @@ class photoionization_cross_section:
         # E_ion corresponds to [13.60, 24.59, 54.42] eV
         self.E_ion = [2.179e-11, 3.940e-11, 8.719e-11]  # erg
         # E_zero corresponds to [0.4298, 13.61, 1.720]  eV
-        # Note that the value given in table E1 of Rosdahl et al 2013
+        # Note that the value given in table E1 of Rosdahl et al. 2013
         # of 0.1361 is wrong. It is 13.61 instead.
         self.E_zero = [6.886e-13, 2.181e-11, 2.756e-12]  # erg
         self.sigma_zero = [5.475e-14, 9.492e-16, 1.369e-14]  # cm^-2

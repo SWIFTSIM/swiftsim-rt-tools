@@ -4,16 +4,18 @@
 # Plots temperature and mass fractions
 # ---------------------------------------------------
 
-import swiftsimio
+import sys
+
 import matplotlib as mpl
 
-mpl.use("Agg")
-from matplotlib import pyplot as plt
+mpl.use("Agg")  # use this in non-interactive environments
 import numpy as np
-import sys
-import stromgren_plotting_tools as spt
+import swiftsimio
 import unyt
+from matplotlib import pyplot as plt
 from scipy import stats
+
+import stromgren_plotting_tools as spt
 
 # set here which reference you want to use
 # (use string!)
@@ -82,7 +84,6 @@ def plot_solution(filename):
 
     data = swiftsimio.load(filename)
     meta = data.metadata
-    boxsize = meta.boxsize
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
     # This is the original test setup
@@ -185,8 +186,6 @@ def plot_solution(filename):
                 label = None
             ax1.plot(r_ref, xHI_ref, label=label, alpha=0.6, zorder=1 + c, c="grey")
             ax2.plot(r_ref, T_ref, label=label, alpha=0.6, zorder=1 + c, c="grey")
-            #  ax1.errorbar( r_ref, xHI_ref, yerr=xHI_std_ref, c="grey", alpha=0.6, capsize=2, zorder=1 + c, label=label,)
-            #  ax2.errorbar( r_ref, T_ref, yerr=T_std_ref, c="grey", alpha=0.6, capsize=2, zorder=1 + c, label=label,)
 
     if plot_particles:
         ax1.scatter(r, xHI, **scatterplot_kwargs, zorder=0)

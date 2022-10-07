@@ -1,22 +1,19 @@
 #!/usr/bin/env python3
 
-import swiftsimio
-import matplotlib as mpl
-
-#  mpl.use("Agg")
-from matplotlib import pyplot as plt
-import numpy as np
-import sys, os
-import stromgren_plotting_tools as spt
-import unyt
-from scipy import stats
-
-
 # --------------------------------------------------------
 # This script is intended to reproduce Figure 19
-# of Iliev et al 2009
+# of Iliev et al. 2009
 # (https://ui.adsabs.harvard.edu/abs/2009MNRAS.400.1283I)
 # --------------------------------------------------------
+
+import os
+
+import matplotlib as mpl
+
+mpl.use("Agg")
+import numpy as np
+import unyt
+from matplotlib import pyplot as plt
 
 # in some cases, the final snapshot is very close in time
 # to the second to last snapshot, and due to roundoff errors,
@@ -199,8 +196,8 @@ if __name__ == "__main__":
 
     ax1.set_ylim(0.0, 1.0)
 
-    ax1.set_ylabel("$r_I$ [kpc]")
-    ax2.set_ylabel("$v_I$ [km/s]")
+    ax1.set_ylabel(r"$r_I$ [kpc]")
+    ax2.set_ylabel(r"$v_I$ [km/s]")
     ax2.set_yscale("log")
     ax2.set_ylim([1, 1e3])
     figname = "ionization_fronts.png"
@@ -208,7 +205,7 @@ if __name__ == "__main__":
     ax1.grid()
     ax2.grid()
 
-    ax2.set_xlabel("$t$ [Myr]")
+    ax2.set_xlabel(r"$t$ [Myr]")
     ax2.set_xlim([-1, 30])
     ax1.legend()
 

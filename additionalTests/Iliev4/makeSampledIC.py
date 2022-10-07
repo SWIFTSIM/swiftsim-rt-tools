@@ -26,12 +26,13 @@
 # emulate cells.
 # ---------------------------------------------------------------------
 
+import h5py
+import numpy as np
+import unyt
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
+
 import stromgren_plotting_tools as spt
-import unyt
-import numpy as np
-import h5py
 
 gamma = 5.0 / 3.0
 
@@ -120,7 +121,7 @@ if __name__ == "__main__":
             pos[j : j + posi.shape[0]] = posi
             j = j + posi.shape[0]
 
-    # keep only the non zero part of pos
+    # keep only the non-zero part of pos
     xp = pos[:j]
     mp = np.ones(len(xp)) * m
 

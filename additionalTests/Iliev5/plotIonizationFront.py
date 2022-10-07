@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
-import swiftsimio
+import os
+
 import matplotlib as mpl
 
-#  mpl.use("Agg")
-from matplotlib import pyplot as plt
+mpl.use("Agg")
 import numpy as np
-import sys, os
-import stromgren_plotting_tools as spt
+import swiftsimio
 import unyt
+from matplotlib import pyplot as plt
 from scipy import stats
 
+import stromgren_plotting_tools as spt
 
 # --------------------------------------------------------
 # This script is intended to reproduce Figure 18
-# of Iliev et al 2009
+# of Iliev et al. 2009
 # (https://ui.adsabs.harvard.edu/abs/2009MNRAS.400.1283I)
 # --------------------------------------------------------
 
@@ -25,7 +26,7 @@ from scipy import stats
 skip_last = True
 
 # if True, use only a few references, and add labels.
-# Otherwise use all references, and make them grey
+# Otherwise, use all references, and make them grey
 label_refs = False
 #  label_refs = True
 
@@ -114,7 +115,7 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
         imf.HeIII = imf.HeIII[mask]
         xH = imf.HI + imf.HII
         xHI = imf.HI / xH
-        xHII = imf.HII / xH
+        # xHII = imf.HII / xH
 
         # get profiles
         r = r.to(boxsize.units)
@@ -163,7 +164,6 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
     if skip_last:
         timesV_trec = times_trec[:-1]
         v_ifront = v_ifront[:-1]
-        v_ifront_ana = v_ifront_ana[:-1]
 
     axes = fig.axes
     ax1 = axes[0]
@@ -182,13 +182,6 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
         label="GEARRT",
         alpha=0.7,
         zorder=30,
-    )
-    ax2.plot(
-        timesV_trec,
-        v_ifront_ana.to("kpc/kyr") / (r_S.to("kpc") / t_rec.to("kyr")).to("kpc/kyr"),
-        c="k",
-        label="analytical",
-        zorder=20,
     )
 
     return
@@ -344,20 +337,16 @@ if __name__ == "__main__":
     plot_ionization_fronts_reference(fig)
 
     ax1.set_ylim(0.0, 1.75)
-    # add line at 1
-    #  xlims = ax1.get_xlim()
-    #  ax1.plot(xlims, [1.0, 1.0], c="k", zorder=-1, ls="--", lw=2)
-    #  ax1.set_xlim(xlims)
 
-    ax1.set_ylabel("$r_I/r_{S,0}$")
-    ax2.set_ylabel("$v_I/(r_{S,0}/t_{\mathrm{rec},0})$")
+    ax1.set_ylabel(r"$r_I/r_{S,0}$")
+    ax2.set_ylabel(r"$v_I/(r_{S,0}/t_{\mathrm{rec},0})$")
     ax2.set_yscale("log")
     figname = "ionization_fronts.png"
 
     ax1.grid()
     ax2.grid()
 
-    ax2.set_xlabel("$t/t_{\mathrm{rec}}$")
+    ax2.set_xlabel(r"$t/t_{\mathrm{rec}}$")
     ax1.legend()
 
     #  plt.show()

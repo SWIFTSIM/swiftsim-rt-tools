@@ -5,8 +5,8 @@
 # weight, and mass fractions of Hydrogen, and internal energy.
 # --------------------------------------------------------------------------
 
-import numpy as np
 import matplotlib
+import numpy as np
 
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt

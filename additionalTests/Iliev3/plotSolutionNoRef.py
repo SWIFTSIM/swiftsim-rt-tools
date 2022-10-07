@@ -24,16 +24,17 @@
 # and temperature
 # ----------------------------------------------------
 
-import sys
-import swiftsimio
 import gc
-import unyt
-from matplotlib import pyplot as plt
+import sys
+
 import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+mpl.use("Agg")
+import swiftsimio
+from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from swiftsimio.visualisation.slice import slice_gas
-from rainbow4_colormap import rainbow4
 
 import stromgren_plotting_tools as spt
 

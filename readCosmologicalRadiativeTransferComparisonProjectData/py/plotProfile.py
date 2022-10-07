@@ -8,9 +8,11 @@
 # -----------------------------------------------------------------------
 
 
+import os
+import sys
+
 import numpy as np
 from matplotlib import pyplot as plt
-import os, sys
 
 if len(sys.argv) != 2:
     print("Error, wrong usage. Run with ./plotProfile.py dataFile.bin_profile_X.dat")

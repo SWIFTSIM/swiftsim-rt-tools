@@ -8,11 +8,12 @@
 # usage: python3 generate_simulation_parameter_file.py <file.hdf5>
 # --------------------------------------------------------------------
 
-import yaml
-import sys, os
-import swiftsimio
-import numpy as np
+import os
+import sys
 
+import numpy as np
+import swiftsimio
+import yaml
 
 particle_mass = 0.0
 min_density = 0.0
@@ -38,12 +39,10 @@ try:
         quit()
 
     if not (os.path.isfile(inputfile)):
-        print(inputfile, "is not a file.")
+        raise ValueError(inputfile, "is not a file.")
 
 except IndexError:
-    print("You need to provide this script with a file to read")
-    quit()
-
+    raise IndexError("You need to provide this script with a file to read")
 
 # Read in data now
 data = swiftsimio.load(inputfile)

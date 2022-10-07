@@ -18,12 +18,11 @@
 #
 ##############################################################################
 
+import h5py
+import numpy as np
+import unyt
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
-
-import unyt
-import numpy as np
-import h5py
 
 us = cosmo_units
 
@@ -139,11 +138,11 @@ parts = F["/PartType0"]
 
 # Create initial ionization species mass fractions.
 # Assume everything is neutral initially
-HIdata = np.ones((nparts), dtype=np.float32) * XH
-HIIdata = np.ones((nparts), dtype=np.float32) * tiny_number
-HeIdata = np.zeros((nparts), dtype=np.float32)
-HeIIdata = np.zeros((nparts), dtype=np.float32)
-HeIIIdata = np.zeros((nparts), dtype=np.float32)
+HIdata = np.ones(nparts, dtype=np.float32) * XH
+HIIdata = np.ones(nparts, dtype=np.float32) * tiny_number
+HeIdata = np.zeros(nparts, dtype=np.float32)
+HeIIdata = np.zeros(nparts, dtype=np.float32)
+HeIIIdata = np.zeros(nparts, dtype=np.float32)
 
 parts.create_dataset("MassFractionHI", data=HIdata)
 parts.create_dataset("MassFractionHII", data=HIIdata)

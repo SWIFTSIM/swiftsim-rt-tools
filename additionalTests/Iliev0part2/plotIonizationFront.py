@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
-import swiftsimio
+import os
+
 import matplotlib as mpl
 
-#  mpl.use("Agg")
-from matplotlib import pyplot as plt
+mpl.use("Agg")  # use this in non-interactive environments
 import numpy as np
-import sys, os
-import stromgren_plotting_tools as spt
+import swiftsimio
 import unyt
+from matplotlib import pyplot as plt
 from scipy import stats
 
+import stromgren_plotting_tools as spt
 
 # -------------------------------------------------
 # This script is intended to reproduce Figure 3
-# of Iliev et al 2006
+# of Iliev et al. 2006
 # (https://arxiv.org/pdf/astro-ph/0508416.pdf)
 # -------------------------------------------------
 
@@ -86,12 +87,12 @@ def v_I(t):
     return r_S / (3.0 * t_rec) * expterm / (1 - expterm) ** (2.0 / 3.0)
 
 
-def plot_ionization_fronts_from_snapshots(snaplist, fig):
+def plot_ionization_fronts_from_snapshots(snapshot_list, fig):
     """
     Use snapshot information to estimate where the ionization front
     it and what its velocity is
 
-    snaplist: list of snapshot names to read in
+    snapshot_list: list of snapshot names to read in
     fig: pyplot.figure object to plot into
     """
 
@@ -104,7 +105,7 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
 
     time = 0 * unyt.Myr
     rI = 0 * unyt.kpc
-    for filename in snaplist:
+    for filename in snapshot_list:
         time_prev = time
         rI_prev = rI
         data = swiftsimio.load(filename)
@@ -133,7 +134,7 @@ def plot_ionization_fronts_from_snapshots(snaplist, fig):
         imf.HeIII = imf.HeIII[mask]
         xH = imf.HI + imf.HII
         xHI = imf.HI / xH
-        xHII = imf.HII / xH
+        # xHII = imf.HII / xH
 
         # get profiles
         r = r.to(boxsize.units)

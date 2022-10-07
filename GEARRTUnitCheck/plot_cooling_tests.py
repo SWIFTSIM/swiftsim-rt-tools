@@ -5,10 +5,10 @@
 # weight, and mass fractions of Hydrogen, and internal energy.
 # --------------------------------------------------------------------------
 
-import numpy as np
 import matplotlib
 
 matplotlib.use("Agg")
+import numpy as np
 from matplotlib import pyplot as plt
 
 plotkwargs = {"alpha": 0.6}

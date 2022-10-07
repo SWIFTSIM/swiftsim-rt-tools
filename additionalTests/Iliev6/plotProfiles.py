@@ -5,17 +5,18 @@
 # pressure, temperature, and mach number
 # ---------------------------------------------------
 
-import swiftsimio
+import sys
+
 import matplotlib as mpl
 
-#  mpl.use("Agg")
-from matplotlib import pyplot as plt
+mpl.use("Agg")
 import numpy as np
-import sys
-import stromgren_plotting_tools as spt
+import swiftsimio
 import unyt
+from matplotlib import pyplot as plt
 from scipy import stats
-import h5py
+
+import stromgren_plotting_tools as spt
 
 # plot references?
 plot_refs = True
@@ -98,7 +99,6 @@ def plot_solution(filename):
 
     data = swiftsimio.load(filename)
     meta = data.metadata
-    boxsize = meta.boxsize
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
     # This is the original test setup

@@ -26,13 +26,14 @@
 # for SPH schemes.
 # ---------------------------------------------------------------------
 
+import h5py
+import numpy as np
+import unyt
+from scipy import stats
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
+
 import stromgren_plotting_tools as spt
-import unyt
-import numpy as np
-import h5py
-from scipy import stats
 
 gamma = 5.0 / 3.0
 
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     npart_border = (resolution + 2 * border_particle_width) ** 3 - resolution ** 3
 
     xp_border = np.zeros((npart_border, 3))
-    h_border = np.ones((npart_border))
+    h_border = np.ones(npart_border)
     pid_border = np.arange(1, npart_border + 1, 1)
     ind = 0
 

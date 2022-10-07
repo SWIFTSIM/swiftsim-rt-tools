@@ -1,7 +1,8 @@
+import copy
 import os
+
 import numpy as np
 import unyt
-import copy
 
 # species masses in atomic mass units
 mamu = {"e": 0.0, "HI": 1.0, "HII": 1.0, "HeI": 4.0, "HeII": 4.0, "HeIII": 4.0}
@@ -341,8 +342,8 @@ def get_imf(scheme, data):
             )
             setattr(imf, column, mass_fraction)
     else:
-        print("Unknown scheme", scheme)
-        quit()
+        raise ValueError("Unknown scheme", scheme)
+
     return imf
 
 
@@ -373,6 +374,8 @@ def get_abundances(scheme, data):
         )
     elif scheme.startswith("SPH M1closure"):
         sA = data.gas.rt_species_abundances
+    else:
+        raise ValueError("Unknown scheme", scheme)
     return sA
 
 

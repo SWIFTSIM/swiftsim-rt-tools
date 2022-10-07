@@ -23,12 +23,13 @@
 # The gas is set up with pure hydrogen gas.
 # ---------------------------------------------------------------------
 
+import h5py
+import numpy as np
+import unyt
 from swiftsimio import Writer
 from swiftsimio.units import cosmo_units
+
 import stromgren_plotting_tools as spt
-import unyt
-import numpy as np
-import h5py
 
 gamma = 5.0 / 3.0
 
@@ -92,7 +93,7 @@ if __name__ == "__main__":
     npart_border = (nparts + 2 * border_particle_width) ** 3 - nparts ** 3
 
     xp_border = np.zeros((npart_border, 3))
-    h_border = np.ones((npart_border))
+    h_border = np.ones(npart_border)
     pid_border = np.arange(1000000001, 1000000001 + npart_border + 1, 1)
     ind = 0
 

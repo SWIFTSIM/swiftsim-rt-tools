@@ -8,13 +8,15 @@
 # ----------------------------------------------------
 
 import sys
-import swiftsimio
-import unyt
-import numpy as np
-from matplotlib import pyplot as plt
+
 import matplotlib as mpl
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size, ImageGrid
+
+mpl.use("Agg")
+import numpy as np
+import swiftsimio
+from matplotlib import pyplot as plt
 from matplotlib.colors import LogNorm
+from mpl_toolkits.axes_grid1 import ImageGrid
 from swiftsimio.visualisation.slice import slice_gas
 
 import stromgren_plotting_tools as spt
@@ -151,7 +153,7 @@ def plot_result(filename):
         (1.0 - 8 / (resolution + 8)) * meta.boxsize[0].to("kpc").v,
     ]
 
-    axrows = [[] for r in range(nrows)]
+    axrows = [[] for _ in range(nrows)]
     # loop over each row (T, xHI)
     for r in range(nrows):
 
