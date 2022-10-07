@@ -20,8 +20,9 @@
 
 # ---------------------------------------------------------------------
 # Create Iliev Test 7 ICs: Uniform gas with a uniform spherical
-# dense clump in it. This script modifies the particles' masses to
-# achieve the correct density.
+# dense clump in it. This script creates the ICs on a uniform grid
+# with different spacings for the clump and the environment so that
+# the particle masses remain constant.
 # ---------------------------------------------------------------------
 
 from swiftsimio import Writer
