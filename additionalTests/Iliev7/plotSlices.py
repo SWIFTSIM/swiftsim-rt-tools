@@ -135,14 +135,7 @@ def plot_result(
 
     # You need to coordinate nr codes + SWIFT = ncols * nrows
     # otherwise, not all reference codes will be plotted.
-    codes = [
-        "C2Ray+Capreole",
-        "Coral",
-        "Flash",
-        "Licorice",
-        "RSPH",
-        "Zeus-MP",
-    ]
+    codes = ["C2Ray+Capreole", "Coral", "Flash", "Licorice", "RSPH", "Zeus-MP"]
 
     for code in codes:
         refslice = read_reference(code, ref, quantity)
@@ -355,7 +348,7 @@ if __name__ == "__main__":
     norm_limits = {
         "xHI": (1e-6, 1.2),
         "xHII": (1e-6, 1.2),
-        "n": (1.e-4, 1.),
+        "n": (1.0e-4, 1.0),
         "T": (40, 1e5),
         "P": (1e-16, 1e-12),
         "mach": (1e-5, 4.0),

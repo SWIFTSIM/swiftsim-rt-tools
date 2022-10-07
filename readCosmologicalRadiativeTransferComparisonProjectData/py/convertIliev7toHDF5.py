@@ -46,7 +46,9 @@ def make_h5file(code):
     slices = hfile.create_group("slices")
     slices.attrs["description"] = "Slice along the z=L/2 plane"
     profiles = hfile.create_group("profiles")
-    profiles.attrs["description"] = "Quantity profiles along the axis of symmetry (y = z = L/2)"
+    profiles.attrs[
+        "description"
+    ] = "Quantity profiles along the axis of symmetry (y = z = L/2)"
 
     for age in times:
         slice_age = slices.create_group(age)
@@ -91,7 +93,9 @@ def make_h5file(code):
     original test contained 128^3 cells.
     The units of each quantity is stored as a string attribute of the respective 
     quantity.
-    """.format(code)
+    """.format(
+        code
+    )
 
     meta = hfile.create_group("Metadata")
 

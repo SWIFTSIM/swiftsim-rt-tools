@@ -46,19 +46,18 @@ unitM = cosmo_units["mass"]
 
 edgelen_units = 6.6 * unyt.kpc
 r_clump_units = 0.8 * unyt.kpc
-rho_outer_units = 2e-4 / unyt.cm**3 * unyt.proton_mass
+rho_outer_units = 2e-4 / unyt.cm ** 3 * unyt.proton_mass
 rho_clump_units = 200 * rho_outer_units
-x_clump_units = np.array([[5., 3.3, 3.3]]) * unyt.kpc
+x_clump_units = np.array([[5.0, 3.3, 3.3]]) * unyt.kpc
 T = 8000 * unyt.K
 T_clump = 40 * unyt.K
 
 # unytless quantities
 edgelen = edgelen_units.to(unitL).v
 r_clump = r_clump_units.to(unitL).v
-rho_outer = rho_outer_units.to(unitM / unitL**3).v
-rho_clump = rho_clump_units.to(unitM / unitL**3).v
+rho_outer = rho_outer_units.to(unitM / unitL ** 3).v
+rho_clump = rho_clump_units.to(unitM / unitL ** 3).v
 x_clump = x_clump_units.to(unitL).v
-
 
 
 if __name__ == "__main__":
@@ -69,9 +68,9 @@ if __name__ == "__main__":
     #  boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
 
     # get particle mass based on target resolution
-    Npart = resolution**3
-    V_clump = 4. / 3. * np.pi * r_clump**3
-    V_outer = edgelen**3 - V_clump
+    Npart = resolution ** 3
+    V_clump = 4.0 / 3.0 * np.pi * r_clump ** 3
+    V_outer = edgelen ** 3 - V_clump
     M_clump = V_clump * rho_clump
     M_outer = V_outer * rho_outer
     Mtot = M_clump + M_outer
@@ -79,9 +78,9 @@ if __name__ == "__main__":
 
     # guess how many particles we'll use for the background
     # assume full volume is spanned with background to get number of edge particles
-    Nedge = int((edgelen**3 * rho_outer / mpart)**(1./3.) + 0.5)
+    Nedge = int((edgelen ** 3 * rho_outer / mpart) ** (1.0 / 3.0) + 0.5)
 
-    xp_outer = np.zeros((Nedge**3, 3))
+    xp_outer = np.zeros((Nedge ** 3, 3))
     dx_outer = edgelen / Nedge
     ind = 0
 
@@ -92,9 +91,13 @@ if __name__ == "__main__":
             for k in range(Nedge):
                 z = (k + 0.5) * dx_outer
 
-                r2 = (x - x_clump[0,0])**2 + (y - x_clump[0,1])**2 + (z - x_clump[0,2])**2
+                r2 = (
+                    (x - x_clump[0, 0]) ** 2
+                    + (y - x_clump[0, 1]) ** 2
+                    + (z - x_clump[0, 2]) ** 2
+                )
                 r = np.sqrt(r2)
- 
+
                 if r > r_clump:
                     xp_outer[ind, 0] = x
                     xp_outer[ind, 1] = y
@@ -104,12 +107,11 @@ if __name__ == "__main__":
     n_outer = ind
     xp_outer = xp_outer[:n_outer]
 
-
     # guess how many particles we'll use for the background
     # assume cube of size (r_clump)^3 is spanned with equal mass particles
-    Nclump = int((r_clump**3 * rho_clump / mpart)**(1./3.) + 0.5)
+    Nclump = int((r_clump ** 3 * rho_clump / mpart) ** (1.0 / 3.0) + 0.5)
 
-    xp_inner = np.zeros((8 * Nclump**3, 3))
+    xp_inner = np.zeros((8 * Nclump ** 3, 3))
     dx_inner = r_clump / Nclump
     ind = 0
 
@@ -121,9 +123,9 @@ if __name__ == "__main__":
             for k in range(-Nclump, Nclump):
                 z = (k + 0.5) * dx_inner
 
-                r2 = x**2 + y**2 + z**2
+                r2 = x ** 2 + y ** 2 + z ** 2
                 r = np.sqrt(r2)
- 
+
                 if r <= r_clump:
                     xp_inner[ind, 0] = x
                     xp_inner[ind, 1] = y
@@ -139,8 +141,7 @@ if __name__ == "__main__":
     print("Npart environment:       ", n_outer)
     print("Npart clump:             ", n_inner)
     print("Npart tot: (w/o boundary)", n_outer + n_inner)
-    print("Npart_tot/resolution**3: ", (n_outer + n_inner)/resolution**3)
-
+    print("Npart_tot/resolution**3: ", (n_outer + n_inner) / resolution ** 3)
 
     xp = np.concatenate((xp_outer, xp_inner), axis=0)
     pid = np.arange(1000000001, 1000000001 + n_outer + n_inner, 1)
@@ -149,11 +150,10 @@ if __name__ == "__main__":
 
     # safety check
     DX = xp[is_clump] - x_clump
-    R = np.sqrt(np.sum(DX**2, axis=1))
+    R = np.sqrt(np.sum(DX ** 2, axis=1))
     if (R > r_clump).any():
         print("OH NOOOOOOOOOOOOO", np.count_nonzero((R > r_clump)))
         quit()
-
 
     # set up quantities for border.
     # Scale edge len to fit in border particles
@@ -166,7 +166,6 @@ if __name__ == "__main__":
     xp += shift
 
     npart_border = (Nedge + 2 * border_particle_width) ** 3 - Nedge ** 3
-
 
     # get border particles now
     xp_border = np.zeros((npart_border, 3))
@@ -202,7 +201,6 @@ if __name__ == "__main__":
         print("oh no", ind, npart_border)
         quit()
 
-
     # concatenate arraays
     xp = np.concatenate((xp_border, xp), axis=0)
     pid = np.concatenate((pid_border, pid), axis=0)
@@ -228,9 +226,9 @@ if __name__ == "__main__":
     u_clump = spt.internal_energy(T_clump, mu_clump, gamma)
 
     internal_energy[is_clump] = u_clump.to(u.units)
-   
+
     # write file
-    boxsize = np.array([1., 1., 1.]) * edgelen_units.to(unitL)
+    boxsize = np.array([1.0, 1.0, 1.0]) * edgelen_units.to(unitL)
 
     w = Writer(unit_system=cosmo_units, box_size=boxsize, dimension=3)
 

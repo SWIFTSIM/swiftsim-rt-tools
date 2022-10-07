@@ -99,7 +99,6 @@ def plot_solution(filename):
     boxsize = meta.boxsize
     scheme = str(meta.subgrid_scheme["RT Scheme"].decode("utf-8"))
 
-
     ntot = data.gas.masses.shape[0]
     # assume base number of parts is a power of 2
     # you got extra parts as boundaries
@@ -109,7 +108,7 @@ def plot_solution(filename):
         npart *= 2
     npart /= 2
     print("Found resolution", npart)
- 
+
     mass_map = slice_gas(
         data, project="masses", z_slice=0.5 * meta.boxsize[2], **slice_kwargs
     )
@@ -158,7 +157,9 @@ def plot_solution(filename):
     HII_map = mass_weighted_HII_map / mass_map
 
     # use 1e30 proton masses here to avoid overflows
-    number_density_map = mass_map.to("M_Sun/pc**3") / ( 1e30 * unyt.proton_mass.to("M_Sun"))
+    number_density_map = mass_map.to("M_Sun/pc**3") / (
+        1e30 * unyt.proton_mass.to("M_Sun")
+    )
     number_density_map = number_density_map.to("1e20*pc**-3")
     number_density_map = number_density_map.to("cm**-3")
     number_density_map = number_density_map * 1e30  # fix the 1e30 proton masses used
@@ -170,7 +171,6 @@ def plot_solution(filename):
     temperature_map = mass_weighted_temperature_map / mass_map
 
     mach_map = mass_weighted_mach_map / mass_map
-
 
     n = HI_map.shape[0]
     x = np.linspace(0.5 / n, (n - 0.5), n) / n * meta.boxsize[0]
@@ -186,11 +186,6 @@ def plot_solution(filename):
     T_profile = temperature_map.T[int(n / 2), shiftint:-shiftint]
     P_profile = pressure_map.T[int(n / 2), shiftint:-shiftint]
     mach_profile = mach_map.T[int(n / 2), shiftint:-shiftint]
-
-
-
-
-
 
     fig = plt.figure(figsize=(18, 11))
     ax1 = fig.add_subplot(231)
@@ -208,20 +203,11 @@ def plot_solution(filename):
 
     if plot_refs:
 
-        codes = [
-            "C2Ray+Capreole",
-            "Coral",
-            "Flash",
-            "Licorice",
-            "RSPH",
-            "Zeus-MP",
-        ]
+        codes = ["C2Ray+Capreole", "Coral", "Flash", "Licorice", "RSPH", "Zeus-MP"]
 
         for code in codes:
 
-            Tref, Pref, xHIref, xHIIref, nref, machref = read_reference(
-                code, ref
-            )
+            Tref, Pref, xHIref, xHIIref, nref, machref = read_reference(code, ref)
 
             rref = np.linspace(0.0, 1.0, Tref.shape[0])
             dx = 0.5 * (rref[1] - rref[0])
@@ -241,13 +227,12 @@ def plot_solution(filename):
                     label = "reference"
                 else:
                     label = None
-                ax1.semilogy( rref, xHIref, label=label, alpha=0.4, c="grey",)
-                ax2.semilogy( rref, xHIIref, label=label, alpha=0.4, c="grey",)
-                ax3.semilogy( rref, nref, label=label, alpha=0.4, c="grey",)
-                ax4.semilogy( rref, Tref, label=label, alpha=0.4, c="grey",)
-                ax5.semilogy( rref, Pref, label=label, alpha=0.4, c="grey",)
-                ax6.plot( rref, machref, label=label, alpha=0.4, c="grey",)
-
+                ax1.semilogy(rref, xHIref, label=label, alpha=0.4, c="grey")
+                ax2.semilogy(rref, xHIIref, label=label, alpha=0.4, c="grey")
+                ax3.semilogy(rref, nref, label=label, alpha=0.4, c="grey")
+                ax4.semilogy(rref, Tref, label=label, alpha=0.4, c="grey")
+                ax5.semilogy(rref, Pref, label=label, alpha=0.4, c="grey")
+                ax6.plot(rref, machref, label=label, alpha=0.4, c="grey")
 
     label = r"GEARRT"
     ax1.semilogy(x / L_test, xHI_profile, label=label)
@@ -256,7 +241,6 @@ def plot_solution(filename):
     ax4.semilogy(x / L_test, T_profile, label=label)
     ax5.semilogy(x / L_test, P_profile, label=label)
     ax6.plot(x / L_test, mach_profile, label=label)
-
 
     for ax in fig.axes:
         ax.set_xlabel("r / L")
@@ -271,7 +255,7 @@ def plot_solution(filename):
     ax2.set_ylim(5e-6, 1.2)
 
     ax3.set_yscale("log")
-    ax3.set_ylim(1.e-4, 1.)
+    ax3.set_ylim(1.0e-4, 1.0)
 
     ax4.set_yscale("log")
     ax4.set_ylim(40, 5e4)
@@ -280,7 +264,7 @@ def plot_solution(filename):
     ax5.set_ylim(1e-16, 1e-12)
 
     #  ax6.set_yscale("log")
-    ax6.set_ylim(0., 4.0)
+    ax6.set_ylim(0.0, 4.0)
     ax1.legend()
 
     fig.suptitle("Iliev+09 Test 7, $t$ = {0:.0f}".format(meta.time.to("Myr")))

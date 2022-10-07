@@ -241,7 +241,7 @@ def plot_result(filename):
     im3 = ax3.imshow(
         number_density_map.T,
         **imshow_kwargs,
-        norm=LogNorm(vmin=1.e-4, vmax=1.),
+        norm=LogNorm(vmin=1.0e-4, vmax=1.0),
         #  cmap=rainbow4,
         cmap="cividis",
     )
