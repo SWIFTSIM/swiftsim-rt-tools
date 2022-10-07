@@ -37,7 +37,7 @@ SPH:
 
 # Parameters related to the initial conditions
 InitialConditions:
-  file_name:  ./ilievTest7.hdf5  # The file to read
+  file_name:  ilievTest7UnequalMasses.hdf5  # The file to read
   periodic:   0                  # periodic ICs
 
 # Parameters controlling restarts

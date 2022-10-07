@@ -62,11 +62,6 @@ x_clump = x_clump_units.to(unitL).v
 
 if __name__ == "__main__":
 
-    # scale box size up for boundary particles
-    #  edgelen = 6.6 * ((resolution + 2 * border_particle_width) / resolution) * unyt.kpc
-    #  edgelen = edgelen.to(unitL)
-    #  boxsize = np.array([1.0, 1.0, 1.0]) * edgelen
-
     # get particle mass based on target resolution
     Npart = resolution ** 3
     V_clump = 4.0 / 3.0 * np.pi * r_clump ** 3
@@ -191,7 +186,7 @@ if __name__ == "__main__":
                     xp_border[ind, 2] = z
 
                     if i > border_particle_width:
-                        #  mark special boundary particles: add 10^7 to particles
+                        # mark special boundary particles: add 10^7 to particles
                         # that won't "emit" radiation
                         pid_border[ind] += 10000000
 

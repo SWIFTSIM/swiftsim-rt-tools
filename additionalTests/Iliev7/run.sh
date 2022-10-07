@@ -13,6 +13,8 @@ fi
 ../../../swiftsim/swift \
     --hydro --threads=4 --stars --external-gravity \
     --feedback --radiation \
+    --steps=1 \
     ilievTest7.yml 2>&1 | tee output.log
+    # ilievTest7-UnequalMasses.yml 2>&1 | tee output.log
 
 python3 ./plotSlices.py 51
