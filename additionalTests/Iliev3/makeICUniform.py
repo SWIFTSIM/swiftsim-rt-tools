@@ -146,6 +146,6 @@ if __name__ == "__main__":
     w.gas.velocities = np.zeros(xp.shape) * (unitL / unyt.Myr)
     w.gas.smoothing_length = h
 
-    w.gas.internal_energy = np.ones(xp.shape[0], dtype=np.float64) * internal_energy
+    w.gas.internal_energy = internal_energy
 
     w.write("ilievTest3UniformGrid.hdf5")

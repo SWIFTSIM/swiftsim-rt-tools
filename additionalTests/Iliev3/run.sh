@@ -19,8 +19,8 @@ fi
 ../../../swiftsim/swift \
     --hydro --threads=4 --stars --external-gravity \
     --feedback --radiation \
-    --steps=5 \
     ilievTest3.yml 2>&1 | tee output.log
     # ilievTest3Uniform.yml 2>&1 | tee output.log
+    # ilievTest3EqualMasses.yml 2>&1 | tee output.log
 
 python3 ./plotSolution.py 15

@@ -1,7 +1,5 @@
-# Iliev Test 3 for a uniform underlying particle configuration
-
 MetaData:
-  run_name: Iliev06Test3Uniform
+  run_name: Iliev06Test3EqualMasses
 
 # Define the system of units to use internally. 
 InternalUnitSystem:
@@ -18,7 +16,7 @@ TimeIntegration:
   dt_min:     0.0102084547  # 10 yr
   dt_max:     119.7670      # At least 128 steps
   max_nr_rt_subcycles: 128  # use this for 128^3
-  # max_nr_rt_subcycles: 32   # use this for 64^3
+  # max_nr_rt_subcycles: 128   # use this for 64^3
 
 # Parameters governing the snapshots
 Snapshots:
@@ -39,8 +37,8 @@ SPH:
 
 # Parameters related to the initial conditions
 InitialConditions:
-  file_name:  ./ilievTest3UniformGrid.hdf5  # The file to read
-  periodic:   0                             # periodic ICs
+  file_name:  ./ilievTest3EqualMasses.hdf5  # The file to read
+  periodic:   0                  # periodic ICs
 
 GEARRT:
   f_reduce_c: 0.125                                      # factor mustn't be below 0.0136 for radiation to reach clump in 1 Myr

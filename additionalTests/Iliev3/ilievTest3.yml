@@ -41,7 +41,7 @@ InitialConditions:
   periodic:   0                  # periodic ICs
 
 GEARRT:
-  f_reduce_c: 0.125                                      # reduce the speed of light for the RT solver by multiplying c with this factor
+  f_reduce_c: 0.125                                      # factor mustn't be below 0.0136 for radiation to reach clump in 1 Myr
   f_limit_cooling_time: 0.6     
   CFL_condition: 0.9                                     # CFL condition for radiation transport
   photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]      # Photon frequency group bin edges in Hz.

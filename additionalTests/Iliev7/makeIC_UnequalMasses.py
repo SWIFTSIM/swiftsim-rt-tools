@@ -74,7 +74,7 @@ if __name__ == "__main__":
     xp *= scale
     # and shift them away from (0, 0, 0)
     xp += shift
-    pid = np.arange(1000000001, 1000000001+h.shape[0], 1)
+    pid = np.arange(1000000001, 1000000001 + h.shape[0], 1)
 
     npart_border = (nparts + 2 * border_particle_width) ** 3 - nparts ** 3
 

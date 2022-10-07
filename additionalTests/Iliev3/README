@@ -40,7 +40,7 @@ swiftsim-rt-tools/additionalTests/instructions/GEARRT_boundary_particles.md
 
 Boundary particles that "swallow" up radiation at the edges are marked by having a
 particle ID > 1000000000. For this test, we also need a 'wall' of radiation being
-emitted from the y = 0 plane. Boundary particles along this plane are marked by 
+emitted from the x = 0 plane. Boundary particles along this plane are marked by 
 having a particle ID > 2000000000. For these particles, you need to modify the 
 treatment of boundary particles:
 
