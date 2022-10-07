@@ -283,7 +283,7 @@ def plot_ionization_fronts_reference(fig):
         "C2Ray_Ifront.dat",
         "RH1D_Ifront.dat",
         "RSPH_Ifront.dat",
-        "Zeus_Ifront.dat",
+        "Zeus-MP_Ifront.dat",
     ]
 
     for ref in references:

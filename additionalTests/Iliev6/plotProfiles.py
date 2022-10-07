@@ -207,7 +207,7 @@ def plot_solution(filename):
             "Licorice",
             "RH1D",
             "RSPH",
-            "Zeus",
+            "Zeus-MP",
         ]
 
         for code in codes:

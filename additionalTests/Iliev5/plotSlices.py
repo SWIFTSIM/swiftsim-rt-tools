@@ -141,7 +141,7 @@ def plot_result(
         "Licorice",
         "RH1D",
         "RSPH",
-        "Zeus",
+        "Zeus-MP",
     ]
 
     for code in codes:
