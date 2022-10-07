@@ -271,8 +271,6 @@ def plot_result(filename):
     im6 = ax6.imshow(
         mach_map.T,
         **imshow_kwargs,
-        #  norm=LogNorm(),
-        #  norm=LogNorm(vmin=1e-3, vmax=1e1),
         #  cmap=rainbow4,
         cmap="cividis",
     )

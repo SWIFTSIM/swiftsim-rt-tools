@@ -43,11 +43,11 @@ import stromgren_plotting_tools as spt
 # Parameters users should/may tweak
 
 # chose which reference to plot
-ref = "10Myr"
+#  ref = "10Myr"
 #  ref = "30Myr"
 #  ref = "100Myr"
 #  ref = "200Myr"
-#  ref = "500Myr"
+ref = "500Myr"
 
 
 # snapshot basename
