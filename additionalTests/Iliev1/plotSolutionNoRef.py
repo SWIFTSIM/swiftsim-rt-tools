@@ -37,7 +37,7 @@ params = {
     "xtick.major.width": 1.5,
     "ytick.major.width": 1.5,
     "axes.linewidth": 1.5,
-    #  "text.usetex": True,
+    "text.usetex": True,
     "figure.subplot.left": 0.045,
     "figure.subplot.right": 0.99,
     "figure.subplot.bottom": 0.05,

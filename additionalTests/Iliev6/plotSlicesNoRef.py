@@ -79,6 +79,7 @@ params = {
     "figure.dpi": 200,
     "lines.markersize": 1,
     "lines.linewidth": 2.0,
+    #  "mpl_toolkits.legacy_colorbar": False,
 }
 mpl.rcParams.update(params)
 
@@ -93,9 +94,6 @@ try:
     snapnr = int(sys.argv[1])
 except IndexError:
     plot_all = True
-
-mpl.rcParams["text.usetex"] = True
-mpl.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def set_colorbar(ax, im):

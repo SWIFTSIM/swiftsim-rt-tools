@@ -47,6 +47,7 @@ params = {
     "axes.labelsize": 14,
     "axes.titlesize": 14,
     "font.size": 14,
+    "font.family": "serif",
     "legend.fontsize": 14,
     "xtick.labelsize": 12,
     "ytick.labelsize": 12,

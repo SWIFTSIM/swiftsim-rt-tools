@@ -58,7 +58,6 @@ except IndexError:
     plot_all = True
 
 mpl.rcParams["text.usetex"] = True
-mpl.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def set_colorbar(ax, im):
