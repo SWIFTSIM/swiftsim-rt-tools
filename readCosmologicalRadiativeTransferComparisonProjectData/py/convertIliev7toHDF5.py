@@ -65,6 +65,8 @@ def make_h5file(code):
                 quantity, (ncells, ncells), dtype="f", compression="gzip"
             )
             dss[:] = sdata[:]
+            dss.attrs["description"] = quantity_descriptions[q]
+            dss.attrs["unyts"] = quantity_units[q]
 
             proffile = code + "_" + age + "_profile_" + quantity + ".dat"
             if not os.path.exists(proffile):
