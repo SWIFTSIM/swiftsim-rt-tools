@@ -67,15 +67,14 @@ int main(int argc, char **argv) {
   float *mach_profile = malloc(NCELLS * sizeof(float));
   float *xHII_profile = malloc(NCELLS * sizeof(float));
 
-
-
   /* Read first file */
   char filename[80] = "\0";
   strcpy(filename, argv[1]);
 
   FILE *fp = io_open_file(filename);
 
-  io_read_header(fp); io_read_scalar_field(fp, xHI);
+  io_read_header(fp);
+  io_read_scalar_field(fp, xHI);
   io_read_scalar_field(fp, P);
   io_read_scalar_field(fp, T);
   io_check_reached_EOF(fp);
@@ -94,7 +93,6 @@ int main(int argc, char **argv) {
   io_read_scalar_field(fp2, xHII);
   io_check_reached_EOF(fp2);
   fclose(fp2);
-
 
   /* Write outputs now */
   io_write_slice(filename, xHI, "xHI", 64);
@@ -117,7 +115,6 @@ int main(int argc, char **argv) {
   io_write_profile(filename, T_profile, /*std=*/NULL, NCELLS, "T");
   io_write_profile(filename, P_profile, /*std=*/NULL, NCELLS, "P");
   io_write_profile(filename, mach_profile, /*std=*/NULL, NCELLS, "mach");
-
 
   /* Cleanup */
 
