@@ -8,6 +8,10 @@ About
 Scripts to read in result data from the cosmological radiative code comparison 
 projects (https://arxiv.org/abs/astro-ph/0603199, https://arxiv.org/abs/0905.2920)
 
+Main programs are in src/, further header files in include/. Make use of the Makefile.
+Some additional python scripts are in py/ to create quick plots and convert ASCII 
+data to hdf5 data.
+
 
 
 Getting the Data

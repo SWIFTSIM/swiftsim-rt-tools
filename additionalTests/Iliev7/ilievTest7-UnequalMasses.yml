@@ -1,0 +1,66 @@
+MetaData:
+  run_name: Iliev09Test7
+
+# Define the system of units to use internally. 
+InternalUnitSystem:
+  UnitMass_in_cgs:     1.98848e18     # 1e-15 M_sun in grams
+  UnitLength_in_cgs:   3.08567758e+15 # 1 pc in cm
+  UnitVelocity_in_cgs: 1.e5           # 1 km/s in cm/s
+  UnitCurrent_in_cgs:  1              # Amperes
+  UnitTemp_in_cgs:     1              # Kelvin
+
+# Parameters governing the time integration
+TimeIntegration:
+  time_begin: 0.            # The starting time of the simulation (in internal units).
+  time_end:   51100.600     # 50 Myr
+  dt_min:     0.00102084547 # 1  yr
+  dt_max:     119.7670      # At least 128 steps
+  max_nr_rt_subcycles: 128  # use this for 128^3
+  # max_nr_rt_subcycles: 64   # use this for 64^3
+
+# Parameters governing the snapshots
+Snapshots:
+  basename:            output    # Common part of the name of output files
+  time_first:          0.        # Time of the first output (in internal units)
+  delta_time:          1022.68   # 1 Myr
+
+# Parameters governing the conserved quantities statistics
+Statistics:
+  time_first:          0.
+  delta_time:          1022.68   # 1 Myr
+
+# Parameters for the hydrodynamics scheme
+SPH:
+  resolution_eta:        1.2348   # Target smoothing length in units of the mean inter-particle separation (1.2348 == 48Ngbs with the cubic spline kernel).
+  CFL_condition:         100.     # We can only afford to use this stupidity here because in this test, all hydrodynamics is supposed to be turned off.
+  minimal_temperature:   10.      # Kelvin
+
+# Parameters related to the initial conditions
+InitialConditions:
+  file_name:  ilievTest7UnequalMasses.hdf5  # The file to read
+  periodic:   0                  # periodic ICs
+
+# Parameters controlling restarts
+Restarts:
+  enable:             1          # (Optional) whether to enable dumping restarts at fixed intervals.
+  save:               0          # (Optional) whether to save copies of the previous set of restart files (named .prev)
+  onexit:             0          # (Optional) whether to dump restarts on exit (*needs enable*)
+  subdir:             restart    # (Optional) name of subdirectory for restart files.
+  basename:           swift      # (Optional) prefix used in naming restart files.
+  delta_hours:        6.0        # (Optional) decimal hours between dumps of restart files.
+  stop_steps:         100        # (Optional) how many steps to process before checking if the <subdir>/stop file exists. When present the application will attempt to exit early, dumping restart files first.
+  max_run_time:       23.75      # (optional) Maximal wall-clock time in hours. The application will exit when this limit is reached.
+  # max_run_time:        9.75      # (optional) Maximal wall-clock time in hours. The application will exit when this limit is reached.
+
+
+GEARRT:
+  f_reduce_c: 0.125                                      # factor mustn't be below 0.0136 for radiation to reach clump in 1 Myr
+  f_limit_cooling_time: 0.01
+  CFL_condition: 0.6                                     # CFL condition for radiation transport
+  photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]      # Photon frequency group bin edges in Hz.
+  const_stellar_luminosities_LSol: [0., 0., 0.]          # (Conditional) constant star emission rates for each photon frequency group to use if use_constant_emission_rates is set, in units of Solar Luminosity.
+  stellar_luminosity_model: const                        # (Optional) use constant emission rates for stars as defined with star_emission_rates_erg_LSol parameter
+  hydrogen_mass_fraction:  1.00                          # total hydrogen (H + H+) mass fraction in the metal-free portion of the gas
+  set_equilibrium_initial_ionization_mass_fractions: 1   # (Optional) set the initial ionization fractions depending on gas temperature assuming ionization equilibrium.
+  stellar_spectrum_type: 1                               # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
+  stellar_spectrum_blackbody_temperature_K: 1.e5         # (Conditional) if stellar_spectrum_type=1, use this temperature (in K) for the blackbody spectrum.

@@ -1,0 +1,11 @@
+Reference solutions for Iliev+09 Test 7.
+
+See https://ui.adsabs.harvard.edu/abs/2009MNRAS.400.1283I/abstract and 
+https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests5-7.html
+
+Files:
+All .hdf5 files contain a slice along the midplane of size 128 x 128 cells,
+and the profiles of the corresponding hdf5 groups at different times for the
+code in the respective filname. The files also contain profiles along the
+axis of symmetry.
+
