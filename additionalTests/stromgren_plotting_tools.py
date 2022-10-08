@@ -18,9 +18,13 @@ def get_number_densities(Temp, XH, XHe):
     XHe: total mass fraction of all helium species (HeI + HeII + HeIII)
     """
 
-    # n_H = X_H * rho_gas / m_H =
-    # n_He = X_He * rho_gas / m_He = (1 - X_H) / (4 X_H) * n_H
-    #      =  X_He / 4(1 - X_He) * nH = y * nH
+    # n_H = X_H * rho_gas / m_H
+    # then m_H = rho_gas * X_H / n_H
+    # n_He = X_He * rho_gas / m_He =
+    #      = (1 - X_H) * rho_gas / (4 * m_H)
+    #      = (1 - X_H) * rho_gas / (4 * rho_gas * x_H / n_H)
+    #      = (1 - X_H) / (4 * X_H) * n_H
+    #      =  X_He / 4(1 - X_He) * n_H = y * n_H
 
     if XH == 0:
         nH = 0.0
@@ -121,9 +125,13 @@ def get_number_densities_array(Temp, XH, XHe):
     XHe: total mass fraction of all helium species (HeI + HeII + HeIII)
     """
 
-    # n_H = X_H * rho_gas / m_H =
-    # n_He = X_He * rho_gas / m_He = (1 - X_H) / (4 X_H) * n_H
-    #      =  X_He / 4(1 - X_He) * nH = y * nH
+    # n_H = X_H * rho_gas / m_H
+    # then m_H = rho_gas * X_H / n_H
+    # n_He = X_He * rho_gas / m_He =
+    #      = (1 - X_H) * rho_gas / (4 * m_H)
+    #      = (1 - X_H) * rho_gas / (4 * rho_gas * x_H / n_H)
+    #      = (1 - X_H) / (4 * X_H) * n_H
+    #      =  X_He / 4(1 - X_He) * n_H = y * n_H
 
     nH = np.zeros(XH.shape, dtype=np.float64)
     nHe = np.zeros(XH.shape, dtype=np.float64)
