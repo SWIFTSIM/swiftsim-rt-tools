@@ -186,7 +186,7 @@ if __name__ == "__main__":
                     xp_border[ind, 1] = y
                     xp_border[ind, 2] = z
 
-                    if i > border_particle_width:
+                    if i < border_particle_width:
                         # mark special boundary particles: add 10^7 to particles
                         # that won't "emit" radiation
                         pid_border[ind] *= 2
