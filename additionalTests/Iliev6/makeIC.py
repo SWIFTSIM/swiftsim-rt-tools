@@ -33,15 +33,15 @@ import stromgren_plotting_tools as spt
 
 gamma = 5.0 / 3.0
 
-#  resolution = 64
-resolution = 128
+#  resolution = 128
+resolution = 64
 
-# Select how many particles in the radius of the inner flat region
+# Select how many particles in the *radius* of the inner flat region
 # you want. You might need to play with this parameter a bit to
 # get a resolution similar to the desired one.
 # this also determines the particle mass.
-#  N_inner = 32 # this results in roughly 128^3 particles
-N_inner = 16  # this results in roughly 64^3 particles
+#  N_inner = 26 # this results in roughly 128^3 particles
+N_inner = 13  # this results in roughly 64^3 particles
 
 
 unitL = unyt.kpc
@@ -68,9 +68,7 @@ if __name__ == "__main__":
     # Get the inner flat region < r_0
     dx_inner = r_0_relative / N_inner
 
-    x_inner = np.zeros((2 * N_inner) ** 3)
-    y_inner = np.zeros((2 * N_inner) ** 3)
-    z_inner = np.zeros((2 * N_inner) ** 3)
+    xp_inner = np.zeros(((2 * N_inner) ** 3, 3))
     ind = 0
 
     for i in range(-N_inner, N_inner):
@@ -82,12 +80,12 @@ if __name__ == "__main__":
 
                 r = np.sqrt(xi ** 2 + yi ** 2 + zi ** 2)
                 if r <= r_0_relative:
-                    x_inner[ind] = 0.5 + xi
-                    y_inner[ind] = 0.5 + yi
-                    z_inner[ind] = 0.5 + zi
+                    xp_inner[ind, 0] = 0.5 + xi
+                    xp_inner[ind, 1] = 0.5 + yi
+                    xp_inner[ind, 2] = 0.5 + zi
                     ind += 1
 
-    xp_inner = np.vstack((x_inner[:ind], y_inner[:ind], z_inner[:ind])).T
+    xp_inner = xp_inner[:ind]
     xp_inner *= edgelen
 
     # get particle mass
@@ -98,6 +96,7 @@ if __name__ == "__main__":
     # with the known particle mass, we can now determine how many particles
     # of the same mass will fit in a sphere with radius r_0 -> box diagonal / 2
     r_diagonal = np.sqrt(3) * 0.5 * edgelen
+    # M(r) = 4 pi integral rho(r) r^2 dr
     Mtot = 4.0 * np.pi * rho_0 * r_0 ** 2 * (r_diagonal - (r_0 + dx_inner * edgelen))
     N_outer = int(Mtot / mpart + 0.5)
 
@@ -126,12 +125,13 @@ if __name__ == "__main__":
     mask = np.logical_and(mask, xp_outer[:, 2] < edgelen)
     xp_outer = xp_outer[mask]
 
-    xp = np.concatenate((xp_inner, xp_outer))
+    xp = np.concatenate((xp_inner, xp_outer), axis=0)
     print(
         "num parts - resolution**3",
         xp.shape[0] - resolution ** 3,
         "ratio",
         (xp.shape[0] - resolution ** 3) / resolution ** 3,
+        "(should be close to 0)",
     )
 
     # generate particle IDs
@@ -179,7 +179,7 @@ if __name__ == "__main__":
 
     xp_border *= edgelen
 
-    # concatenate arraays
+    # concatenate arrays
     xp = np.concatenate((xp, xp_border), axis=0)
     pid = np.concatenate((pid, pid_border), axis=0)
 
