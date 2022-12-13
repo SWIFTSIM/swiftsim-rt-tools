@@ -46,11 +46,11 @@ import stromgren_plotting_tools as spt
 # Parameters users should/may tweak
 
 # chose which reference to plot
+#  ref = "1Myr"
+#  ref = "3Myr"
 #  ref = "10Myr"
-#  ref = "30Myr"
-#  ref = "100Myr"
-#  ref = "200Myr"
-ref = "500Myr"
+ref = "25Myr"
+#  ref = "50Myr"
 
 
 # snapshot basename
@@ -80,7 +80,7 @@ params = {
     "axes.linewidth": 1.5,
     "text.usetex": True,
     "figure.subplot.left": 0.05,
-    "figure.subplot.right": 0.95,
+    "figure.subplot.right": 0.90,
     "figure.subplot.bottom": 0.035,
     "figure.subplot.top": 0.93,
     "figure.subplot.wspace": 0.15,

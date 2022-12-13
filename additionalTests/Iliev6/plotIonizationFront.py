@@ -108,7 +108,7 @@ def plot_ionization_fronts_from_log(fig):
     dr = rI[1:] - rI[:-1]
     dt = times[1:] - times[:-1]
     vI_full = dr / dt
-    stepsize = 256
+    stepsize = 1024
     n = int(vI_full.shape[0] / stepsize + 0.5)
     vI = np.zeros(n)
     timesV = np.zeros(n)
