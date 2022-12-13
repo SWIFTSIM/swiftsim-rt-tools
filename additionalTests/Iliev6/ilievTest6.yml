@@ -13,7 +13,7 @@ InternalUnitSystem:
 TimeIntegration:
   time_begin: 0.            # The starting time of the simulation (in internal units).
   time_end:   76651         # 75 Myr
-  dt_min:     0.0102084547  # 10 yr
+  dt_min:     0.00102084547 # 1 yr
   dt_max:     1020.84547    # 1 Myr
   max_nr_rt_subcycles: 128
 
