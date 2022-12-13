@@ -11,11 +11,11 @@ InternalUnitSystem:
 
 # Parameters governing the time integration
 TimeIntegration:
-  time_begin: 0.    # The starting time of the simulation (in internal units).
+  time_begin: 0.            # The starting time of the simulation (in internal units).
   time_end:   10208.4547    # 10 Myr
   dt_min:     0.0102084547  # 10 yr
   dt_max:     1020.84547    # 1 Myr
-  max_nr_rt_subcycles: 8    
+  max_nr_rt_subcycles: 128
 
 # Parameters governing the snapshots
 Snapshots:

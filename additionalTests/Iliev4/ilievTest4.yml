@@ -15,7 +15,7 @@ TimeIntegration:
   time_end:   408.8048    # 0.4 Myr
   dt_min:     0.02495146  # 0.4 Myr / 128**2 = 24.4 yr
   dt_max: 51.1
-  max_nr_rt_subcycles: 32
+  max_nr_rt_subcycles: 128
 
 # Parameters governing the snapshots
 Snapshots:

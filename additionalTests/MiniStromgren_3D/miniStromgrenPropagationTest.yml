@@ -11,7 +11,7 @@ InternalUnitSystem:
 
 # Parameters governing the time integration
 TimeIntegration:
-  max_nr_rt_subcycles: 4
+  max_nr_rt_subcycles: 32
   time_begin: 0.          # The starting time of the simulation (in internal units).
   time_end:   2751.903786 # 1 light crossing time
   dt_min:     2.751903786
