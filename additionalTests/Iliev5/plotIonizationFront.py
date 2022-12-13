@@ -331,7 +331,7 @@ if __name__ == "__main__":
     ax1 = fig.add_subplot(211)
     ax2 = fig.add_subplot(212, sharex=ax1)
 
-    snaplist = spt.get_snapshot_list(snapshot_base, True, -1)
+    #  snaplist = spt.get_snapshot_list(snapshot_base, True, -1)
     #  plot_ionization_fronts_from_snapshots(snaplist, fig)
     plot_ionization_fronts_from_log(fig)
     plot_ionization_fronts_reference(fig)
