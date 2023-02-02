@@ -284,7 +284,7 @@ def plot_ionization_fronts_reference(fig):
 
         times, rI, vI = np.loadtxt(fname, unpack=True)
 
-        times = times * unyt.Mpc
+        times = times * unyt.Myr
         rI = rI * unyt.kpc
         vI = vI * unyt.km / unyt.s
 
