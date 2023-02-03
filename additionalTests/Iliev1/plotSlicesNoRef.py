@@ -189,7 +189,6 @@ def plot_result(filename):
     #  set_colorbar(ax2, im2)
     #  ax2.set_title("Ionized Hydrogen Mass Fraction [1]")
 
-
     for ax in [ax1]:
         ax.set_xlabel("[kpc]")
         ax.set_ylabel("[kpc]")

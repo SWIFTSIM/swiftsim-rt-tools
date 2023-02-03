@@ -15,7 +15,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 if len(sys.argv) != 2:
-    print("Error, wrong usage. Run with ./plotLogHistogram.py dataFile.bin_histogram_logX.dat")
+    print(
+        "Error, wrong usage. Run with ./plotLogHistogram.py dataFile.bin_histogram_logX.dat"
+    )
     quit()
 
 infile = sys.argv[1]
