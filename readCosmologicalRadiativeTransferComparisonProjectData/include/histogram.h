@@ -180,4 +180,51 @@ void get_profile(float **profile, float **std, float *data) {
   free(count);
 }
 
+/**
+ * Get histogram (counts) of data using logarithmic values
+ * of the data.
+ *
+ * @param data the data to histogram. Assumed to be 128^3
+ * @param count (return) the event counts in each bin
+ * @param n number of bins to use
+ * @param minval lower limit of histogram
+ * @param maxval upper limit of histogram
+ *
+ * */
+void get_log_histogram(float *data, int **count, const int n,
+                       const float minval, const float maxval) {
+
+  int *c = malloc(n * sizeof(int));
+  for (int i = 0; i < n; i++)
+    c[i] = 0;
+  const float dx = (maxval - minval) / (float)n;
+
+  for (int i = 0; i < NCELLS * NCELLS * NCELLS; i++) {
+
+    double logval = log10(data[i]);
+    if (isnan(logval) || isinf(logval))
+      continue;
+
+    int index;
+    if (logval < minval) {
+      printf("WARNING: log(quantity) < threshold. logval=%.g thresh=%.g\n",
+             logval, minval);
+      index = 0;
+    } else if (logval > maxval) {
+      printf("WARNING: log(quantity) > threshold. logval=%.g thresh=%.g\n",
+             logval, maxval);
+      index = n - 1;
+    } else {
+      index = floor(fabs((logval - (double)minval) / dx));
+    }
+    /* printf("logval %12.6g maxval %g minval %g index %d maxind %d\n", logval,
+     */
+    /* maxval, minval, index, n); */
+    c[index] += 1;
+  }
+
+  check_is_NULL(count);
+  *count = c;
+}
+
 #endif

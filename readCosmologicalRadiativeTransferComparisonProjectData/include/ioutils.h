@@ -36,7 +36,8 @@ FILE *io_open_file(char *filename) {
 
   FILE *fp = fopen(filename, "rb");
   if (fp == NULL) {
-    printf("error while opening file %s", filename);
+    fprintf(stderr, "error while opening file %s\n", filename);
+    fflush(stderr);
     abort();
   }
 
@@ -111,7 +112,6 @@ void io_read_scalar_field(FILE *fp, float *buffer) {
 
 /**
  * write a 2D slice of the data.
- * Assumes data is 3D array with size 128 * 128 * 128
  *
  * @param srcfilename filename that was read in to obtain data
  * @param data the data
@@ -149,7 +149,6 @@ void io_write_slice(char *srcfilename, float *data, char *descriptor, int z) {
 
 /**
  * write a profile to file.
- * Assumes data is 3D array with size 128 * 128 * 128
  *
  * @param srcfilename filename that was read in to obtain data
  * @param profile the data
@@ -178,6 +177,42 @@ void io_write_profile(char *srcfilename, float *profile, float *std, int n,
     } else {
       fprintf(fp, "%.6e\n", profile[i]);
     }
+  }
+
+  fclose(fp);
+
+  printf("written file %s\n", outputfile);
+}
+
+/**
+ * write a histogram to file.
+ *
+ * @param srcfilename filename that was read in to obtain data
+ * @param hist the histogram
+ * @param n number of elements in profile array
+ * @param descriptor additional descriptor to add to output filename
+ * @param minval lower threshold for histogram values
+ * @param maxval upper threshold for histogram values
+ */
+void io_write_histogram(char *srcfilename, int *hist, int n, char *descriptor,
+                        float minval, float maxval) {
+
+  /* Generate output filename */
+  char outputfile[200] = "\0";
+  strcpy(outputfile, srcfilename);
+  char addname[80];
+  sprintf(addname, "_histogram_%s.dat", descriptor);
+  strcat(outputfile, addname);
+
+  float dx = (maxval - minval) / (float)n;
+
+  FILE *fp = fopen(outputfile, "w");
+  if (fp == NULL) {
+    printf("couldn't open file '%s'\n", outputfile);
+    abort();
+  }
+  for (int i = 0; i < n; i++) {
+    fprintf(fp, "%.6e, %6d\n", minval + (i + 0.5) * dx, hist[i]);
   }
 
   fclose(fp);
