@@ -209,11 +209,13 @@ void get_log_histogram(float *data, int **count, const int n,
     if (logval < minval) {
       printf("WARNING: log(quantity) < threshold. logval=%.g thresh=%.g\n",
              logval, minval);
-      index = 0;
+      /* index = 0; */
+      continue;
     } else if (logval > maxval) {
       printf("WARNING: log(quantity) > threshold. logval=%.g thresh=%.g\n",
              logval, maxval);
-      index = n - 1;
+      /* index = n - 1; */
+      continue;
     } else {
       index = floor(fabs((logval - (double)minval) / dx));
     }
