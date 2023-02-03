@@ -36,7 +36,7 @@ You can find instructions on how to fix the density field for GEAR-RT in
 swiftsim-rt-tools/additionalTests/instructions/GEARRT_turn_off_hydrodynamics_evolution.md
 
 This test also requires a treatment for boundary particles. The initial 
-conditions are set up to use a glass file for an inner region of the example,
+conditions are set up to use uniformly distributed particles for an inner region of the example,
 and an additional outer uniform particle distribution which constitutes an extra
 boundary particle layer. To accomodate the extra boundary particles, the box
 size is increased compared to the one prescribed in the Iliev+2006 paper.

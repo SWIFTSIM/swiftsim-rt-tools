@@ -4,14 +4,22 @@ See https://arxiv.org/abs/astro-ph/0603199 and
 https://astronomy.sussex.ac.uk/~iti20/RT_comparison_project/tests1-4.html
 
 Files:
-All files contain a slice along the midplane of size 128 x 128 cells.
+All '*slice*' files contain a slice along the midplane of size 128 x 128 cells.
     *_T_z=64.dat : contain temperature in K
     *_xHI_z=64.dat : contain neutral hydrogen mass fraction
 
 Codes used to create the output and output times are given in the file name.
 
-<CODE>_soft_<XMyr>_[T,xHI]_z=64.dat files contain the solutions for the 'soft' 
-blackbody spectrum with T = 3 * 10^4 K used instead of 10^5.
+<CODE>_soft_<XMyr>_[T,xHI]_z=64.dat files:
+    contain the solutions for the 'soft' blackbody spectrum with T = 3 * 10^4 K 
+    used instead of 10^5.
 
 Note that the published SimpleX temperature data is just zeros, and thus 
 skipped here.
+
+
+<CODE>_<XMyr>_histogram_log[T,xHI,xHII].dat files: 
+    Cell counts containing log_10 of quantity (temperature, neutral H, ionized H)
+    Each file contains 2 columns.
+    First column is center of bin, i.e. log_10 of quantity.
+    Second column contains cell counts for that bin.
