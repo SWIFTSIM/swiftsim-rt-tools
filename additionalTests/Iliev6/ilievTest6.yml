@@ -46,10 +46,9 @@ Restarts:
   onexit:             0          # (Optional) whether to dump restarts on exit (*needs enable*)
   subdir:             restart    # (Optional) name of subdirectory for restart files.
   basename:           swift      # (Optional) prefix used in naming restart files.
-  delta_hours:        6.0        # (Optional) decimal hours between dumps of restart files.
+  delta_hours:        12.0        # (Optional) decimal hours between dumps of restart files.
   stop_steps:         100        # (Optional) how many steps to process before checking if the <subdir>/stop file exists. When present the application will attempt to exit early, dumping restart files first.
-  # max_run_time:       23.75      # (optional) Maximal wall-clock time in hours. The application will exit when this limit is reached.
-  max_run_time:        7.75      # (optional) Maximal wall-clock time in hours. The application will exit when this limit is reached.
+  max_run_time:       47.75      # (optional) Maximal wall-clock time in hours. The application will exit when this limit is reached.
 
 GEARRT:
   f_reduce_c: 0.01                                       # reduce the speed of light for the RT solver by multiplying c with this factor
@@ -63,6 +62,6 @@ GEARRT:
   stellar_spectrum_type: 1                               # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
   stellar_spectrum_blackbody_temperature_K: 1.e5         # (Conditional) if stellar_spectrum_type=1, use this temperature (in K) for the blackbody spectrum.
   # ---- use this value for 64^3 resolution
-  stars_max_timestep: 0.59                                # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  # stars_max_timestep: 0.59                                # (Optional) restrict the maximal timestep of stars to this value (in internal units)
   # ---- use this value for 128^3 resolution
-  # stars_max_timestep: 0.3                                # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  stars_max_timestep: 0.3                                # (Optional) restrict the maximal timestep of stars to this value (in internal units)

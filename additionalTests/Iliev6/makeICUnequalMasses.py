@@ -221,4 +221,4 @@ if __name__ == "__main__":
 
     w.gas.internal_energy = np.ones(xp.shape[0], dtype=np.float64) * internal_energy
 
-    w.write("ilievTest6UnequalMass.hdf5")
+    w.write("ilievTest6UnequalMasses.hdf5")
