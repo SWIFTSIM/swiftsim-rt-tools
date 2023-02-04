@@ -354,7 +354,6 @@ def plot_solution(filename):
     ax6.set_ylim(1e-4, 3.0)
     ax1.legend()
 
-
     fig.suptitle("Iliev+09 Test 5, $t$ = {0:.0f}".format(meta.time.to("Myr")))
     #  plt.tight_layout()
     figname = filename[:-5]

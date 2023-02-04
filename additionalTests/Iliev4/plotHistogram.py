@@ -42,9 +42,9 @@ ref = "0.05Myr"
 #  ref = "0.4Myr"
 
 logTmin = 1.9
-logTmax = 5.
+logTmax = 5.0
 logxHImin = -2.5
-logxHImax = 0.
+logxHImax = 0.0
 nbins = 100
 
 #  Plot parameters
@@ -113,8 +113,12 @@ def plot_result(filename):
 
     logT = np.log10(T[real_parts])
 
-    histlogxHI, edges_xHI = np.histogram(logxHI, bins=nbins, range=(logxHImin, logxHImax))
-    histlogxHII, edges_xHII = np.histogram(logxHII, bins=nbins, range=(logxHImin, logxHImax))
+    histlogxHI, edges_xHI = np.histogram(
+        logxHI, bins=nbins, range=(logxHImin, logxHImax)
+    )
+    histlogxHII, edges_xHII = np.histogram(
+        logxHII, bins=nbins, range=(logxHImin, logxHImax)
+    )
     histlogT, edges_T = np.histogram(logT, bins=nbins, range=(logTmin, logTmax))
 
     # normalize
@@ -122,17 +126,15 @@ def plot_result(filename):
     histlogxHII = histlogxHII / np.sum(histlogxHII)
     histlogT = histlogT / np.sum(histlogT)
 
-    centers_xHI = 0.5*(edges_xHI[:-1] + edges_xHI[1:])
-    centers_xHII = 0.5*(edges_xHII[:-1] + edges_xHII[1:])
-    centers_T = 0.5*(edges_T[:-1] + edges_T[1:])
-
-
+    centers_xHI = 0.5 * (edges_xHI[:-1] + edges_xHI[1:])
+    centers_xHII = 0.5 * (edges_xHII[:-1] + edges_xHII[1:])
+    centers_T = 0.5 * (edges_T[:-1] + edges_T[1:])
 
     fig = plt.figure(figsize=(10, 5), dpi=200)
     figname = filename[:-5] + "-Histogram.png"
 
-    ax1 = fig.add_subplot(1,2,1)
-    ax2 = fig.add_subplot(1,2,2)
+    ax1 = fig.add_subplot(1, 2, 1)
+    ax2 = fig.add_subplot(1, 2, 2)
 
     #  ax1.semilogy(centers_xHII, histlogxHII, label="GEARRT", zorder=20)
     ax1.semilogy(centers_xHI, histlogxHI, label="GEARRT", zorder=20)
@@ -162,7 +164,6 @@ def plot_result(filename):
         counts = counts / np.sum(counts)
         ax2.semilogy(centers, counts, label=label, alpha=alpha, zorder=zorder, c=col)
 
-
     #  ax1.set_title("Ionized Hydrogen Mass Fraction")
     #  ax1.set_xlabel("log(x_{\mathrm{HII}})")
     #  ax1.set_ylabel(r"$N(x_{\mathrm{HII}}) / N_{\mathrm{tot}}$")
@@ -174,7 +175,6 @@ def plot_result(filename):
     ax2.set_title("Temperature")
     ax2.set_xlabel(r"$\log(T)$")
     ax2.set_ylabel(r"$N(T) / N_{\mathrm{tot}}$")
-
 
     title = "Iliev+06 Test 4"
     if meta.cosmology is not None:
