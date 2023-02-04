@@ -33,7 +33,7 @@ Statistics:
 # Parameters for the hydrodynamics scheme
 SPH:
   resolution_eta:        1.2348   # Target smoothing length in units of the mean inter-particle separation (1.2348 == 48Ngbs with the cubic spline kernel).
-  CFL_condition:         100.     # We can only afford to use this stupidity here because in this test, all hydrodynamics is supposed to be turned off.
+  CFL_condition:         0.3
   minimal_temperature:   10.      # Kelvin
 
 # Parameters related to the initial conditions
