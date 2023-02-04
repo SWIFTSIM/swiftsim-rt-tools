@@ -334,6 +334,7 @@ def plot_solution(filename):
         # with GEARRT
         ax.set_xlim(0.0, 1.01)
         ax.grid()
+
     ax1.set_yscale("log")
     ax1.set_ylim(5e-6, 1.2)
 
@@ -341,7 +342,7 @@ def plot_solution(filename):
     ax2.set_ylim(5e-6, 1.2)
 
     ax3.set_yscale("log")
-    ax3.set_ylim(2.5e-4, 2.5e-3)
+    ax3.set_ylim(7e-5, 3.5e-3)
 
     ax4.set_yscale("log")
     ax4.set_ylim(80, 5e4)
@@ -350,8 +351,9 @@ def plot_solution(filename):
     ax5.set_ylim(1e-17, 5e-15)
 
     ax6.set_yscale("log")
-    ax6.set_ylim(1e-4, 1.0)
+    ax6.set_ylim(1e-4, 3.0)
     ax1.legend()
+
 
     fig.suptitle("Iliev+09 Test 5, $t$ = {0:.0f}".format(meta.time.to("Myr")))
     #  plt.tight_layout()
