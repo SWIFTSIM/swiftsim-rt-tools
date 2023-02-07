@@ -39,7 +39,6 @@ from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from swiftsimio.visualisation.slice import slice_gas
 
-from rainbow4_colormap import rainbow4
 import stromgren_plotting_tools as spt
 
 # Parameters users should/may tweak
@@ -218,21 +217,13 @@ def plot_result(filename):
     ax6 = fig.add_subplot(236)
 
     im1 = ax1.imshow(
-        HI_map.T,
-        **imshow_kwargs,
-        norm=LogNorm(vmin=1.0e-7, vmax=1.2),
-        #  cmap=rainbow4,
-        cmap="cividis",
+        HI_map.T, **imshow_kwargs, norm=LogNorm(vmin=1.0e-7, vmax=1.2), cmap="cividis"
     )
     set_colorbar(ax1, im1)
     ax1.set_title("Neutral Hydrogen Mass Fraction [1]")
 
     im2 = ax2.imshow(
-        HII_map.T,
-        **imshow_kwargs,
-        norm=LogNorm(vmin=1.0e-7, vmax=1.2),
-        #  cmap=rainbow4,
-        cmap="cividis",
+        HII_map.T, **imshow_kwargs, norm=LogNorm(vmin=1.0e-7, vmax=1.2), cmap="cividis"
     )
     set_colorbar(ax2, im2)
     ax2.set_title("Ionized Hydrogen Mass Fraction [1]")
@@ -240,8 +231,7 @@ def plot_result(filename):
     im3 = ax3.imshow(
         number_density_map.T,
         **imshow_kwargs,
-        norm=LogNorm(vmin=2.5e-4, vmax=2.5e-3),
-        #  cmap=rainbow4,
+        norm=LogNorm(vmin=1.0e-3, vmax=6.0),
         cmap="cividis",
     )
     set_colorbar(ax3, im3)
@@ -250,8 +240,7 @@ def plot_result(filename):
     im4 = ax4.imshow(
         temperature_map.T,
         **imshow_kwargs,
-        norm=LogNorm(vmin=80, vmax=1e5),
-        #  cmap=rainbow4,
+        norm=LogNorm(vmin=80, vmax=5e4),
         cmap="cividis",
     )
     set_colorbar(ax4, im4)
@@ -260,20 +249,14 @@ def plot_result(filename):
     im5 = ax5.imshow(
         pressure_map.T,
         **imshow_kwargs,
-        norm=LogNorm(vmin=1e-17, vmax=1e-14),
-        #  cmap=rainbow4,
+        norm=LogNorm(vmin=1e-16, vmax=5e-11),
         cmap="cividis",
     )
     set_colorbar(ax5, im5)
     ax5.set_title(r"Pressure [g cm$^{-1}$ s$^{-2}$]")
 
     im6 = ax6.imshow(
-        mach_map.T,
-        **imshow_kwargs,
-        norm=LogNorm(),
-        #  norm=LogNorm(vmin=1e-3, vmax=1e1),
-        #  cmap=rainbow4,
-        cmap="cividis",
+        mach_map.T, **imshow_kwargs, norm=LogNorm(vmin=1e-3, vmax=5.0), cmap="cividis"
     )
     set_colorbar(ax6, im6)
     ax6.set_title(r"Mach Number [1]")

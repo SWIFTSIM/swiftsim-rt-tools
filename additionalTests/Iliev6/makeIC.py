@@ -40,7 +40,7 @@ resolution = 128
 # you want. You might need to play with this parameter a bit to
 # get a resolution similar to the desired one.
 # this also determines the particle mass.
-N_inner = 26 # this results in roughly 128^3 particles
+N_inner = 26  # this results in roughly 128^3 particles
 #  N_inner = 13  # this results in roughly 64^3 particles
 
 

@@ -257,13 +257,13 @@ def plot_solution(filename):
     ax3.set_ylim(1.0e-4, 1.0)
 
     ax4.set_yscale("log")
-    ax4.set_ylim(40, 5e4)
+    ax4.set_ylim(40, 1e5)
 
     ax5.set_yscale("log")
     ax5.set_ylim(1e-16, 1e-12)
 
     #  ax6.set_yscale("log")
-    ax6.set_ylim(0.0, 4.0)
+    ax6.set_ylim(-0.2, 4.0)
     ax1.legend()
 
     fig.suptitle("Iliev+09 Test 7, $t$ = {0:.0f}".format(meta.time.to("Myr")))
