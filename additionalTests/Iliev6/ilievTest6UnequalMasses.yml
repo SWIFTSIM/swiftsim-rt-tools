@@ -11,11 +11,11 @@ InternalUnitSystem:
 
 # Parameters governing the time integration
 TimeIntegration:
+  max_nr_rt_subcycles: 8
   time_begin: 0.            # The starting time of the simulation (in internal units).
   time_end:   76651         # 75 Myr
   dt_min:     0.00102084547 # 1 yr
   dt_max:     1020.84547    # 1 Myr
-  max_nr_rt_subcycles: 128
 
 # Parameters governing the snapshots
 Snapshots:
@@ -31,7 +31,7 @@ Statistics:
 # Parameters for the hydrodynamics scheme
 SPH:
   resolution_eta:        1.2348   # Target smoothing length in units of the mean inter-particle separation (1.2348 == 48Ngbs with the cubic spline kernel).
-  CFL_condition:         0.3     # We can only afford to use this stupidity here because in this test, all hydrodynamics is supposed to be turned off.
+  CFL_condition:         0.1      # We can only afford to use this stupidity here because in this test, all hydrodynamics is supposed to be turned off.
   minimal_temperature:   10.      # Kelvin
 
 # Parameters related to the initial conditions
@@ -39,10 +39,21 @@ InitialConditions:
   file_name:  ./ilievTest6UnequalMasses.hdf5  # The file to read
   periodic:   0                  # periodic ICs
 
+# Parameters controlling restarts
+Restarts:
+  enable:             1          # (Optional) whether to enable dumping restarts at fixed intervals.
+  save:               0          # (Optional) whether to save copies of the previous set of restart files (named .prev)
+  onexit:             0          # (Optional) whether to dump restarts on exit (*needs enable*)
+  subdir:             restart    # (Optional) name of subdirectory for restart files.
+  basename:           swift      # (Optional) prefix used in naming restart files.
+  delta_hours:        12.0        # (Optional) decimal hours between dumps of restart files.
+  stop_steps:         100        # (Optional) how many steps to process before checking if the <subdir>/stop file exists. When present the application will attempt to exit early, dumping restart files first.
+  # max_run_time:        71.5      # (optional) Maximal wall-clock time in hours. The application will exit when this limit is reached.
+
 GEARRT:
   f_reduce_c: 0.01                                       # reduce the speed of light for the RT solver by multiplying c with this factor
-  f_limit_cooling_time: 0.01     
-  CFL_condition: 0.6                                     # CFL condition for radiation transport
+  f_limit_cooling_time: 0.001     
+  CFL_condition: 0.5                                     # CFL condition for radiation transport
   photon_groups_Hz: [3.288e15, 5.945e15, 13.157e15]      # Photon frequency group bin edges in Hz.
   const_stellar_luminosities_LSol: [ 3.528e+05, 7.261e+05, 1.607e+05 ]   # (Conditional) constant star emission rates for each photon frequency group to use if use_constant_emission_rates is set, in units of Solar Luminosity.
   stellar_luminosity_model: const                        # (Optional) use constant emission rates for stars as defined with star_emission_rates_erg_LSol parameter
@@ -51,6 +62,6 @@ GEARRT:
   stellar_spectrum_type: 1                               # Which radiation spectrum to use. 0: constant from 0 until some max frequency set by stellar_spectrum_const_max_frequency_Hz. 1: blackbody spectrum.
   stellar_spectrum_blackbody_temperature_K: 1.e5         # (Conditional) if stellar_spectrum_type=1, use this temperature (in K) for the blackbody spectrum.
   # ---- use this value for 64^3 resolution
-  # stars_max_timestep: 2.4                                # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  # stars_max_timestep: 0.15                                # (Optional) restrict the maximal timestep of stars to this value (in internal units)
   # ---- use this value for 128^3 resolution
-  stars_max_timestep: 1.2                                # (Optional) restrict the maximal timestep of stars to this value (in internal units)
+  stars_max_timestep: 0.075                                # (Optional) restrict the maximal timestep of stars to this value (in internal units)
