@@ -23,7 +23,7 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 # CONFIG_BFLOAT= CONFIG_BFLOAT_4
 
 GSL_INCL = -I$(GSL_ROOT)/include
-GSL_LIBS = -I$(GSL_ROOT)/lib
+GSL_LIBS = -L$(GSL_ROOT)/lib
 
 #==================================
 # COMPILER OPTIONS AND DIRECTIVES
@@ -38,22 +38,24 @@ OPTIONS = -pedantic -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror 
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
 # -fsanitize=address
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
-# Additional libraries
-LIBS = $(GRACKLE_LIBS)
-LIBS += $(GSL_LIBS)
+# linking flags
+LDFLAGS = $(GRACKLE_LIBS)
+LDFLAGS += $(GSL_LIBS)
+
 # Additional header files
 INCLUDES = -I$(IDIR) -I.
 INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
-# linking flags
-LDFLAGS  = -lm -lgrackle -lgfortran -lgsl
 
-CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS) $(LDFLAGS)
+# Additional libraries
+LIBS  = -lgrackle -lgsl -lblas -lgfortran -lm
+
+CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 
 
 
@@ -83,10 +85,10 @@ HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h cross_sec
 default: $(EXEC)
 
 $(EXEC): $(OBJECTS) $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
 main.o: main.c $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 #-c : compile and assemble, but do not link
 
 
