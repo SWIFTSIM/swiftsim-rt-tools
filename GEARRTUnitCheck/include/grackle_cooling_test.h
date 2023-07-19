@@ -61,8 +61,7 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
   /* -------------------------- */
   double dt_max = 5e2; /* in yr. will be converted later */
   double tinit = 1.;   /* in yr; will be converted later */
-  /* double tend = 1e7;   [> in yr; will be converted later <] */
-  double tend = 2;   /* in yr; will be converted later */
+  double tend = 1e7;   /* in yr; will be converted later */
 
   double t = tinit * const_yr / time_units; /* yr to code units */
   dt_max = dt_max * const_yr / time_units;  /* yr to code units */
