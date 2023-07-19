@@ -12,6 +12,8 @@
 #define RT_NGROUPS 3
 /* Grackle related macros */
 #define FIELD_SIZE 1
+/* don't raise warnings about deprecated grackle functions */
+#define OMIT_LEGACY_INTERNAL_GRACKLE_FUNC
 #include "my_grackle_utils.h"
 
 #include <float.h>
