@@ -186,8 +186,8 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
     /* Print to screen as well */
     write_header(stdout);
     write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt_max,
-                   time_units, /*step=*/0);
+                   &grackle_chemistry_data, &grackle_chemistry_rates,
+                   /*field_index=*/0, t, dt_max, time_units, /*step=*/0);
   }
 
   /* write down what ICs you used into file */
@@ -196,8 +196,8 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
                  hydrogen_fraction_by_mass, gas_density, internal_energy);
   write_header(fd);
   write_timestep(fd, &grackle_fields, &grackle_units_data,
-                 &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt_max,
-                 time_units,
+                 &grackle_chemistry_data, &grackle_chemistry_rates,
+                 /*field_index=*/0, t, dt_max, time_units,
                  /*step=*/0);
 
   /*********************************************************************
@@ -212,9 +212,9 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
 
     /* Get cooling time */
     gr_float tchem_time;
-    if (local_calculate_cooling_time(&grackle_chemistry_data, &grackle_chemistry_rates,
-                                     &grackle_units_data, &grackle_fields,
-                                     &tchem_time) == 0)
+    if (local_calculate_cooling_time(
+            &grackle_chemistry_data, &grackle_chemistry_rates,
+            &grackle_units_data, &grackle_fields, &tchem_time) == 0)
       error("Error in calculate_cooling_time.");
     double dt = fmin(fabs(tchem_time), dt_max);
 
@@ -229,7 +229,9 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
     grackle_checks_ion_sum(&grackle_fields, mass_units);
 
     if (verbose) {
-      write_timestep(stdout, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt, time_units, step);
+      write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                     &grackle_chemistry_data, &grackle_chemistry_rates,
+                     /*field_index=*/0, t, dt, time_units, step);
     } else {
       if (t / tend >
           ((double)(completion + 1) / (double)completion_fractions)) {
@@ -241,8 +243,8 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
 
     if (step % output_frequency == 0)
       write_timestep(fd, &grackle_fields, &grackle_units_data,
-                     &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt,
-                     time_units, step);
+                     &grackle_chemistry_data, &grackle_chemistry_rates,
+                     /*field_index=*/0, t, dt, time_units, step);
   }
 
   /* Clean up after yourself */

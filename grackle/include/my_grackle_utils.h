@@ -123,16 +123,21 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
   /* radiative transfer ionization / dissociation rate fields (provide in units
    * [1/s]) */
   grackle_fields->RT_HI_ionization_rate = malloc(FIELD_SIZE * sizeof(gr_float));
-  grackle_fields->RT_HeI_ionization_rate = malloc(FIELD_SIZE * sizeof(gr_float));
-  grackle_fields->RT_HeII_ionization_rate = malloc(FIELD_SIZE * sizeof(gr_float));
-  grackle_fields->RT_H2_dissociation_rate = malloc(FIELD_SIZE * sizeof(gr_float));
-  /* radiative transfer heating rate field (provide in units [erg s^-1 cm^-3]) */
+  grackle_fields->RT_HeI_ionization_rate =
+      malloc(FIELD_SIZE * sizeof(gr_float));
+  grackle_fields->RT_HeII_ionization_rate =
+      malloc(FIELD_SIZE * sizeof(gr_float));
+  grackle_fields->RT_H2_dissociation_rate =
+      malloc(FIELD_SIZE * sizeof(gr_float));
+  /* radiative transfer heating rate field (provide in units [erg s^-1 cm^-3])
+   */
   grackle_fields->RT_heating_rate = malloc(FIELD_SIZE * sizeof(gr_float));
 
-  grackle_fields->H2_self_shielding_length = malloc(FIELD_SIZE * sizeof(gr_float));
-  grackle_fields->H2_custom_shielding_factor = malloc(FIELD_SIZE * sizeof(gr_float));
+  grackle_fields->H2_self_shielding_length =
+      malloc(FIELD_SIZE * sizeof(gr_float));
+  grackle_fields->H2_custom_shielding_factor =
+      malloc(FIELD_SIZE * sizeof(gr_float));
   grackle_fields->isrf_habing = malloc(FIELD_SIZE * sizeof(gr_float));
-
 
   for (int i = 0; i < FIELD_SIZE; i++) {
 
@@ -320,7 +325,8 @@ void write_timestep(FILE *fd, grackle_field_data *grackle_fields,
                     code_units *grackle_units_data,
                     chemistry_data *grackle_chemistry_data,
                     chemistry_data_storage *grackle_chemistry_rates,
-                    int field_index, double t, double dt, double time_units, int step) {
+                    int field_index, double t, double dt, double time_units,
+                    int step) {
 
   /* Additional arrays to store temperature and mean molecular weights
    * of each cell. */
@@ -332,8 +338,9 @@ void write_timestep(FILE *fd, grackle_field_data *grackle_fields,
   }
 
   /* Grab temperature and mean molecular weights. */
-  if (local_calculate_temperature(grackle_chemistry_data, grackle_chemistry_rates, grackle_units_data, grackle_fields, temperature) ==
-      0) {
+  if (local_calculate_temperature(grackle_chemistry_data,
+                                  grackle_chemistry_rates, grackle_units_data,
+                                  grackle_fields, temperature) == 0) {
     fprintf(stderr, "Error in calculate_temperature.\n");
     abort();
   }

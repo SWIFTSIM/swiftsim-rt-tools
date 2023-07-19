@@ -190,7 +190,9 @@ int main() {
   }
 
   write_header(stdout);
-  write_timestep(stdout, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt, time_units, /*step=*/0);
+  write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                 &grackle_chemistry_data, &grackle_chemistry_rates,
+                 /*field_index=*/0, t, dt, time_units, /*step=*/0);
 
   /* Now into a file as well. */
   /* also write down what ICs you used into file */
@@ -198,7 +200,9 @@ int main() {
                  length_units, velocity_units, dt, hydrogen_fraction_by_mass,
                  gas_density, internal_energy);
   write_header(fd);
-  write_timestep(fd, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt, time_units, /*step=*/0);
+  write_timestep(fd, &grackle_fields, &grackle_units_data,
+                 &grackle_chemistry_data, &grackle_chemistry_rates,
+                 /*field_index=*/0, t, dt, time_units, /*step=*/0);
 
   /*********************************************************************
   / Calling the chemistry solver
@@ -211,19 +215,20 @@ int main() {
     t += dt;
     step += 1;
 
-    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates, &grackle_units_data, &grackle_fields, dt) == 0) {
+    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates,
+                              &grackle_units_data, &grackle_fields, dt) == 0) {
       fprintf(stderr, "Error in solve_chemistry.\n");
       return EXIT_FAILURE;
     }
 
     write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt,
-                   time_units, step);
+                   &grackle_chemistry_data, &grackle_chemistry_rates,
+                   /*field_index=*/0, t, dt, time_units, step);
 
     if (step % output_frequency == 0)
       write_timestep(fd, &grackle_fields, &grackle_units_data,
-                     &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt,
-                     time_units, step);
+                     &grackle_chemistry_data, &grackle_chemistry_rates,
+                     /*field_index=*/0, t, dt, time_units, step);
   }
 
   /* Clean up after yourself */

@@ -230,14 +230,18 @@ int main() {
   }
 
   write_header(stdout);
-  write_timestep(stdout, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt_max_heat, time_units, /*step=*/0);
+  write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                 &grackle_chemistry_data, &grackle_chemistry_rates,
+                 /*field_index=*/0, t, dt_max_heat, time_units, /*step=*/0);
 
   /* write down what ICs you used into file */
   write_my_setup(fd, grackle_fields, &grackle_chemistry_data, mass_units,
                  length_units, velocity_units, dt_max_heat,
                  hydrogen_fraction_by_mass, gas_density, internal_energy);
   write_header(fd);
-  write_timestep(fd, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt_max_heat, time_units, /*step=*/0);
+  write_timestep(fd, &grackle_fields, &grackle_units_data,
+                 &grackle_chemistry_data, &grackle_chemistry_rates,
+                 /*field_index=*/0, t, dt_max_heat, time_units, /*step=*/0);
 
   /*********************************************************************
   / Calling the chemistry solver
@@ -291,9 +295,9 @@ int main() {
 
     /* Get cooling time */
     gr_float tchem_time;
-    if (local_calculate_cooling_time(&grackle_chemistry_data, &grackle_chemistry_rates,
-                                     &grackle_units_data, &grackle_fields,
-                                     &tchem_time) == 0) {
+    if (local_calculate_cooling_time(
+            &grackle_chemistry_data, &grackle_chemistry_rates,
+            &grackle_units_data, &grackle_fields, &tchem_time) == 0) {
 
       fprintf(stderr, "Error in calculate_cooling_time.");
       abort();
@@ -303,15 +307,21 @@ int main() {
     t += dt_use;
     step += 1;
 
-    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates, &grackle_units_data, &grackle_fields, dt_use) == 0) {
+    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates,
+                              &grackle_units_data, &grackle_fields,
+                              dt_use) == 0) {
       fprintf(stderr, "Error in solve_chemistry.\n");
       return EXIT_FAILURE;
     }
 
-    write_timestep(stdout, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt_use, time_units, step);
+    write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                   &grackle_chemistry_data, &grackle_chemistry_rates,
+                   /*field_index=*/0, t, dt_use, time_units, step);
 
     if (step % output_frequency == 0)
-      write_timestep(fd, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt_use, time_units, step);
+      write_timestep(fd, &grackle_fields, &grackle_units_data,
+                     &grackle_chemistry_data, &grackle_chemistry_rates,
+                     /*field_index=*/0, t, dt_use, time_units, step);
   }
 
   /* Cleanup */

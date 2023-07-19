@@ -208,7 +208,7 @@ void run_grackle_heating_test(
 
   chemistry_data grackle_chemistry_data;
   if (local_initialize_chemistry_parameters(&grackle_chemistry_data) == 0) {
-     error("Error in set_default_chemistry_parameters.");
+    error("Error in set_default_chemistry_parameters.");
   }
 
   /* Set parameter values for chemistry. */
@@ -238,7 +238,9 @@ void run_grackle_heating_test(
 
   if (verbose) {
     write_header(stdout);
-    write_timestep(stdout, &grackle_fields, &grackle_units_data, &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt_max_heat, time_units, /*step=*/0);
+    write_timestep(stdout, &grackle_fields, &grackle_units_data,
+                   &grackle_chemistry_data, &grackle_chemistry_rates,
+                   /*field_index=*/0, t, dt_max_heat, time_units, /*step=*/0);
   }
 
   /* write down what ICs you used into file */
@@ -248,8 +250,8 @@ void run_grackle_heating_test(
                    hydrogen_fraction_by_mass, gas_density, internal_energy);
     write_header(fd);
     write_timestep(fd, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt_max_heat,
-                   time_units, /*step=*/0);
+                   &grackle_chemistry_data, &grackle_chemistry_rates,
+                   /*field_index=*/0, t, dt_max_heat, time_units, /*step=*/0);
   }
 
   /*********************************************************************
@@ -289,16 +291,17 @@ void run_grackle_heating_test(
 
     /* Get cooling time */
     gr_float tchem_time;
-    if (local_calculate_cooling_time(&grackle_chemistry_data, &grackle_chemistry_rates,
-                                     &grackle_units_data, &grackle_fields,
-                                     &tchem_time) == 0)
+    if (local_calculate_cooling_time(
+            &grackle_chemistry_data, &grackle_chemistry_rates,
+            &grackle_units_data, &grackle_fields, &tchem_time) == 0)
       error("Error in calculate_cooling_time.");
     double dt = fmin(fabs(tchem_time), dt_max);
 
     t += dt;
     step += 1;
 
-    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates, &grackle_units_data, &grackle_fields, dt) == 0) {
+    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates,
+                              &grackle_units_data, &grackle_fields, dt) == 0) {
       error("Error in solve_chemistry.");
     }
 
@@ -307,8 +310,8 @@ void run_grackle_heating_test(
 
     if (verbose) {
       write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                     &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt,
-                     time_units, step);
+                     &grackle_chemistry_data, &grackle_chemistry_rates,
+                     /*field_index=*/0, t, dt, time_units, step);
     } else {
       if (t / tend >
           ((double)(completion + 1) / (double)completion_fractions)) {
@@ -320,8 +323,8 @@ void run_grackle_heating_test(
 
     if (step % output_frequency_to_use == 0 && dump_results)
       write_timestep(fd, &grackle_fields, &grackle_units_data,
-                     &grackle_chemistry_data, &grackle_chemistry_rates, /*field_index=*/0, t, dt,
-                     time_units, step);
+                     &grackle_chemistry_data, &grackle_chemistry_rates,
+                     /*field_index=*/0, t, dt, time_units, step);
   }
 
   /* Cleanup */
