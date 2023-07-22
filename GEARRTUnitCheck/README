@@ -10,6 +10,12 @@ which is the non-equilibrium 6 species network (H0, Hp, He0, Hep, Hepp, e-).
 
 NOTE: these tests don't inlcude cosmology yet.
 
+NOTE: The grackle library is experiencing active development (state 2023). The API
+might change in the future. We keep a frozen version forked on 
+https://github.com/mladenivkovic/grackle-swift .
+This version is guaranteed to work with swift (and with this repository).
+
+
 Instructions
 -------------
 

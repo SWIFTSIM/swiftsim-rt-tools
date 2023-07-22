@@ -11,7 +11,7 @@ SWIFT.
     codebase.
 
 -   `grackle/` - standalone programs using the 
-    [grackle](https://github.com/grackle-project/grackle) library for specific 
+    [grackle](https://github.com/grackle-project/grackle-swift) library for specific 
     problems.
 
 -   `GEARRTUnitCheck/` - a set of checks for unit compatibility with float 
