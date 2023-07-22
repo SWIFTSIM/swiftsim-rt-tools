@@ -40,7 +40,8 @@ OPTIONS = -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror #-fsanitize=address
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror 
+#-fsanitize=address
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
@@ -91,12 +92,9 @@ default: $(EXEC)
 $(EXEC): $(OBJECTS) $(HEADERS)
 	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
-# $(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
-
 main.o: main.c $(HEADERS)
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 
-# $(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS)
 
 
 #==================================
