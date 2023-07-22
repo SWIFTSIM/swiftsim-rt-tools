@@ -9,7 +9,8 @@ SRCDIR = src
 # manual definitions
 DEFINES=
 
-GRACKLE_ROOT=$(HOME)/local/my_compiles/grackle_64
+# define grackle root directory, if the variable isn't defined already.
+# GRACKLE_ROOT=$(HOME)/local/my_compiles/grackle_64
 
 # Grackle Dirs
 # for 64 bit floats
