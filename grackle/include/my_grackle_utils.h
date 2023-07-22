@@ -193,24 +193,32 @@ void clean_up_fields(grackle_field_data *grackle_fields) {
   free(grackle_fields->grid_start);
   free(grackle_fields->grid_end);
 
+  /* initial quantities */
   free(grackle_fields->density);
   free(grackle_fields->internal_energy);
   free(grackle_fields->x_velocity);
   free(grackle_fields->y_velocity);
   free(grackle_fields->z_velocity);
+  /* for primordial_chemistry >= 1 */
   free(grackle_fields->HI_density);
   free(grackle_fields->HII_density);
   free(grackle_fields->HeI_density);
   free(grackle_fields->HeII_density);
   free(grackle_fields->HeIII_density);
   free(grackle_fields->e_density);
+  /* for primordial_chemistry >= 2 */
   free(grackle_fields->HM_density);
   free(grackle_fields->H2I_density);
   free(grackle_fields->H2II_density);
+  /* for primordial_chemistry >= 3 */
   free(grackle_fields->DI_density);
   free(grackle_fields->DII_density);
   free(grackle_fields->HDI_density);
+  /* for metal_cooling = 1 */
   free(grackle_fields->metal_density);
+  /* for use_dust_density_field = 1 */
+  free(grackle_fields->dust_density);
+
   free(grackle_fields->volumetric_heating_rate);
   free(grackle_fields->specific_heating_rate);
 
@@ -219,6 +227,10 @@ void clean_up_fields(grackle_field_data *grackle_fields) {
   free(grackle_fields->RT_HeII_ionization_rate);
   free(grackle_fields->RT_H2_dissociation_rate);
   free(grackle_fields->RT_heating_rate);
+
+  free(grackle_fields->H2_self_shielding_length);
+  free(grackle_fields->H2_custom_shielding_factor);
+  free(grackle_fields->isrf_habing);
 }
 
 /**
