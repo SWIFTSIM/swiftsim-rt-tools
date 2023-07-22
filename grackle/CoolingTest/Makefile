@@ -39,14 +39,17 @@ DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
-# Additional libraries
-LIBS = $(GRACKLE_LIBS)
-# Additional header files
-INCLUDES = -I$(IDIR) -I. $(GRACKLE_INCL)
 # linking flags
-LDFLAGS  = -lm -lgrackle -lgfortran
+LDFLAGS = $(GRACKLE_LIBS)
 
-CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS) $(LDFLAGS)
+# Additional header files
+INCLUDES = -I$(IDIR) -I.
+INCLUDES += $(GRACKLE_INCL)
+
+# Additional libraries
+LIBS  = -lgrackle -lgfortran -lm
+
+CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 
 
 
@@ -75,10 +78,10 @@ HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackl
 default: $(EXEC)
 
 $(EXEC): $(OBJECTS) $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
 main.o: main.c $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 #-c : compile and assemble, but do not link
 
 

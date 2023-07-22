@@ -47,6 +47,7 @@ void setup_grackle_chemistry(chemistry_data *grackle_chemistry_data,
   grackle_chemistry_data->metal_cooling = 0;
   grackle_chemistry_data->UVbackground = UVbackground;
   grackle_chemistry_data->grackle_data_file = grackle_data_file;
+  grackle_chemistry_data->grackle_data_file = NULL;
   grackle_chemistry_data->use_radiative_transfer = use_radiative_transfer;
   grackle_chemistry_data->HydrogenFractionByMass = hydrogen_fraction_by_mass;
   grackle_chemistry_data->Gamma =
@@ -72,7 +73,7 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
   grackle_fields->grid_start = start;
   grackle_fields->grid_end = end;
   /* used only for H2 self-shielding approximation */
-  /* grackle_fields->grid_dx = 0.0; */
+  grackle_fields->grid_dx = 1.0;
 
   /* NOTE: if you're trying to simplify this, you MUST allocate GRIDDIM = 3
    * and grid_dimension, grid_start, grid_end with at least 3D as well.
@@ -110,6 +111,8 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
   grackle_fields->HDI_density = malloc(FIELD_SIZE * sizeof(gr_float));
   /* for metal_cooling = 1 */
   grackle_fields->metal_density = malloc(FIELD_SIZE * sizeof(gr_float));
+  /* for use_dust_density_field = 1 */
+  grackle_fields->dust_density = malloc(FIELD_SIZE * sizeof(gr_float));
 
   /* volumetric heating rate (provide in units [erg s^-1 cm^-3]) */
   grackle_fields->volumetric_heating_rate =
@@ -129,6 +132,12 @@ void setup_grackle_fields(grackle_field_data *grackle_fields,
   /* radiative transfer heating rate field (provide in units [erg s^-1 cm^-3])
    */
   grackle_fields->RT_heating_rate = malloc(FIELD_SIZE * sizeof(gr_float));
+
+  grackle_fields->H2_self_shielding_length =
+      malloc(FIELD_SIZE * sizeof(gr_float));
+  grackle_fields->H2_custom_shielding_factor =
+      malloc(FIELD_SIZE * sizeof(gr_float));
+  grackle_fields->isrf_habing = malloc(FIELD_SIZE * sizeof(gr_float));
 
   for (int i = 0; i < FIELD_SIZE; i++) {
 
@@ -184,24 +193,32 @@ void clean_up_fields(grackle_field_data *grackle_fields) {
   free(grackle_fields->grid_start);
   free(grackle_fields->grid_end);
 
+  /* initial quantities */
   free(grackle_fields->density);
   free(grackle_fields->internal_energy);
   free(grackle_fields->x_velocity);
   free(grackle_fields->y_velocity);
   free(grackle_fields->z_velocity);
+  /* for primordial_chemistry >= 1 */
   free(grackle_fields->HI_density);
   free(grackle_fields->HII_density);
   free(grackle_fields->HeI_density);
   free(grackle_fields->HeII_density);
   free(grackle_fields->HeIII_density);
   free(grackle_fields->e_density);
+  /* for primordial_chemistry >= 2 */
   free(grackle_fields->HM_density);
   free(grackle_fields->H2I_density);
   free(grackle_fields->H2II_density);
+  /* for primordial_chemistry >= 3 */
   free(grackle_fields->DI_density);
   free(grackle_fields->DII_density);
   free(grackle_fields->HDI_density);
+  /* for metal_cooling = 1 */
   free(grackle_fields->metal_density);
+  /* for use_dust_density_field = 1 */
+  free(grackle_fields->dust_density);
+
   free(grackle_fields->volumetric_heating_rate);
   free(grackle_fields->specific_heating_rate);
 
@@ -210,6 +227,10 @@ void clean_up_fields(grackle_field_data *grackle_fields) {
   free(grackle_fields->RT_HeII_ionization_rate);
   free(grackle_fields->RT_H2_dissociation_rate);
   free(grackle_fields->RT_heating_rate);
+
+  free(grackle_fields->H2_self_shielding_length);
+  free(grackle_fields->H2_custom_shielding_factor);
+  free(grackle_fields->isrf_habing);
 }
 
 /**
@@ -227,7 +248,7 @@ void clean_up_fields(grackle_field_data *grackle_fields) {
  * @param internal_energy internal energy used. In internal units.
  **/
 void write_my_setup(FILE *fd, grackle_field_data grackle_fields,
-                    chemistry_data grackle_chemistry_data, double mass_units,
+                    chemistry_data *grackle_chemistry_data, double mass_units,
                     double length_units, double velocity_units, double dt,
                     double hydrogen_fraction_by_mass, double gas_density,
                     double internal_energy) {
@@ -243,27 +264,27 @@ void write_my_setup(FILE *fd, grackle_field_data grackle_fields,
           internal_energy);
   fprintf(fd, "# Grackle parameters:\n");
   fprintf(fd, "# grackle_chemistry_data.use_grackle = %d\n",
-          grackle_chemistry_data.use_grackle);
+          grackle_chemistry_data->use_grackle);
   fprintf(fd, "# grackle_chemistry_data.with_radiative_cooling %d\n",
-          grackle_chemistry_data.with_radiative_cooling);
+          grackle_chemistry_data->with_radiative_cooling);
   fprintf(fd, "# grackle_chemistry_data.primordial_chemistry = %d\n",
-          grackle_chemistry_data.primordial_chemistry);
+          grackle_chemistry_data->primordial_chemistry);
   fprintf(fd, "# grackle_chemistry_data.dust_chemistry = %d\n",
-          grackle_chemistry_data.dust_chemistry);
+          grackle_chemistry_data->dust_chemistry);
   fprintf(fd, "# grackle_chemistry_data.metal_cooling = %d\n",
-          grackle_chemistry_data.metal_cooling);
+          grackle_chemistry_data->metal_cooling);
   fprintf(fd, "# grackle_chemistry_data.UVbackground = %d\n",
-          grackle_chemistry_data.UVbackground);
+          grackle_chemistry_data->UVbackground);
   fprintf(fd, "# grackle_chemistry_data.CaseBRecombination = %d\n",
-          grackle_chemistry_data.CaseBRecombination);
+          grackle_chemistry_data->CaseBRecombination);
   fprintf(fd, "# grackle_chemistry_data.grackle_data_file = %s\n",
-          grackle_chemistry_data.grackle_data_file);
+          grackle_chemistry_data->grackle_data_file);
   fprintf(fd, "# grackle_chemistry_data.use_radiative_transfer = %d\n",
-          grackle_chemistry_data.use_radiative_transfer);
+          grackle_chemistry_data->use_radiative_transfer);
   fprintf(fd, "# grackle_chemistry_data.HydrogenFractionByMass = %.3g\n",
-          grackle_chemistry_data.HydrogenFractionByMass);
+          grackle_chemistry_data->HydrogenFractionByMass);
   fprintf(fd, "# grackle_chemistry_data.Gamma = %.6g\n",
-          grackle_chemistry_data.Gamma);
+          grackle_chemistry_data->Gamma);
   fprintf(fd, "# Grackle field data:\n");
 
 #define write_grackle_field(v)                                                 \
@@ -314,8 +335,10 @@ void write_header(FILE *fd) {
  **/
 void write_timestep(FILE *fd, grackle_field_data *grackle_fields,
                     code_units *grackle_units_data,
-                    chemistry_data *grackle_chemistry_data, int field_index,
-                    double t, double dt, double time_units, int step) {
+                    chemistry_data *grackle_chemistry_data,
+                    chemistry_data_storage *grackle_chemistry_rates,
+                    int field_index, double t, double dt, double time_units,
+                    int step) {
 
   /* Additional arrays to store temperature and mean molecular weights
    * of each cell. */
@@ -327,8 +350,9 @@ void write_timestep(FILE *fd, grackle_field_data *grackle_fields,
   }
 
   /* Grab temperature and mean molecular weights. */
-  if (calculate_temperature(grackle_units_data, grackle_fields, temperature) ==
-      0) {
+  if (local_calculate_temperature(grackle_chemistry_data,
+                                  grackle_chemistry_rates, grackle_units_data,
+                                  grackle_fields, temperature) == 0) {
     fprintf(stderr, "Error in calculate_temperature.\n");
     abort();
   }

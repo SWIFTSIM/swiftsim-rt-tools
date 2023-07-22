@@ -9,6 +9,9 @@ SRCDIR = src
 # manual definitions
 DEFINES=
 
+# define grackle root directory, if the variable isn't defined already.
+# GRACKLE_ROOT=$(HOME)/local/my_compiles/grackle_64
+
 # Grackle Dirs
 # for 64 bit floats
 GRACKLE_INCL =  -I$(GRACKLE_ROOT)/include
@@ -21,7 +24,7 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 # CONFIG_BFLOAT= CONFIG_BFLOAT_4
 
 GSL_INCL = -I$(GSL_ROOT)/include
-GSL_LIBS = -I$(GSL_ROOT)/lib
+GSL_LIBS = -L$(GSL_ROOT)/lib
 
 #==================================
 # COMPILER OPTIONS AND DIRECTIVES
@@ -37,23 +40,26 @@ OPTIONS = -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror  
-# -fsanitize=address
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror 
+#-fsanitize=address
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
 # Additional libraries
-LIBS = $(GRACKLE_LIBS)
-LIBS += $(GSL_LIBS)
+LDFLAGS = $(GRACKLE_LIBS)
+LDFLAGS += $(GSL_LIBS)
 # Additional header files
 INCLUDES = -I. -I./include/
 INCLUDES += -I../grackle/include
 INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
 # linking flags
-LDFLAGS  = -lm -lgrackle -lgfortran -lgsl
+LIBS  = -lgrackle -lgfortran -lhdf5 -lgsl -lblas -lm
 
-CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES) $(LIBS)
+LDFLAGS += -L$(HDF5_ROOT)/lib
+INCLUDES += -L$(HDF5_ROOT)/include
+
+CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 
 
 
@@ -84,10 +90,11 @@ all: default
 default: $(EXEC)
 
 $(EXEC): $(OBJECTS) $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
 main.o: main.c $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ -c $< $(LDFLAGS)
+	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
+
 
 
 #==================================

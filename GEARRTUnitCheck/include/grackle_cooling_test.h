@@ -152,8 +152,8 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
   /* Second, create a chemistry object for parameters.  This needs to be a
    * pointer. */
   chemistry_data grackle_chemistry_data;
-  if (set_default_chemistry_parameters(&grackle_chemistry_data) == 0) {
-    error("Error in set_default_chemistry_parameters");
+  if (local_initialize_chemistry_parameters(&grackle_chemistry_data) == 0) {
+    error("Error in local_initialize_chemistry_parameters.");
   }
 
   /* Set parameter values for chemistry. */
@@ -164,8 +164,11 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
 
   /* Initialize the chemistry_data_storage object to be able to use local
    * functions */
-  if (initialize_chemistry_data(&grackle_units_data) == 0) {
-    error("Error in initialize_chemistry_data.");
+  chemistry_data_storage grackle_chemistry_rates;
+  if (local_initialize_chemistry_data(&grackle_chemistry_data,
+                                      &grackle_chemistry_rates,
+                                      &grackle_units_data) == 0) {
+    error("Error in local_initialize_chemistry_data.");
   }
 
   /* Gas Data */
@@ -183,18 +186,18 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
     /* Print to screen as well */
     write_header(stdout);
     write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, /*field_index=*/0, t, dt_max,
-                   time_units, /*step=*/0);
+                   &grackle_chemistry_data, &grackle_chemistry_rates,
+                   /*field_index=*/0, t, dt_max, time_units, /*step=*/0);
   }
 
   /* write down what ICs you used into file */
-  write_my_setup(fd, grackle_fields, grackle_chemistry_data, mass_units,
+  write_my_setup(fd, grackle_fields, &grackle_chemistry_data, mass_units,
                  length_units, velocity_units, dt_max,
                  hydrogen_fraction_by_mass, gas_density, internal_energy);
   write_header(fd);
   write_timestep(fd, &grackle_fields, &grackle_units_data,
-                 &grackle_chemistry_data, /*field_index=*/0, t, dt_max,
-                 time_units,
+                 &grackle_chemistry_data, &grackle_chemistry_rates,
+                 /*field_index=*/0, t, dt_max, time_units,
                  /*step=*/0);
 
   /*********************************************************************
@@ -209,15 +212,15 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
 
     /* Get cooling time */
     gr_float tchem_time;
-    if (local_calculate_cooling_time(&grackle_chemistry_data, &grackle_rates,
-                                     &grackle_units_data, &grackle_fields,
-                                     &tchem_time) == 0)
+    if (local_calculate_cooling_time(
+            &grackle_chemistry_data, &grackle_chemistry_rates,
+            &grackle_units_data, &grackle_fields, &tchem_time) == 0)
       error("Error in calculate_cooling_time.");
     double dt = fmin(fabs(tchem_time), dt_max);
 
     t += dt;
     step += 1;
-    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_rates,
+    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates,
                               &grackle_units_data, &grackle_fields, dt) == 0) {
       error("Error in solve_chemistry.");
     }
@@ -227,8 +230,8 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
 
     if (verbose) {
       write_timestep(stdout, &grackle_fields, &grackle_units_data,
-                     &grackle_chemistry_data, /*field_index=*/0, t, dt,
-                     time_units, step);
+                     &grackle_chemistry_data, &grackle_chemistry_rates,
+                     /*field_index=*/0, t, dt, time_units, step);
     } else {
       if (t / tend >
           ((double)(completion + 1) / (double)completion_fractions)) {
@@ -240,16 +243,18 @@ void run_grackle_cooling_test(float density, char *name, double mass_units,
 
     if (step % output_frequency == 0)
       write_timestep(fd, &grackle_fields, &grackle_units_data,
-                     &grackle_chemistry_data, /*field_index=*/0, t, dt,
-                     time_units, step);
+                     &grackle_chemistry_data, &grackle_chemistry_rates,
+                     /*field_index=*/0, t, dt, time_units, step);
   }
 
   /* Clean up after yourself */
 
+  fflush(stdout);
   fclose(fd);
   clean_up_fields(&grackle_fields);
-  _free_chemistry_data(&grackle_chemistry_data, &grackle_rates);
+  local_free_chemistry_data(&grackle_chemistry_data, &grackle_chemistry_rates);
 
   return;
 }
+
 #endif
