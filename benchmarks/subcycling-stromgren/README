@@ -1,0 +1,20 @@
+Run sub-cycling speedup tests.
+
+Solve the same problem, a simple stromgren sphere in 3D, using
+varying numbers of sub-cycles.
+
+
+Instructions:
+Select resolution (64, 128) and write it into file named `resolution`
+
+Check other files in this directory:
+-  job-stromgren-subcycling.slm will be used as job template which will be launched later in ./run_sims.sh
+-  the .yml files in this directory are also templates which will be used to run the sims.
+
+
+Then run:
+
+./setup.sh              # sets up subdirs, makes batch job files and yml paramfiles
+./run_sims.sh           # submits jobs to slurm queues
+./gather_results.sh     # get relevant data into a single directory (once runs are finished)
+./plotSpeedup.py        # make plots

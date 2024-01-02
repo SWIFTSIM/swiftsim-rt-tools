@@ -1,0 +1,9 @@
+*hdf5
+swift
+swift-debug
+*.log
+*.png
+*.txt
+propagation_test_*
+stromgren_test_*
+
