@@ -298,7 +298,7 @@ def mean_molecular_weight(XH0, XHp, XHe0, XHep, XHepp):
 
 if __name__ == "__main__":
 
-    glass = h5py.File("glassCube_"+res+".hdf5", "r")
+    glass = h5py.File("glassCube_" + res + ".hdf5", "r")
     parts = glass["PartType0"]
     xp = parts["Coordinates"][:]
     h = parts["SmoothingLength"][:]
@@ -367,4 +367,4 @@ if __name__ == "__main__":
 
     w.gas.internal_energy = np.ones(xp.shape[0], dtype=np.float64) * internal_energy
 
-    w.write("stromgrenSphere-3D-HHe-"+res+".hdf5")
+    w.write("stromgrenSphere-3D-HHe-" + res + ".hdf5")

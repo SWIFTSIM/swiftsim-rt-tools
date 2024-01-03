@@ -36,10 +36,7 @@ filter_dump_steps = True
 #  filter_dump_steps = False
 
 
-lineplot_kwargs = {
-        "linewidth": 2,
-        "alpha": 0.3
-        }
+lineplot_kwargs = {"linewidth": 2, "alpha": 0.3}
 
 # -----------------------------------------------------------------------
 
@@ -54,21 +51,21 @@ def plot_speedup(times, nsubcycles, label, fig=None):
     """
 
 
-
-
 if __name__ == "__main__":
 
-    fig = plt.figure(figsize=(5,5), dpi=200)
+    fig = plt.figure(figsize=(5, 5), dpi=200)
     ax = fig.add_subplot(111)
 
     ymin = 1e30
 
     for s, subdir in enumerate(subdirs):
-        times, nsubcycles = get_times(subdir, timefile_base, from_timesteps, filter_dump_steps)
+        times, nsubcycles = get_times(
+            subdir, timefile_base, from_timesteps, filter_dump_steps
+        )
 
         times = np.array(times)
         times = times / times[0]
-        ymin_new = max(0., times.min() * 0.5)
+        ymin_new = max(0.0, times.min() * 0.5)
         ymin = min(ymin, ymin_new)
 
         ax.semilogx(nsubcycles, times, label=subdir_labels[s])
@@ -76,8 +73,9 @@ if __name__ == "__main__":
 
         # Plot vertical lines
         for i, n in enumerate(nsubcycles):
-            ax.plot([n, n], [1e-9, times[i]], c="gray", linewidth=1, alpha=0.25, zorder=-3)
-
+            ax.plot(
+                [n, n], [1e-9, times[i]], c="gray", linewidth=1, alpha=0.25, zorder=-3
+            )
 
     ax.set_xlabel("Number of subcycles")
     ax.set_ylabel("Time to Solution relative to no subcycling")
@@ -90,11 +88,11 @@ if __name__ == "__main__":
     plt.tight_layout()
     if from_timesteps:
         if filter_dump_steps:
-            figname = "compare-"+subdir+"-timesteps.png"
+            figname = "compare-" + subdir + "-timesteps.png"
         else:
-            figname = "compare-"+subdir+"-timesteps-unfiltered.png"
+            figname = "compare-" + subdir + "-timesteps-unfiltered.png"
     else:
-        figname = "compare-"+subdir+"-timefiles.png"
+        figname = "compare-" + subdir + "-timefiles.png"
     plt.savefig(figname)
 
     print("Finished", figname)

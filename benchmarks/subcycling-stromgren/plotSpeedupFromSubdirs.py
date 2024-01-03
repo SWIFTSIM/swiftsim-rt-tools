@@ -22,14 +22,11 @@ with_gravity = True
 #  sim = "MF"
 sim = "MFHHe"
 
-#resolution
+# resolution
 #  res = "64"
 res = "128"
 
-lineplot_kwargs = {
-        "linewidth": 2,
-        "alpha": 0.3
-        }
+lineplot_kwargs = {"linewidth": 2, "alpha": 0.3}
 
 # -----------------------------------------------------------------------
 
@@ -55,7 +52,7 @@ def get_timing_files(directory_base):
 
             # extract nsubcycles from directory name
             # Add +1 for underscore after base
-            nstr = entry[len(directory_base)+1:]
+            nstr = entry[len(directory_base) + 1 :]
             if with_gravity:
                 tfilename = "-".join((timefile_base, res, sim, nstr, "grav"))
             else:
@@ -72,8 +69,8 @@ def get_timing_files(directory_base):
         exit()
 
     z = sorted(zip(nsubcycles, filelist))
-    filelist = [f for n,f in z]
-    nsubcycles = [n for n,f in z]
+    filelist = [f for n, f in z]
+    nsubcycles = [n for n, f in z]
 
     return filelist, nsubcycles
 
@@ -110,16 +107,15 @@ def plot_speedup(timefiles, nsubcycles):
     for i in range(len(timefiles)):
         print(i, nsubcycles[i], times[i], timefiles[i])
 
-    fig = plt.figure(figsize=(5,5), dpi=200)
+    fig = plt.figure(figsize=(5, 5), dpi=200)
     ax = fig.add_subplot(111)
 
     times = np.array(times)
     times = times / times[0]
-    ymin = max(0., times.min() * 0.5)
+    ymin = max(0.0, times.min() * 0.5)
 
     ax.semilogx(nsubcycles, times)
     ax.scatter(nsubcycles, times)
-
 
     # Plot vertical lines
     for i, n in enumerate(nsubcycles):
@@ -139,9 +135,7 @@ def plot_speedup(timefiles, nsubcycles):
     plt.savefig(figname)
 
 
-
 if __name__ == "__main__":
 
     timefiles, nsubcycles = get_timing_files(directory_base)
     plot_speedup(timefiles, nsubcycles)
-

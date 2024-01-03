@@ -33,16 +33,11 @@ from_timesteps = True
 filter_dump_steps = True
 #  filter_dump_steps = False
 
-lineplot_kwargs = {
-        "linewidth": 2,
-        "alpha": 0.3
-        }
+lineplot_kwargs = {"linewidth": 2, "alpha": 0.3}
 
 # -----------------------------------------------------------------------
 
 mpl.rcParams["text.usetex"] = True
-
-
 
 
 def plot_speedup(times, nsubcycles):
@@ -50,16 +45,15 @@ def plot_speedup(times, nsubcycles):
     Plot the individual timings.
     """
 
-    fig = plt.figure(figsize=(5,5), dpi=200)
+    fig = plt.figure(figsize=(5, 5), dpi=200)
     ax = fig.add_subplot(111)
 
     times = np.array(times)
     times = times / times[0]
-    ymin = max(0., times.min() * 0.5)
+    ymin = max(0.0, times.min() * 0.5)
 
     ax.semilogx(nsubcycles, times)
     ax.scatter(nsubcycles, times)
-
 
     # Plot vertical lines
     for i, n in enumerate(nsubcycles):
@@ -74,20 +68,20 @@ def plot_speedup(times, nsubcycles):
     plt.tight_layout()
     if from_timesteps:
         if filter_dump_steps:
-            figname = subdir+"-timesteps.png"
+            figname = subdir + "-timesteps.png"
         else:
-            figname = subdir+"-timesteps-unfiltered.png"
+            figname = subdir + "-timesteps-unfiltered.png"
     else:
-        figname = subdir+"-timefiles.png"
+        figname = subdir + "-timefiles.png"
     plt.savefig(figname)
 
     print("Finished", figname)
     return
 
 
-
 if __name__ == "__main__":
 
-    times, nsubcycles = get_times(subdir, timefile_base, from_timesteps, filter_dump_steps)
+    times, nsubcycles = get_times(
+        subdir, timefile_base, from_timesteps, filter_dump_steps
+    )
     plot_speedup(times, nsubcycles)
-

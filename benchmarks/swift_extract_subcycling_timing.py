@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-#-------------------------------------------------------------
+# -------------------------------------------------------------
 # Functions related to extracting timing for SWIFT sub-cycling
 # benchmarks
-#-------------------------------------------------------------
+# -------------------------------------------------------------
 
 import os
 import numpy as np
+
 
 def extract_timing_from_timingfile(file):
     """
@@ -63,22 +64,20 @@ def extract_timing_from_timesteps_file(file, filter_dump_steps):
     if not os.path.exists(file):
         raise FileNotFoundError(f"no file {file} found.")
 
-    wallclock, props = np.loadtxt(file, dtype=float, usecols=[12,13], unpack=True)
+    wallclock, props = np.loadtxt(file, dtype=float, usecols=[12, 13], unpack=True)
 
     props = props.astype(int)
 
     use_timing_mask = np.ones(wallclock.shape[0], dtype=bool)
 
-
     if filter_dump_steps:
 
-        is_snapshot=0b00010000
-        is_restart =0b00100000
+        is_snapshot = 0b00010000
+        is_restart = 0b00100000
 
         for skip in [is_snapshot, is_restart]:
             mask = np.logical_not(props & skip)
             use_timing_mask = np.logical_and(mask, use_timing_mask)
-
 
         steps = np.array(range(0, props.shape[0]))
         skipped = np.logical_not(use_timing_mask)
@@ -136,11 +135,13 @@ def get_timingfiles_from_single_subdir(subdir, timefile_base):
 
             # extract nsubcycles from directory name
             # Add +1 for underscore after base
-            nstr = entry[len(timefile_base)+1:]
+            nstr = entry[len(timefile_base) + 1 :]
             tfilename = "-".join((timefile_base, nstr))
 
             if tfilename != entry:
-                print(f"Something wrong with format of entry '{entry}', I expected '{tfilename}'")
+                print(
+                    f"Something wrong with format of entry '{entry}', I expected '{tfilename}'"
+                )
 
             filepath = os.path.join(subdir, tfilename)
             if os.path.exists(filepath):
@@ -154,8 +155,8 @@ def get_timingfiles_from_single_subdir(subdir, timefile_base):
         exit()
 
     z = sorted(zip(nsubcycles, filelist))
-    filelist = [f for n,f in z]
-    nsubcycles = [n for n,f in z]
+    filelist = [f for n, f in z]
+    nsubcycles = [n for n, f in z]
 
     return filelist, nsubcycles
 
@@ -197,11 +198,13 @@ def get_timestep_files_from_single_subdir(subdir):
 
             # extract nsubcycles from directory name
             # Add +1 for underscore after base
-            nstr = entry[len("timesteps")+1:-4]
-            tfilename = "timesteps-" + nstr+ ".txt"
+            nstr = entry[len("timesteps") + 1 : -4]
+            tfilename = "timesteps-" + nstr + ".txt"
 
             if tfilename != entry:
-                print(f"Something wrong with format of entry '{entry}', I expected '{tfilename}'")
+                print(
+                    f"Something wrong with format of entry '{entry}', I expected '{tfilename}'"
+                )
 
             filepath = os.path.join(subdir, tfilename)
             if os.path.exists(filepath):
@@ -214,8 +217,8 @@ def get_timestep_files_from_single_subdir(subdir):
         raise FileNotFoundError("didn't find any timestep files")
 
     z = sorted(zip(nsubcycles, filelist))
-    filelist = [f for n,f in z]
-    nsubcycles = [n for n,f in z]
+    filelist = [f for n, f in z]
+    nsubcycles = [n for n, f in z]
 
     return filelist, nsubcycles
 
@@ -252,11 +255,12 @@ def get_times(subdir, timefile_base, from_timesteps, filter_dump_steps=True):
         list of number of subcycles used to obtain snapshot
     """
 
-
     if from_timesteps:
         timefiles, nsubcycles = get_timestep_files_from_single_subdir(subdir)
     else:
-        timefiles, nsubcycles = get_timingfiles_from_single_subdir(subdir, timefile_base)
+        timefiles, nsubcycles = get_timingfiles_from_single_subdir(
+            subdir, timefile_base
+        )
 
     times = []
     for f in timefiles:
@@ -265,7 +269,6 @@ def get_times(subdir, timefile_base, from_timesteps, filter_dump_steps=True):
         else:
             t = extract_timing_from_timingfile(f)
         times.append(t)
-
 
     return times, nsubcycles
 
@@ -295,5 +298,9 @@ def get_times_from_timesteps(subdir, filter_dump_steps=True):
         list of number of subcycles used to obtain snapshot
     """
 
-    return get_times(subdir, timefile_base="", from_timesteps=True, filter_dump_steps=filter_dump_steps)
-
+    return get_times(
+        subdir,
+        timefile_base="",
+        from_timesteps=True,
+        filter_dump_steps=filter_dump_steps,
+    )

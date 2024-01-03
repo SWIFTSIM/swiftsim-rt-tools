@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-#--------------------------------------------
+# --------------------------------------------
 # Plot mass fractions of different subcycle
 # numbers on top of each other
-#--------------------------------------------
+# --------------------------------------------
 
 import numpy as np
 from scipy import stats
@@ -34,10 +34,15 @@ nsubcycles = [1, 16, 64, 128]
 plotalpha = 0.4
 
 
-#------------------------------------------------------
+# ------------------------------------------------------
 
 
-linestyles = ["-", "--", "-.", ":"] #, "dashdotdotted", "loosely dashdotted", "loosely dashdotdotted", "densely dashdotdotted"]
+linestyles = [
+    "-",
+    "--",
+    "-.",
+    ":",
+]  # , "dashdotdotted", "loosely dashdotted", "loosely dashdotdotted", "densely dashdotdotted"]
 
 
 def get_output_files(directory_base):
@@ -53,19 +58,19 @@ def get_output_files(directory_base):
 
     ls = os.listdir()
 
-    outputfilename = snapshot_basename + "_" + str(snapnr).zfill(4)+".hdf5"
+    outputfilename = snapshot_basename + "_" + str(snapnr).zfill(4) + ".hdf5"
 
     # only use number of subcycles specified by user
     for n in nsubcycles:
         dirbase = directory_base + "_" + str(n)
 
-    #  for entry in ls:
-    #      if entry.startswith(directory_base) and os.path.isdir(entry):
-    #          print("found directory", entry)
+        #  for entry in ls:
+        #      if entry.startswith(directory_base) and os.path.isdir(entry):
+        #          print("found directory", entry)
 
-            # extract nsubcycles from directory name
-            # Add +1 for underscore after base
-            #  nstr = entry[len(directory_base)+1:]
+        # extract nsubcycles from directory name
+        # Add +1 for underscore after base
+        #  nstr = entry[len(directory_base)+1:]
         filepath = os.path.join(dirbase, outputfilename)
         if os.path.exists(filepath):
             filelist.append(filepath)
@@ -151,12 +156,11 @@ def read_data(filename):
     return r, imf, T
 
 
-
-class imf_container():
+class imf_container:
     """
     Container for ion mass fractions.
     """
-    
+
     def __init__(self, HI, HII, HeI, HeII, HeIII):
         self.HI = HI
         self.HII = HII
@@ -164,7 +168,6 @@ class imf_container():
         self.HeII = HeII
         self.HeIII = HeIII
         return
-
 
 
 def get_bin_averages(r, imf, T):
@@ -179,20 +182,29 @@ def get_bin_averages(r, imf, T):
 
     # get profiles
     nbins = 100
-    xHI_binned, bin_edges, _ = stats.binned_statistic(r, imf.HI, statistic="mean", bins=nbins)
-    xHII_binned, bin_edges, _ = stats.binned_statistic(r, imf.HII, statistic="mean", bins=nbins)
-    xHeI_binned, bin_edges, _ = stats.binned_statistic(r, imf.HeI, statistic="mean", bins=nbins)
-    xHeII_binned, bin_edges, _ = stats.binned_statistic(r, imf.HeII, statistic="mean", bins=nbins)
-    xHeIII_binned, bin_edges, _ = stats.binned_statistic(r, imf.HeIII, statistic="mean", bins=nbins)
+    xHI_binned, bin_edges, _ = stats.binned_statistic(
+        r, imf.HI, statistic="mean", bins=nbins
+    )
+    xHII_binned, bin_edges, _ = stats.binned_statistic(
+        r, imf.HII, statistic="mean", bins=nbins
+    )
+    xHeI_binned, bin_edges, _ = stats.binned_statistic(
+        r, imf.HeI, statistic="mean", bins=nbins
+    )
+    xHeII_binned, bin_edges, _ = stats.binned_statistic(
+        r, imf.HeII, statistic="mean", bins=nbins
+    )
+    xHeIII_binned, bin_edges, _ = stats.binned_statistic(
+        r, imf.HeIII, statistic="mean", bins=nbins
+    )
     T_av, bin_edges, _ = stats.binned_statistic(r, T, statistic="mean", bins=nbins)
 
-    imf_av = imf_container(xHI_binned, xHII_binned, xHeI_binned, xHeII_binned, xHeIII_binned)
+    imf_av = imf_container(
+        xHI_binned, xHII_binned, xHeI_binned, xHeII_binned, xHeIII_binned
+    )
 
     r_bins = 0.5 * (bin_edges[:-1] + bin_edges[1:])
     return r_bins, imf_av, T_av
-
-
-
 
 
 def plot_results(outputfiles):
@@ -215,14 +227,13 @@ def plot_results(outputfiles):
         imfs_average.append(imf_av)
         T_average.append(T_av)
 
-
     fig = plt.figure(figsize=(10, 5.5))
 
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
 
     for i, n in enumerate(nsubcycles):
-        if (i == 0):
+        if i == 0:
             labels = ["HI", "HII", "HeI", "HeII", "HeIII"]
         else:
             labels = [None, None, None, None, None]
@@ -238,8 +249,9 @@ def plot_results(outputfiles):
             ax1.semilogy(r, imf.HeII, c="C3", label=labels[3], ls=ls, alpha=plotalpha)
             ax1.semilogy(r, imf.HeIII, c="C4", label=labels[4], ls=ls, alpha=plotalpha)
 
-
-        ax2.semilogy(r, T, c="C0", label="nsub = {0:d}".format(n), ls=ls, alpha=plotalpha)
+        ax2.semilogy(
+            r, T, c="C0", label="nsub = {0:d}".format(n), ls=ls, alpha=plotalpha
+        )
 
     for ax in fig.axes:
         ax.legend()
@@ -249,12 +261,10 @@ def plot_results(outputfiles):
     ax1.set_ylabel("Mass Fractions")
     ax1.set_ylabel("Gas Temperature")
 
-
-    plt.savefig(snapshot_basename + "_" + str(snapnr).zfill(4) + "-nsubcycles-gravity.png", dpi=200)
-
-
-
- 
+    plt.savefig(
+        snapshot_basename + "_" + str(snapnr).zfill(4) + "-nsubcycles-gravity.png",
+        dpi=200,
+    )
 
 
 if __name__ == "__main__":
