@@ -1,0 +1,23 @@
+#!/usr/bin/bash -l
+
+#SBATCH --job-name=StromSS
+#SBATCH --time 72:00:00
+#SBATCH --partition cosma8-serial
+#SBATCH --account dp004
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=64
+#SBATCH --mem-per-cpu=4GB
+
+# #SxBATCH --exclusive
+
+module purge
+module restore swift-wiki-cosma8
+
+
+../swift-fixed-nr-subcycles \
+    --hydro --stars --external-gravity --feedback --radiation \
+    --threads=$SLURM_CPUS_PER_TASK \
+    paramfile.yml
+
+sacct -j "$SLURM_JOB_ID" --format=JobID,JobName,Elapsed | tee timingfile

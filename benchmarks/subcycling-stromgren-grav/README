@@ -1,0 +1,45 @@
+Run sub-cycling speedup tests.
+
+Solve the same problem, a simple stromgren sphere in 3D, using
+varying numbers of sub-cycles.
+
+
+Instructions:
+Select resolution (64, 128) and write it into file named `resolution`
+
+Check other files in this directory:
+-  job-stromgren-subcycling.slm will be used as job template which will be launched later in ./run_sims.sh
+-  the .yml files in this directory are also templates which will be used to run the sims.
+
+
+Then run:
+
+./setup.sh              # sets up subdirs, makes batch job files and yml paramfiles
+./run_sims.sh           # submits jobs to slurm queues
+./gather_results.sh     # get relevant data into a single directory (once runs are finished)
+./plotSpeedup.py        # make plots
+
+
+Other scripts:
+
+- compareSpeedup.py
+    If you're running two different runs which you want to compare, e.g.
+    a run with hydro+RT and a run with hydro+RT+gravity, you can use
+    the ./compareSpeedup.py script.
+    It needs you to put the result files (timing, and timesteps.txt) into
+    two different subdirectories, one for each run. E.g.
+    "subcycling-stromgren" and "subcycling-stromgren-grav"
+
+- deprecated/plotSpeedupFromSubdirs.py
+    when running `./setup.sh`, the script will create directories for
+    each simulation individually, e.g. `stromgren_test_1`, 
+    `stromgren_test_2`, etc.
+    This script takes the result files directly from these directories,
+    and allows you to skip the `gather_results.sh` stage of the intended workflow.
+
+
+Additionally, other versions of the stromgren sphere setups are available.
+The default includes hydrogen and helium. You can also run the same for a single
+photon group (yml files with `singlebin` in filename) and for just hydrogen
+(yml files with `MF` instead of `MFHHe` in filename).
+They are stored in the `additional_ymlfiles` directory.

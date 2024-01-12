@@ -1,0 +1,4 @@
+128
+# 64
+# the first line in this document determines whether we use 64^3 or 128^3
+# glass files for the initial conditions when running setup.sh
