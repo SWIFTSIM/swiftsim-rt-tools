@@ -1,0 +1,12 @@
+Contents
+========
+
+
+- `subcycling-stromgren`
+    Benchmark RT subcycling speedups using a stromgren sphere
+
+- `subcycling-stromgren-grav`
+    Benchmark RT subcycling speedups using a stromgren sphere, with RHD + gravity 
+
+- `swift_extract_subcycling_timing.py`
+    Python file containing common function to read in timing data
