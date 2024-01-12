@@ -1,0 +1,31 @@
+Patches
+================
+
+
+Storage for various patches needed for some tests and benchmarks.
+These patches are actually git diffs compared to master. The exact
+branch and version of the master are stored for each file individually.
+
+If everything goes right, you should be able to apply these patches
+simply by using 
+
+```
+$ git apply <patch_file_name>
+```
+
+
+- `patch_fixed_nr_subcycles`
+    Fix the number of sub-cycles. I.e. the `TimeIntegration:max_nr_sub_cycles`
+    parameter is not used as an upper limit, but as the exact ratio of sub-cyle
+    to hydro-step. Used for benchmarks.
+
+    Patch was originally stored on `origin/GEARRT_fixed_nr_subcycles` branch, commit 9d660cec5d660fdec7968db4fbbad66957296083.
+    Patch was diffed from master branch with commit b168f7a15e781ec48631300e7449092a49c114b6.
+
+
+- `patch_extra_task_timing_data`
+    Collect and write out a lot of additional timing data. Used for the weak
+    scaling benchmark.
+
+    Patch was originally stored on `origin/rt_scaling_setup` branch, commit fdde94eba27bb688152dc8641de43f11119a5937.
+    Patch was diffed from master branch with commit b168f7a15e781ec48631300e7449092a49c114b6.

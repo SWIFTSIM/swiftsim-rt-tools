@@ -1,0 +1,697 @@
+diff --git c/src/collectgroup.c w/src/collectgroup.c
+index f876ccb37..7d81f55cd 100644
+--- c/src/collectgroup.c
++++ w/src/collectgroup.c
+@@ -62,6 +62,7 @@ struct mpicollectgroup1 {
+ #ifdef WITH_CSDS
+   float csds_file_size_gb;
+ #endif
++  double treebuild_time;
+ };
+ 
+ /* Forward declarations. */
+@@ -139,6 +140,7 @@ void collectgroup1_apply(const struct collectgroup1 *grp1, struct engine *e) {
+   e->runtime = grp1->runtime;
+   e->flush_lightcone_maps = grp1->flush_lightcone_maps;
+   e->global_deadtime = grp1->deadtime;
++  e->global_treebuild_time = grp1->treebuild_time;
+ }
+ 
+ /**
+@@ -216,7 +218,8 @@ void collectgroup1_init(
+     integertime_t ti_black_holes_beg_max, int forcerebuild,
+     long long total_nr_cells, long long total_nr_tasks, float tasks_per_cell,
+     const struct star_formation_history sfh, float runtime,
+-    int flush_lightcone_maps, double deadtime, float csds_file_size_gb) {
++    int flush_lightcone_maps, double deadtime, float csds_file_size_gb,
++    double treebuild_time) {
+ 
+   grp1->updated = updated;
+   grp1->g_updated = g_updated;
+@@ -251,6 +254,7 @@ void collectgroup1_init(
+ #ifdef WITH_CSDS
+   grp1->csds_file_size_gb = csds_file_size_gb;
+ #endif
++  grp1->treebuild_time = treebuild_time;
+ }
+ 
+ /**
+@@ -300,6 +304,7 @@ void collectgroup1_reduce(struct collectgroup1 *grp1) {
+ #ifdef WITH_CSDS
+   mpigrp11.csds_file_size_gb = grp1->csds_file_size_gb;
+ #endif
++  mpigrp11.treebuild_time = grp1->treebuild_time;
+ 
+   struct mpicollectgroup1 mpigrp12;
+   if (MPI_Allreduce(&mpigrp11, &mpigrp12, 1, mpicollectgroup1_type,
+@@ -341,6 +346,7 @@ void collectgroup1_reduce(struct collectgroup1 *grp1) {
+ #ifdef WITH_CSDS
+   grp1->csds_file_size_gb = mpigrp12.csds_file_size_gb;
+ #endif
++  grp1->treebuild_time = mpigrp12.treebuild_time;
+ 
+ #endif
+ }
+@@ -426,6 +432,8 @@ static void doreduce1(struct mpicollectgroup1 *mpigrp11,
+ #ifdef WITH_CSDS
+   mpigrp11->csds_file_size_gb += mpigrp12->csds_file_size_gb;
+ #endif
++
++  mpigrp11->treebuild_time += mpigrp12->treebuild_time;
+ }
+ 
+ /**
+diff --git c/src/collectgroup.h w/src/collectgroup.h
+index 68815dab0..b0d3ecc67 100644
+--- c/src/collectgroup.h
++++ w/src/collectgroup.h
+@@ -75,6 +75,8 @@ struct collectgroup1 {
+   /* Filesize used by the CSDS (does not correspond to the allocated one) */
+   float csds_file_size_gb;
+ #endif
++
++  double treebuild_time;
+ };
+ 
+ void collectgroup_init(void);
+@@ -92,7 +94,8 @@ void collectgroup1_init(
+     integertime_t ti_black_holes_beg_max, int forcerebuild,
+     long long total_nr_cells, long long total_nr_tasks, float tasks_per_cell,
+     const struct star_formation_history sfh, float runtime,
+-    int flush_lightcone_maps, double deadtime, float csds_file_size_gb);
++    int flush_lightcone_maps, double deadtime, float csds_file_size_gb,
++    double treebuild_time);
+ void collectgroup1_reduce(struct collectgroup1 *grp1);
+ #ifdef WITH_MPI
+ void mpicollect_free_MPI_type(void);
+diff --git c/src/engine.c w/src/engine.c
+index f49550b70..3073bc7c0 100644
+--- c/src/engine.c
++++ w/src/engine.c
+@@ -249,15 +249,18 @@ void engine_repartition(struct engine *e) {
+   /* Flag that a repartition has taken place */
+   e->step_props |= engine_step_prop_repartition;
+ 
++  ticks toc = getticks();
++  e->local_treebuild_time += clocks_diff_ticks(toc, tic);
+   if (e->verbose)
+-    message("took %.3f %s.", clocks_from_ticks(getticks() - tic),
+-            clocks_getunit());
++    message("took %.3f %s.", clocks_from_ticks(toc - tic), clocks_getunit());
++
+ #else
+   if (e->reparttype->type != REPART_NONE)
+     error("SWIFT was not compiled with MPI and METIS or ParMETIS support.");
+ 
+   /* Clear the repartition flag. */
+   e->forcerepart = 0;
++
+ #endif
+ }
+ 
+@@ -1379,9 +1382,11 @@ void engine_rebuild(struct engine *e, const int repartitioned,
+   /* Flag that a rebuild has taken place */
+   e->step_props |= engine_step_prop_rebuild;
+ 
++  ticks toc = getticks();
++  e->local_treebuild_time += clocks_diff_ticks(toc, tic);
++
+   if (e->verbose)
+-    message("took %.3f %s.", clocks_from_ticks(getticks() - tic),
+-            clocks_getunit());
++    message("took %.3f %s.", clocks_from_ticks(toc - tic), clocks_getunit());
+ }
+ 
+ /**
+@@ -1850,18 +1855,31 @@ void engine_run_rt_sub_cycles(struct engine *e) {
+ #endif
+ 
+     if (!e->restarting) {
+-      fprintf(
+-          e->file_rt_subcycles,
+-          "  %6d %9d %14e %12.7f %12.7f %14e %4d %4d %12lld %21.3f %17.3f\n",
+-          e->step, 0, time, e->cosmology->a, e->cosmology->z, dt_subcycle,
+-          e->min_active_bin_subcycle, e->max_active_bin_subcycle, e->rt_updates,
+-          /*wall-clock time=*/-1.f, /*deadtime=*/-1.f);
++      const float div = 1.f / (e->nr_nodes * e->nr_threads);
++      fprintf(e->file_rt_subcycles,
++              "  %6d %9d %14e %12.7f %12.7f %14e %4d %4d %12lld %21.3f %17.3f "
++              "%21.3f %21.3f %21.3f %21.3f %21.3f\n",
++              e->step, 0, time, e->cosmology->a, e->cosmology->z, dt_subcycle,
++              e->min_active_bin_subcycle, e->max_active_bin_subcycle,
++              e->rt_updates,
++              /*wall-clock time=*/-1.f, /*deadtime=*/-1.f,
++              e->local_task_timings_sub_cycle[task_category_sort] * div,
++              e->local_task_timings_sub_cycle[task_category_mpi] * div,
++              e->local_task_timings_sub_cycle[task_category_rt] * div,
++              e->local_task_timings_sub_cycle[task_category_rt_tchem] * div,
++              e->local_task_timings_sub_cycle[task_category_others] * div);
+     }
++
+ #ifdef SWIFT_DEBUG_CHECKS
+     fflush(e->file_rt_subcycles);
+ #endif
+   }
+ 
++  /* Reset task timings counters on all ranks. */
++  for (int i = 0; i < task_category_count; i++) {
++    e->local_task_timings_sub_cycle[i] = 0.;
++  }
++
+   /* Take note of the (integer) time until which the radiative transfer
+    * has been integrated so far. At the start of the sub-cycling, this
+    * should be e->ti_current_subcycle + dt_rt_min, since the first (i.e.
+@@ -1933,12 +1951,18 @@ void engine_run_rt_sub_cycles(struct engine *e) {
+ #ifdef SWIFT_DEBUG_CHECKS
+       fflush(stdout);
+ #endif
+-      fprintf(
+-          e->file_rt_subcycles,
+-          "  %6d %9d %14e %12.7f %12.7f %14e %4d %4d %12lld %21.3f %17.3f\n",
+-          e->step, sub_cycle, time, e->cosmology->a, e->cosmology->z,
+-          dt_subcycle, e->min_active_bin_subcycle, e->max_active_bin_subcycle,
+-          e->rt_updates, wallclock_time, dead_time);
++      const float div = 1.f / (e->nr_nodes * e->nr_threads);
++      fprintf(e->file_rt_subcycles,
++              "  %6d %9d %14e %12.7f %12.7f %14e %4d %4d %12lld %21.3f %17.3f "
++              "%21.3f %21.3f %21.3f %21.3f %21.3f\n",
++              e->step, 0, time, e->cosmology->a, e->cosmology->z, dt_subcycle,
++              e->min_active_bin_subcycle, e->max_active_bin_subcycle,
++              e->rt_updates, wallclock_time, dead_time,
++              e->local_task_timings_sub_cycle[task_category_sort] * div,
++              e->local_task_timings_sub_cycle[task_category_mpi] * div,
++              e->local_task_timings_sub_cycle[task_category_rt] * div,
++              e->local_task_timings_sub_cycle[task_category_rt_tchem] * div,
++              e->local_task_timings_sub_cycle[task_category_others] * div);
+ #ifdef SWIFT_DEBUG_CHECKS
+       fflush(e->file_rt_subcycles);
+ #endif
+@@ -2138,6 +2162,10 @@ void engine_init_particles(struct engine *e, int flag_entropy_ICs,
+   engine_launch(e, "tasks");
+   TIMER_TOC2(timer_runners);
+ 
++  /* Get all task times from this step. */
++  scheduler_collect_task_times_this_step(&e->sched, e, e->nr_threads,
++                                         /*sub-cycle=*/0);
++
+ #ifdef SWIFT_HYDRO_DENSITY_CHECKS
+   /* Run the brute-force hydro calculation for some parts */
+   if (e->policy & engine_policy_hydro)
+@@ -2342,6 +2370,8 @@ int engine_step(struct engine *e) {
+   if (e->nodeID == 0) {
+ 
+     const double dead_time = e->global_deadtime / (e->nr_nodes * e->nr_threads);
++    const double treebuild_time =
++        e->global_treebuild_time / (e->nr_nodes * e->nr_threads);
+ 
+     const ticks tic_files = getticks();
+ 
+@@ -2371,15 +2401,31 @@ int engine_step(struct engine *e) {
+ #endif
+     }
+ 
+-    if (!e->restarting)
++    if (!e->restarting) {
++      const float div = 1.f / (e->nr_nodes * e->nr_threads);
+       fprintf(
+           e->file_timesteps,
+           "  %6d %14e %12.7f %12.7f %14e %4d %4d %12lld %12lld %12lld %12lld "
+-          "%12lld %21.3f %6d %17.3f\n",
++          "%12lld %21.3f %6d %17.3f "
++          "%21.3f %21.3f %21.3f %21.3f %21.3f %21.3f %21.3f %21.3f %21.3f "
++          "%21.3f %21.3f %21.3f %21.3f\n",
+           e->step, e->time, e->cosmology->a, e->cosmology->z, e->time_step,
+           e->min_active_bin, e->max_active_bin, e->updates, e->g_updates,
+           e->s_updates, e->sink_updates, e->b_updates, e->wallclock_time,
+-          e->step_props, dead_time);
++          e->step_props, dead_time,
++          e->local_task_timings[task_category_drift] * div,
++          e->local_task_timings[task_category_sort] * div,
++          e->local_task_timings[task_category_hydro] * div,
++          e->local_task_timings[task_category_hydro_ghost] * div,
++          e->local_task_timings[task_category_hydro_density] * div,
++          e->local_task_timings[task_category_gravity] * div,
++          e->local_task_timings[task_category_feedback] * div,
++          e->local_task_timings[task_category_time_integration] * div,
++          e->local_task_timings[task_category_mpi] * div,
++          e->local_task_timings[task_category_rt] * div,
++          e->local_task_timings[task_category_rt_tchem] * div,
++          e->local_task_timings[task_category_others] * div, treebuild_time);
++    }
+ #ifdef SWIFT_DEBUG_CHECKS
+     fflush(e->file_timesteps);
+ #endif
+@@ -2389,6 +2435,10 @@ int engine_step(struct engine *e) {
+               clocks_from_ticks(getticks() - tic_files), clocks_getunit());
+   }
+ 
++  /* Reset counters/timers after they've been written out. */
++  for (int i = 0; i < task_category_count; i++) e->local_task_timings[i] = 0.;
++  e->local_treebuild_time = 0.;
++
+   /* When restarting, we may have had some i/o to do on the step
+    * where we decided to stop. We have to do this now.
+    * We need some cells to exist but not the whole task stuff. */
+@@ -2672,6 +2722,10 @@ int engine_step(struct engine *e) {
+   e->systime_last_step = end_systime - start_systime;
+ #endif
+ 
++  /* Get all task times from this step. */
++  scheduler_collect_task_times_this_step(&e->sched, e, e->nr_threads,
++                                         /*sub-cycle=*/0);
++
+ #ifdef SWIFT_HYDRO_DENSITY_CHECKS
+   /* Run the brute-force hydro calculation for some parts */
+   if (e->policy & engine_policy_hydro)
+@@ -3410,6 +3464,11 @@ void engine_init(
+     e->neutrino_mass_conversion_factor = 0.f;
+   }
+ 
++  for (int i = 0; i < task_category_count; i++) {
++    e->local_task_timings[i] = 0.;
++    e->local_task_timings_sub_cycle[i] = 0.;
++  }
++
+   if (engine_rank == 0) {
+     clocks_gettime(&toc);
+     message("took %.3f %s.", clocks_diff(&tic, &toc), clocks_getunit());
+diff --git c/src/engine.h w/src/engine.h
+index a9ebcd22e..7dbcb2c89 100644
+--- c/src/engine.h
++++ w/src/engine.h
+@@ -677,6 +677,15 @@ struct engine {
+   /* Flag to tell brute force checks a snapshot was recently written. */
+   int force_checks_snapshot_flag;
+ #endif
++
++  /* Timing of tasks local to this node. Intended to be collected and
++   * written out each step. We add an additional element to store the
++   * dead time (computed in an alternative way to that written out to
++   * screen each step)*/
++  double local_task_timings[task_category_count];
++  double local_task_timings_sub_cycle[task_category_count];
++  double local_treebuild_time;
++  double global_treebuild_time;
+ };
+ 
+ /* Function prototypes, engine.c. */
+diff --git c/src/engine_collect_end_of_step.c w/src/engine_collect_end_of_step.c
+index b97d87a73..c91b80d36 100644
+--- c/src/engine_collect_end_of_step.c
++++ w/src/engine_collect_end_of_step.c
+@@ -49,6 +49,7 @@ struct end_of_step_data {
+   float runtime;
+   int flush_lightcone_maps;
+   double deadtime;
++  double treebuild_time;
+   float csds_file_size_gb;
+ };
+ 
+@@ -238,6 +239,7 @@ void engine_collect_end_of_step(struct engine *e, int apply) {
+       lightcone_array_trigger_map_update(e->lightcone_array_properties);
+ 
+   data.deadtime = e->local_deadtime;
++  data.treebuild_time = e->local_treebuild_time;
+ 
+   /* Initialize the total SFH of the simulation to zero */
+   star_formation_logger_init(&data.sfh);
+@@ -267,7 +269,7 @@ void engine_collect_end_of_step(struct engine *e, int apply) {
+       data.ti_black_holes_beg_max, e->forcerebuild, e->s->tot_cells,
+       e->sched.nr_tasks, (float)e->sched.nr_tasks / (float)e->s->tot_cells,
+       data.sfh, data.runtime, data.flush_lightcone_maps, data.deadtime,
+-      data.csds_file_size_gb);
++      data.csds_file_size_gb, data.treebuild_time);
+ 
+ /* Aggregate collective data from the different nodes for this step. */
+ #ifdef WITH_MPI
+@@ -405,6 +407,10 @@ void engine_collect_end_of_sub_cycle(struct engine *e) {
+                  s->local_cells_top, s->nr_local_cells, sizeof(int),
+                  threadpool_auto_chunk_size, e);
+ 
++  /* Get all task times from this step. */
++  scheduler_collect_task_times_this_step(&e->sched, e, e->nr_threads,
++                                         /*sub-cycle=*/1);
++
+ #ifdef WITH_MPI
+ 
+   /* Aggregate collective data from the different nodes for this step. */
+diff --git c/src/engine_config.c w/src/engine_config.c
+index e6c68d9db..a8c9a8941 100644
+--- c/src/engine_config.c
++++ w/src/engine_config.c
+@@ -206,6 +206,8 @@ void engine_config(int restart, int fof, struct engine *e,
+   e->restart_next = 0;
+   e->restart_dt = 0;
+   e->run_fof = 0;
++  e->local_treebuild_time = 0.f;
++  e->global_treebuild_time = 0.f;
+ 
+   /* Seed rand(). */
+   srand(clocks_random_seed());
+@@ -530,13 +532,23 @@ void engine_config(int restart, int fof, struct engine *e,
+           engine_step_prop_snapshot, engine_step_prop_restarts,
+           engine_step_prop_stf, engine_step_prop_fof, engine_step_prop_mesh);
+ 
+-      fprintf(e->file_timesteps,
+-              "# %6s %14s %12s %12s %14s %9s %12s %12s %12s %12s %12s %16s "
+-              "[%s] %6s %12s [%s]\n",
+-              "Step", "Time", "Scale-factor", "Redshift", "Time-step",
+-              "Time-bins", "Updates", "g-Updates", "s-Updates", "Sink-Updates",
+-              "b-Updates", "Wall-clock time", clocks_getunit(), "Props",
+-              "Dead time", clocks_getunit());
++      fprintf(
++          e->file_timesteps,
++          "# %6s %14s %12s %12s %14s %9s %12s %12s %12s %12s %12s %16s "
++          "[%s] %6s %12s [%s] "
++          "%16s [%2s] %16s [%2s] %16s [%2s] %16s [%2s] %16s [%2s] %16s [%2s] "
++          "%16s [%2s] %16s [%2s] %16s [%2s] %16s [%2s] %16s [%2s] %16s [%2s] "
++          "%16s [%2s]\n",
++          "Step", "Time", "Scale-factor", "Redshift", "Time-step", "Time-bins",
++          "Updates", "g-Updates", "s-Updates", "Sink-Updates", "b-Updates",
++          "Wall-clock time", clocks_getunit(), "Props", "Dead time",
++          clocks_getunit(), "Drifts", clocks_getunit(), "Sorts",
++          clocks_getunit(), "Hyrdo", clocks_getunit(), "Hydro Ghost",
++          clocks_getunit(), "Hydro Density", clocks_getunit(), "Gravity",
++          clocks_getunit(), "Feedback", clocks_getunit(), "Time Integration",
++          clocks_getunit(), "MPI", clocks_getunit(), "RT", clocks_getunit(),
++          "Tchem", clocks_getunit(), "Others", clocks_getunit(),
++          "Tree-building", clocks_getunit());
+       fflush(e->file_timesteps);
+ 
+ #ifndef RT_NONE
+@@ -573,10 +585,14 @@ void engine_config(int restart, int fof, struct engine *e,
+               "not available for it, and is written as -1.\n");
+ 
+       fprintf(e->file_rt_subcycles,
+-              "# %6s %9s %14s %12s %12s %14s %9s %12s %16s [%s] %12s [%s]\n",
++              "# %6s %9s %14s %12s %12s %14s %9s %12s %16s [%s] %12s [%s] "
++              "%16s [%2s] %16s [%2s] %16s [%2s] %16s [%2s] %16s [%2s]\n",
+               "Step", "Sub-cycle", "Time", "Scale-factor", "Redshift",
+               "Time-step", "Time-bins", "RT-Updates", "Wall-clock time",
+-              clocks_getunit(), "Dead time", clocks_getunit());
++              clocks_getunit(), "Dead time", clocks_getunit(), "Sorts",
++              clocks_getunit(), "MPI", clocks_getunit(), "RT", clocks_getunit(),
++              "Tchem", clocks_getunit(), "Others", clocks_getunit());
++
+       fflush(e->file_rt_subcycles);
+ #endif  // compiled with RT
+     }
+diff --git c/src/engine_io.c w/src/engine_io.c
+index f8fe3d297..eadb74ae3 100644
+--- c/src/engine_io.c
++++ w/src/engine_io.c
+@@ -272,6 +272,8 @@ int engine_dump_restarts(struct engine *e, const int drifted_all,
+  */
+ void engine_dump_snapshot(struct engine *e, const int fof) {
+ 
++  return;
++
+   struct clocks_time time1, time2;
+   clocks_gettime(&time1);
+ 
+diff --git c/src/engine_redistribute.c w/src/engine_redistribute.c
+index 276fd6189..cf57c5ba1 100644
+--- c/src/engine_redistribute.c
++++ w/src/engine_redistribute.c
+@@ -1215,9 +1215,11 @@ void engine_redistribute(struct engine *e) {
+   /* Flag that a redistribute has taken place */
+   e->step_props |= engine_step_prop_redistribute;
+ 
++  ticks tock = getticks();
++  e->local_treebuild_time += clocks_diff_ticks(tock, tic);
++
+   if (e->verbose)
+-    message("took %.3f %s.", clocks_from_ticks(getticks() - tic),
+-            clocks_getunit());
++    message("took %.3f %s.", clocks_from_ticks(tock - tic), clocks_getunit());
+ #else
+   error("SWIFT was not compiled with MPI support.");
+ #endif
+diff --git c/src/scheduler.c w/src/scheduler.c
+index e0cfee8e1..b09036768 100644
+--- c/src/scheduler.c
++++ w/src/scheduler.c
+@@ -1733,6 +1733,8 @@ struct task *scheduler_addtask(struct scheduler *s, enum task_types type,
+   t->tic = 0;
+   t->toc = 0;
+   t->total_ticks = 0;
++  t->tic_mladen = 0;
++  t->toc_mladen = 0;
+ 
+   if (ci != NULL) cell_set_flag(ci, cell_flag_has_tasks);
+   if (cj != NULL) cell_set_flag(cj, cell_flag_has_tasks);
+@@ -2757,6 +2759,7 @@ struct task *scheduler_done(struct scheduler *s, struct task *t) {
+   /* Task definitely done, signal any sleeping runners. */
+   if (!t->implicit) {
+     t->toc = getticks();
++    t->toc_mladen = t->toc;
+     t->total_ticks += t->toc - t->tic;
+     pthread_mutex_lock(&s->sleep_mutex);
+     atomic_dec(&s->waiting);
+@@ -2798,6 +2801,7 @@ struct task *scheduler_unlock(struct scheduler *s, struct task *t) {
+   /* Task definitely done. */
+   if (!t->implicit) {
+     t->toc = getticks();
++    t->toc_mladen = t->toc;
+     t->total_ticks += t->toc - t->tic;
+     pthread_mutex_lock(&s->sleep_mutex);
+     atomic_dec(&s->waiting);
+@@ -2957,6 +2961,7 @@ struct task *scheduler_gettask(struct scheduler *s, int qid,
+     scheduler_mark_last_fetch(s);
+     /* Start the timer on this task, if we got one. */
+     res->tic = getticks();
++    res->tic_mladen = res->tic;
+ #ifdef SWIFT_DEBUG_TASKS
+     res->rid = qid;
+ #endif
+@@ -3248,3 +3253,88 @@ void scheduler_report_task_times(const struct scheduler *s,
+   message("took %.3f %s.", clocks_from_ticks(getticks() - tic),
+           clocks_getunit());
+ }
++
++void scheduler_collect_task_times_this_step_mapper(void *map_data,
++                                                   int num_elements,
++                                                   void *extra_data) {
++
++  struct task *tasks = (struct task *)map_data;
++  double time_local[task_category_count] = {0};
++  double *time_global = (double *)extra_data;
++
++  /* Gather the times spent in the different task categories */
++  for (int i = 0; i < num_elements; ++i) {
++
++    struct task *t = &tasks[i];
++    const double dt = clocks_diff_ticks(t->toc_mladen, t->tic_mladen);
++    const enum task_categories cat = task_get_category(t);
++    time_local[cat] += dt;
++    /* Here we want task times of each step, not throughout the
++     * global runtime. So we need to reset the counters. */
++    t->tic_mladen = 0;
++    t->toc_mladen = 0;
++  }
++
++  /* Update the global counters */
++  for (int i = 0; i < task_category_count; ++i) {
++    atomic_add_d(&time_global[i], time_local[i]);
++  }
++}
++
++/**
++ * @brief Display the time spent in the different task categories.
++ *
++ * @param s The #scheduler.
++ * @param e The #engine
++ * @param nr_threads The number of threads used in the engine.
++ * @param sub_cycle Whether this is called for an RT sub-cycle
++ */
++void scheduler_collect_task_times_this_step(const struct scheduler *s,
++                                            struct engine *e,
++                                            const int nr_threads,
++                                            const int sub_cycle) {
++
++  const ticks tic = getticks();
++
++  /* Total CPU time spent in engine_launch() */
++  const float total_tasks_time = clocks_from_ticks(s->total_ticks) * nr_threads;
++
++  if (total_tasks_time > 0.) {
++
++    /* Write data into the engine arrays. */
++    /* Initialise counters */
++    double time[task_category_count] = {0};
++    threadpool_map(s->threadpool, scheduler_collect_task_times_this_step_mapper,
++                   s->tasks, s->nr_tasks, sizeof(struct task),
++                   threadpool_auto_chunk_size, time);
++
++    /* First we write everything into the sub-cycle array.
++     * We transfer it later to the total array. */
++    for (int i = 0; i < task_category_count; i++) {
++      e->local_task_timings_sub_cycle[i] = time[i];
++    }
++
++#ifdef WITH_MPI
++    double task_timings_buf[task_category_count] = {0.};
++    int test =
++        MPI_Reduce(e->local_task_timings_sub_cycle, &task_timings_buf,
++                   task_category_count, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
++    if (test != MPI_SUCCESS) error("MPI reduce failed");
++
++    /* Write result back into correct place. */
++    for (int i = 0; i < task_category_count; i++) {
++      e->local_task_timings_sub_cycle[i] = task_timings_buf[i];
++    }
++#endif
++
++    /* Add sub-cycle times to total step times. */
++    for (int i = 0; i < task_category_count; i++) {
++      e->local_task_timings[i] += e->local_task_timings_sub_cycle[i];
++    }
++  }
++
++  /* Done. Report the time spent doing this analysis */
++  if (e->verbose)
++    message("took %.3f %s.", clocks_from_ticks(getticks() - tic),
++            clocks_getunit());
++}
+diff --git c/src/scheduler.h w/src/scheduler.h
+index b8ec1bfd9..070db0473 100644
+--- c/src/scheduler.h
++++ w/src/scheduler.h
+@@ -305,5 +305,9 @@ void scheduler_write_task_level(const struct scheduler *s, int step);
+ void scheduler_dump_queues(struct engine *e);
+ void scheduler_report_task_times(const struct scheduler *s,
+                                  const int nr_threads);
++void scheduler_collect_task_times_this_step(const struct scheduler *s,
++                                            struct engine *e,
++                                            const int nr_threads,
++                                            const int sub_cycle);
+ 
+ #endif /* SWIFT_SCHEDULER_H */
+diff --git c/src/task.c w/src/task.c
+index 3b6ae49f4..b82241e42 100644
+--- c/src/task.c
++++ w/src/task.c
+@@ -167,13 +167,14 @@ const char *subtaskID_names[task_subtype_count] = {
+ };
+ 
+ const char *task_category_names[task_category_count] = {
+-    "drift",       "sorts",    "resort",
+-    "hydro",       "gravity",  "feedback",
+-    "black holes", "cooling",  "star formation",
+-    "limiter",     "sync",     "time integration",
+-    "mpi",         "pack",     "fof",
+-    "others",      "neutrino", "sink",
+-    "RT",          "CSDS"};
++    "drift",       "sorts",        "resort",
++    "hydro",       "gravity",      "feedback",
++    "black holes", "cooling",      "star formation",
++    "limiter",     "sync",         "time integration",
++    "mpi",         "pack",         "fof",
++    "others",      "neutrino",     "sink",
++    "RT",          "CSDS",         "RT tchem",
++    "Hydro ghost", "Hydro density"};
+ 
+ #ifdef WITH_MPI
+ /* MPI communicators for the subtypes. */
+@@ -1786,6 +1787,8 @@ enum task_categories task_get_category(const struct task *t) {
+       return task_category_sync;
+ 
+     case task_type_ghost:
++      return task_category_hydro_ghost;
++
+     case task_type_extra_ghost:
+     case task_type_end_hydro_force:
+       return task_category_hydro;
+@@ -1817,12 +1820,14 @@ enum task_categories task_get_category(const struct task *t) {
+     case task_type_rt_ghost1:
+     case task_type_rt_ghost2:
+     case task_type_rt_transport_out:
+-    case task_type_rt_tchem:
+     case task_type_rt_out:
+     case task_type_rt_sort:
+     case task_type_rt_advance_cell_time:
+       return task_category_rt;
+ 
++    case task_type_rt_tchem:
++      return task_category_rt_tchem;
++
+     case task_type_neutrino_weight:
+       return task_category_neutrino;
+ 
+@@ -1833,6 +1838,8 @@ enum task_categories task_get_category(const struct task *t) {
+       switch (t->subtype) {
+ 
+         case task_subtype_density:
++          return task_category_hydro_density;
++
+         case task_subtype_gradient:
+         case task_subtype_force:
+           return task_category_hydro;
+diff --git c/src/task.h w/src/task.h
+index 47649d621..48848227e 100644
+--- c/src/task.h
++++ w/src/task.h
+@@ -202,6 +202,9 @@ enum task_categories {
+   task_category_sink,
+   task_category_rt,
+   task_category_csds,
++  task_category_rt_tchem,
++  task_category_hydro_ghost,
++  task_category_hydro_density,
+   task_category_count
+ };
+ 
+@@ -286,6 +289,8 @@ struct task {
+   /*! Start and end time of this task */
+   ticks tic, toc;
+ 
++  ticks tic_mladen, toc_mladen;
++
+   /* Total time spent running this task */
+   ticks total_ticks;
+ 
+diff --git c/swift.c w/swift.c
+index 1851ad386..32751675f 100644
+--- c/swift.c
++++ w/swift.c
+@@ -1797,6 +1797,8 @@ int main(int argc, char *argv[]) {
+   if (myrank == 0) {
+ 
+     const double dead_time = e.global_deadtime / (nr_nodes * e.nr_threads);
++    const double treebuild_time =
++        e.global_treebuild_time / (e.nr_nodes * e.nr_threads);
+ 
+     /* Print some information to the screen */
+     printf(
+@@ -1808,13 +1810,28 @@ int main(int argc, char *argv[]) {
+         e.sink_updates, e.b_updates, e.wallclock_time, e.step_props, dead_time);
+     fflush(stdout);
+ 
++    const float div = 1.f / (e.nr_nodes * e.nr_threads);
+     fprintf(e.file_timesteps,
+-            "  %6d %14e %12.7f %12.7f %14e %4d %4d %12lld %12lld %12lld %12lld"
+-            " %12lld %21.3f %6d %17.3f\n",
++            "  %6d %14e %12.7f %12.7f %14e %4d %4d %12lld %12lld %12lld %12lld "
++            "%12lld %21.3f %6d %17.3f "
++            "%21.3f %21.3f %21.3f %21.3f %21.3f %21.3f %21.3f %21.3f %21.3f "
++            "%21.3f %21.3f %21.3f %21.3f\n",
+             e.step, e.time, e.cosmology->a, e.cosmology->z, e.time_step,
+             e.min_active_bin, e.max_active_bin, e.updates, e.g_updates,
+             e.s_updates, e.sink_updates, e.b_updates, e.wallclock_time,
+-            e.step_props, dead_time);
++            e.step_props, dead_time,
++            e.local_task_timings[task_category_drift] * div,
++            e.local_task_timings[task_category_sort] * div,
++            e.local_task_timings[task_category_hydro] * div,
++            e.local_task_timings[task_category_hydro_ghost] * div,
++            e.local_task_timings[task_category_hydro_density] * div,
++            e.local_task_timings[task_category_gravity] * div,
++            e.local_task_timings[task_category_feedback] * div,
++            e.local_task_timings[task_category_time_integration] * div,
++            e.local_task_timings[task_category_mpi] * div,
++            e.local_task_timings[task_category_rt] * div,
++            e.local_task_timings[task_category_rt_tchem] * div,
++            e.local_task_timings[task_category_others] * div, treebuild_time);
+     fflush(e.file_timesteps);
+ 
+     /* Print information to the SFH logger */

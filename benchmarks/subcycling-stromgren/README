@@ -3,6 +3,10 @@ Run sub-cycling speedup tests.
 Solve the same problem, a simple stromgren sphere in 3D, using
 varying numbers of sub-cycles.
 
+These tests were run using a modification - we always force a fixed number
+of sub-cycles, instead of using a dynamically determined ratio of RT updates per
+hydro step. See `swiftsim-rt-toos/patches/patch_fixed_nr_subcycles`.
+
 
 Instructions:
 Select resolution (64, 128) and write it into file named `resolution`

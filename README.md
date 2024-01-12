@@ -26,6 +26,8 @@ SWIFT.
 -   `integrateCrossSections` - Get average photoionization cross sections,
     averaged over frequency bins.
 
+-   `patches` - patches (`git diff`s) for specific projects/runs/benchmarks.
+
 -   `photonNumberRateToLuminosity` - scripts to convert (ionizing) photon number
     rates into stellar luminosities. Needed e.g. to reproduce standard RT tests.
 
