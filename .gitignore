@@ -16,3 +16,4 @@ check_densities.py
 test_timestep.py
 pycollection
 gather_python_scripts.sh
+**/.cache
