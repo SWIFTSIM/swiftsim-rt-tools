@@ -13,6 +13,7 @@
 #
 # Specify below whether you're working with SLURM timefiles or SWIFT
 # timestep files.
+# NOTE: Using timefiles is discouraged. Use the timesteps files instead.
 # ----------------------------------------------------------------------------
 
 import os
@@ -22,11 +23,11 @@ from matplotlib import pyplot as plt
 from swift_extract_subcycling_timing import get_times
 
 # Parameters users should/may tweak
-#  subdir = "subcycling-stromgren"
-subdir = "subcycling-stromgren-grav"
+subdir = "subcycling-stromgren"
+#  subdir = "subcycling-stromgren-grav"
 timefile_base = "timing-128-MFHHe"
 from_timesteps = True
-#  from_timesteps = False # NOTE: don't use with stromgren-grav.
+#  from_timesteps = False # NOTE: don't use with stromgren-grav. This is discouraged.
 
 # if reading in timing data from timesteps files, filter out the
 # steps where restarts or snapshots are being written

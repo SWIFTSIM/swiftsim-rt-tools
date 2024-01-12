@@ -2,6 +2,10 @@
 
 # ----------------------------------------------------------------------------
 # Plot the speedup w.r.t. no subcycling for different runs.
+# Expects the timing files of the runs to be stored in appropriate
+# directories.
+# For example, to compare a hydro+RT run with a hydro+RT+gravity run,
+# have two subdirs called "subcycling-stromgren" and "subcycling-stromgren-grav"
 #
 # This script assumes that you have all your timings in multiple subdirs
 # provided by 'subdirs' below. They follow the following naming scheme:

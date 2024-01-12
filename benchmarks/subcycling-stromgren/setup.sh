@@ -2,9 +2,7 @@
 
 # specify number of subcycles here. 
 # No reason to do it in a sophisticated way.
-# nsubcycles="1 2 4 8 16 32 64 128 256 512 1024"
-# nsubcycles="1 128"
-nsubcycles="1 2 4 8 16 32 64 128"
+nsubcycles="1 2 4 8 16 32 64 128 256"
 
 #------------------------------------------------------
 
@@ -53,7 +51,6 @@ for n in $nsubcycles; do
     newdir=stromgren_test_$n
     mkdir -p $newdir
 
-    # for run in MF MFHHe; do
     # for run in MF MFHHe singlebin; do
     for run in MFHHe; do
         # Copy and adapt parameter files
@@ -72,12 +69,12 @@ for n in $nsubcycles; do
         sed -i "s;timingfile;timing-$res-$run-$n;" $newdir/$jobfile
 
         # including gravity
-        jobfile=job-stromgren-$run-$res-grav.slm  
-        cp ./job-stromgren-subcycling.slm $newdir/$jobfile
-        sed -i "s/#SBATCH --job-name=StromSS/#SBATCH --job-name=Sub$run-$n-$res/" $newdir/$jobfile
-        sed -i "s/--external-gravity/--self-gravity/" $newdir/$jobfile
-        sed -i "s;paramfile.yml;$ymlfile;" $newdir/$jobfile
-        sed -i "s;timingfile;timing-$res-$run-$n-grav;" $newdir/$jobfile
+        # jobfile=job-stromgren-$run-$res-grav.slm
+        # cp ./job-stromgren-subcycling.slm $newdir/$jobfile
+        # sed -i "s/#SBATCH --job-name=StromSS/#SBATCH --job-name=Sub$run-$n-$res/" $newdir/$jobfile
+        # sed -i "s/--external-gravity/--self-gravity/" $newdir/$jobfile
+        # sed -i "s;paramfile.yml;$ymlfile;" $newdir/$jobfile
+        # sed -i "s;timingfile;timing-$res-$run-$n-grav;" $newdir/$jobfile
     done
 
     # jobfile=job-stromgren-singlebin-$res.slm

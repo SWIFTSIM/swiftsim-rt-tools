@@ -1,7 +1,7 @@
 #!/usr/bin/bash -l
 
 #SBATCH --job-name=StromSS
-#SBATCH --time 36:00:00
+#SBATCH --time 72:00:00
 #SBATCH --partition cosma8-serial
 #SBATCH --account dp004
 #SBATCH --nodes=1

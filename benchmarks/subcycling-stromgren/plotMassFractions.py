@@ -86,7 +86,7 @@ def get_output_files(directory_base):
 
 def mean_molecular_weight(XH0, XHp, XHe0, XHep, XHepp):
     """
-    Determines the mean molecular weight for given 
+    Determines the mean molecular weight for given
     mass fractions of
         hydrogen:   XH0
         H+:         XHp
@@ -113,7 +113,7 @@ def mean_molecular_weight(XH0, XHp, XHe0, XHep, XHepp):
 
 def gas_temperature(u, mu, gamma):
     """
-    Compute the gas temperature given the specific internal 
+    Compute the gas temperature given the specific internal
     energy u and the mean molecular weight mu
     """
 
