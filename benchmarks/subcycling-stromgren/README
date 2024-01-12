@@ -36,3 +36,10 @@ Other scripts:
     `stromgren_test_2`, etc.
     This script takes the result files directly from these directories,
     and allows you to skip the `gather_results.sh` stage of the intended workflow.
+
+
+Additionally, other versions of the stromgren sphere setups are available.
+The default includes hydrogen and helium. You can also run the same for a single
+photon group (yml files with `singlebin` in filename) and for just hydrogen
+(yml files with `MF` instead of `MFHHe` in filename).
+They are stored in the `additional_ymlfiles` directory.

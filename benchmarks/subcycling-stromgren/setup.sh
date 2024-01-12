@@ -30,13 +30,14 @@ then
 fi
 
 # generate ICs?
-if [ ! -f "stromgrenSphere-3D-$res.hdf5" ]; then
-    echo "Generating ICs"
-    python3 makeIC.py
-    # srun -n 1 --partition p4 python3 makeIC.py
-else
-    echo found H IC file
-fi
+# Uncomment this if you want the hydrogen-only ICs too
+# if [ ! -f "stromgrenSphere-3D-$res.hdf5" ]; then
+#     echo "Generating ICs"
+#     python3 deprecated/makeIC.py
+#     # srun -n 1 --partition p4 python3 makeIC.py
+# else
+#     echo found H IC file
+# fi
 if [ ! -f "stromgrenSphere-3D-HHe-$res.hdf5" ]; then
     echo "Generating ICs"
     python3 makeIC_HHe.py
