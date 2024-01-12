@@ -1,0 +1,29 @@
+#!/usr/bin/bash -l
+
+#SBATCH --job-name=E50/REPLICATION
+#SBATCH --time 12:00:00
+#SBATCH --partition cosma8
+#SBATCH --account dp004
+#SBATCH --ntasks=NMPITASKS
+#SBATCH --cpus-per-task=32
+#SBATCH --exclusive
+#SBATCH --mail-type=ALL                                                                                                                                                                                                                                                                   
+#SBATCH --mail-user=mladen.ivkovic@durham.ac.uk
+#SBATCH --reservation=flamingo512
+
+module purge
+module load cosma
+module load intel_comp/2021.1.0 compiler
+module load intel_mpi/2018
+module load ucx/1.10.1
+module load fftw/3.3.9epyc parallel_hdf5/1.10.6 parmetis/4.0.3-64bit gsl/2.5
+
+# ulimit -c unlimited
+# ulimit -S unlimited
+
+mpirun -n $SLURM_NTASKS /cosma/home/do009/dc-ivko1/swiftsim-scaling/swift_mpi \
+    --hydro --stars --self-gravity --feedback --radiation \
+    --threads=$SLURM_CPUS_PER_TASK --pin \
+    eagle_50_rt_test.yml
+
+sacct -j "$SLURM_JOB_ID" --format=JobID,JobName,Elapsed

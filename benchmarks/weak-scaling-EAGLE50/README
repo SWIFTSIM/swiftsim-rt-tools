@@ -1,0 +1,24 @@
+Weak Scaling Benchmark
+----------------------
+
+Using the EAGLE_50 low_z box.
+Make sure you get the ICs and put them in this dir.
+
+
+Instructions:
+
+Check other files in this directory:
+-  job-EAGLE-weak-scaling.slm will be used as job template which will be launched later in ./run_sims.sh
+-  the .yml file in this directory is also a template which will be used to run the sims.
+
+
+Then run:
+
+./setup.sh              # sets up subdirs, makes batch job files and yml paramfiles
+./run_sims.sh           # submits jobs to slurm queues
+./gather_results.sh     # get relevant data into a single directory (once runs are finished)
+./plotScaling.py        # make plots
+
+If you have written out extra timing data, you may want to use `plotScalingWithExtraData.py`.
+Note that this script requires a modified version of SWIFT. See  swiftsim-rt-tools/patches/README and
+siwftsim-rt-tools/patches/patch_extra_rt_timing_data
