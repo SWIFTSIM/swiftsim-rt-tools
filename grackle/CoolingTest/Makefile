@@ -11,10 +11,12 @@ IDIR = ../include
 # manual definitions
 DEFINES=
 
+# define grackle root directory, if the variable isn't defined already.
+# GRACKLE_SWIFT_ROOT=/path/to/your/grackle/install
 # Grackle Dirs
 # for 64 bit floats
-GRACKLE_INCL =  -I$(GRACKLE_ROOT)/include
-GRACKLE_LIBS =  -L$(GRACKLE_ROOT)/lib
+GRACKLE_INCL =  -I$(GRACKLE_SWIFT_ROOT)/include
+GRACKLE_LIBS =  -L$(GRACKLE_SWIFT_ROOT)/lib
 CONFIG_BFLOAT= CONFIG_BFLOAT_8
 
 # for 32 bit floats
@@ -82,7 +84,6 @@ $(EXEC): $(OBJECTS) $(HEADERS)
 
 main.o: main.c $(HEADERS)
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
-#-c : compile and assemble, but do not link
 
 
 

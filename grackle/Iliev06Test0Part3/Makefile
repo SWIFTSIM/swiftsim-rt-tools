@@ -11,10 +11,13 @@ IDIR = ../include
 # manual definitions
 DEFINES=
 
+# define grackle root directory, if the variable isn't defined already.
+# GRACKLE_SWIFT_ROOT=/path/to/your/grackle/install
+
 # Grackle Dirs
 # for 64 bit floats
-GRACKLE_INCL =  -I$(GRACKLE_ROOT)/include
-GRACKLE_LIBS =  -L$(GRACKLE_ROOT)/lib
+GRACKLE_INCL =  -I$(GRACKLE_SWIFT_ROOT)/include
+GRACKLE_LIBS =  -L$(GRACKLE_SWIFT_ROOT)/lib
 CONFIG_BFLOAT= CONFIG_BFLOAT_8
 
 # for 32 bit floats
@@ -22,6 +25,8 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 # GRACKLE_LIBS =  -L$(GRACKLE_FLOAT_ROOT)/lib
 # CONFIG_BFLOAT= CONFIG_BFLOAT_4
 
+# GSL dirs
+# GSL_ROOT=/path/to/your/gsl/install
 GSL_INCL = -I$(GSL_ROOT)/include
 GSL_LIBS = -L$(GSL_ROOT)/lib
 
@@ -38,8 +43,7 @@ OPTIONS = -pedantic -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
-# -fsanitize=address
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror -fsanitize=address
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
@@ -52,8 +56,10 @@ INCLUDES = -I$(IDIR) -I.
 INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
 
-# Additional libraries
-LIBS  = -lgrackle -lgsl -lblas -lgfortran -lm
+# library flags
+LIBS  = -lgrackle -lgfortran -lgsl -lblas -lm
+
+
 
 CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 
@@ -89,7 +95,6 @@ $(EXEC): $(OBJECTS) $(HEADERS)
 
 main.o: main.c $(HEADERS)
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
-#-c : compile and assemble, but do not link
 
 
 
