@@ -39,15 +39,7 @@ def plot_scaling(data, replications):
     """
 
     gs = gridspec.GridSpec(
-        2,
-        1,
-        hspace=0.0,
-        height_ratios=[
-            1.0,
-            3.0,
-        ],
-        left=0.1,
-        right=0.99,
+        2, 1, hspace=0.0, height_ratios=[1.0, 3.0], left=0.1, right=0.99
     )
     fig = plt.figure(figsize=(7, 5), dpi=200)
 
@@ -140,26 +132,12 @@ def plot_scaling(data, replications):
     ymin = 1.0e-4
     ymax = 1.25 * times.max()
 
-    fulltimelinestyle = {
-        "label": "Full Time",
-        "c": "k",
-        "alpha": 1.0,
-    }
-    fulltimelinescatterstyle = {
-        "c": "k",
-        "alpha": 1.0,
-    }
+    fulltimelinestyle = {"label": "Full Time", "c": "k", "alpha": 1.0}
+    fulltimelinescatterstyle = {"c": "k", "alpha": 1.0}
 
-    linestyle = {
-        "alpha": 0.6,
-        "lw": 2.0,
-    }
+    linestyle = {"alpha": 0.6, "lw": 2.0}
 
-    scatterstyle = {
-        "alpha": 0.6,
-        "zorder": 3,
-        "s": 12,
-    }
+    scatterstyle = {"alpha": 0.6, "zorder": 3, "s": 12}
 
     cores = [base_cores * (rep) ** 3 for rep in replications]
 
