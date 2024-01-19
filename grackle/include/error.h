@@ -21,6 +21,9 @@
 #ifndef SWIFT_ERROR_H
 #define SWIFT_ERROR_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 /* message() and error() macros. */
 
 #define message(s, ...) ({ printf("%s: " s "\n", __func__, ##__VA_ARGS__); })

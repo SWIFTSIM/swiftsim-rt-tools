@@ -61,7 +61,7 @@ INCLUDES = -I. -I../include/
 INCLUDES += -I../../grackle/include
 INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
-INCLUDES += -L$(HDF5_INCL)/include
+INCLUDES += -I$(HDF5_INCL)
 
 # library flags
 LIBS  = -lgrackle -lgfortran -lhdf5 -lgsl -lblas -lm
@@ -82,12 +82,15 @@ CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 VPATH=$(SRCDIR):../include:../../grackle/include
 
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
-OBJECTS = main.o
+OBJECTS = main.o read_params.o units.o simulation_params.o
 
 HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h cross_sections.h \
 		  my_grackle_utils.h blackbody.h cross_sections.h photon_interaction_rates.h \
-		  parser.h error.h grackle_checks.h grackle_cooling_test.h grackle_heating_test.h
+		  parser.h error.h grackle_checks.h grackle_cooling_test.h grackle_heating_test.h \
+		  read_params.h validity_check_macros.h units.h simulation_params.h rt_ngroups.h \
+		  conversions.h
 
+OBJECTS = main.o read_params.o conversions.o simulation_params.o units.o parser.o 
 
 
 #==================================
@@ -99,10 +102,25 @@ all: default
 default: $(EXEC)
 
 $(EXEC): $(OBJECTS) $(HEADERS)
-	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
+	$(CC) -o $@ $(OBJECTS) $(CFLAGS) $(LDFLAGS) $(INCLUDES) $(LIBS)
 
 main.o: main.c $(HEADERS)
-	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
+	$(CC) -c $< $(CFLAGS) -o $@
+
+read_params.o: read_params.c read_params.h error.h parser.h simulation_params.h
+	$(CC) -c $< $(CFLAGS) -o $@
+
+units.o: units.c units.h error.h validity_check_macros.h
+	$(CC) -c $< $(CFLAGS) -o $@
+
+simulation_params.o: simulation_params.c simulation_params.h conversions.h error.h validity_check_macros.h constants.h 
+	$(CC) -c $< $(CFLAGS) -o $@
+
+conversions.o: conversions.c conversions.h error.h validity_check_macros.h constants.h
+	$(CC) -c $< $(CFLAGS) -o $@
+
+parser.o: parser.c parser.h error.h
+	$(CC) -c $< $(CFLAGS) -o $@
 
 
 
