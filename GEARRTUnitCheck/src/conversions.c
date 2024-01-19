@@ -1,7 +1,7 @@
 #include "conversions.h"
+#include "constants.h"
 #include "error.h"
 #include "validity_check_macros.h"
-#include "constants.h"
 
 extern int warnings;
 
@@ -25,7 +25,9 @@ float conversions_estimate_dt(const struct simulation_params *p) {
  * @return the radiation energy density in internal units.
  *
  **/
-float conversions_radiation_energy_density_from_luminosity(double luminosity, const struct simulation_params *p, const struct units* units){
+float conversions_radiation_energy_density_from_luminosity(
+    double luminosity, const struct simulation_params *p,
+    const struct units *units) {
 
   /* To obtain some energy density, set E = L * dt / V
    * If you want to vary particle volume, you should also vary dt
@@ -43,5 +45,3 @@ float conversions_radiation_energy_density_from_luminosity(double luminosity, co
 
   return rad_energy_density;
 }
-
-

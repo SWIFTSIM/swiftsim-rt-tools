@@ -20,7 +20,6 @@
 #ifndef SWIFT_PARSER_H
 #define SWIFT_PARSER_H
 
-
 /* =================================================================
  * A slightly modified version of swift's original parser.h.
  * Basically only changed what was necessary to compile outside
@@ -127,7 +126,8 @@ void parser_free_param_string_array(int nval, char **values);
 
 /* Dump/restore. */
 /* void parser_struct_dump(const struct swift_params *params, FILE *stream); */
-/* void parser_struct_restore(const struct swift_params *params, FILE *stream); */
+/* void parser_struct_restore(const struct swift_params *params, FILE *stream);
+ */
 
 /* Lookup functions */
 int parser_get_section_id(const struct swift_params *params, const char *name);

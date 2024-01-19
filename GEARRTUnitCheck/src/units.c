@@ -3,11 +3,10 @@
 
 extern int warnings;
 
-
 /**
  * Initialize the units struct.
  */
-void units_init(struct units *units){
+void units_init(struct units *units) {
 
   units->mass_units = 0.;
   units->time_units = 0.;
@@ -19,19 +18,18 @@ void units_init(struct units *units){
   units->energy_units = 0.;
   units->energy_density_units = 0.;
   units->power_units = 0.;
-
 }
-
 
 /**
  * @brief get additional internal unit conversions. While some units
  * are being read in from parameter files, I add other derived units
  * here for convenience.
  **/
-void units_get_internal_units(struct units* u) {
+void units_get_internal_units(struct units *u) {
 
   /* Convert units */
-  const double volume_units = (u->length_units * u->length_units * u->length_units);
+  const double volume_units =
+      (u->length_units * u->length_units * u->length_units);
   check_valid_double(volume_units, 0);
 
   u->time_units = u->length_units / u->velocity_units;
@@ -63,5 +61,3 @@ void units_get_internal_units(struct units* u) {
   u->power_units = u->energy_units / u->time_units;
   check_valid_float(u->power_units, 0);
 }
-
-

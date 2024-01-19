@@ -1,11 +1,10 @@
 #include "constants.h"
 #include "error.h"
-#include "units.h"
 #include "simulation_params.h"
+#include "units.h"
 #include "validity_check_macros.h"
 
 extern int warnings;
-
 
 /**
  * @brief Read in the parameters relevant for this check from
@@ -25,9 +24,11 @@ void params_read_paramfile(struct swift_params *params, char *param_filename) {
  *
  * @param params swift_params struct to read from
  * @param units units to be used in swift internally during the run.
- * @param simulation_params struct containing parameters we'll actually need in this check
+ * @param simulation_params struct containing parameters we'll actually need in
+ *this check
  **/
-void params_read_swift_params(struct swift_params *params, struct units* units, struct simulation_params* simulation_params) {
+void params_read_swift_params(struct swift_params *params, struct units *units,
+                              struct simulation_params *simulation_params) {
 
   /* Read in data */
   double mass_units =
@@ -41,7 +42,7 @@ void params_read_swift_params(struct swift_params *params, struct units* units, 
 
   float fc = parser_get_param_float(params, "GEARRT:f_reduce_c");
   double c_reduced = fc * const_speed_light_c / velocity_units;
-  double* photon_groups_Hz = malloc(RT_NGROUPS * sizeof(double));
+  double *photon_groups_Hz = malloc(RT_NGROUPS * sizeof(double));
   if (RT_NGROUPS == 0) {
     error(
         "Can't run RT with 0 photon groups. Modify RT_NGROUPS in this script.");
@@ -70,7 +71,6 @@ void params_read_swift_params(struct swift_params *params, struct units* units, 
           "rates (yet)");
   }
 
-
   /* Now copy the data into the place they belong. */
 
   units->mass_units = mass_units;
@@ -80,25 +80,25 @@ void params_read_swift_params(struct swift_params *params, struct units* units, 
 
   simulation_params->fc = fc;
   simulation_params->c_reduced = c_reduced;
-  for (int g = 0; g < RT_NGROUPS; g++){
+  for (int g = 0; g < RT_NGROUPS; g++) {
     simulation_params->photon_groups_Hz[g] = photon_groups_Hz[g];
     simulation_params->star_emission_rates[g] = star_emission_rates[g];
   }
   simulation_params->use_const_emission_rates = use_const_emission_rates;
-
-
 }
-
 
 /**
  * @brief Read in the parameters from the ICs relevant for this check.
  *
  * @param params swift_params struct to read from
  * @param units units to be used in swift internally during the run.
- * @param simulation_params struct containing parameters we'll actually need in this check
+ * @param simulation_params struct containing parameters we'll actually need in
+ *this check
  * @param verbose How verbose to be.
  **/
-void params_read_ic_params(struct swift_params *params, struct units* units, struct simulation_params* simulation_params, int verbose) {
+void params_read_ic_params(struct swift_params *params, struct units *units,
+                           struct simulation_params *simulation_params,
+                           int verbose) {
 
   const double mass_units_ic =
       parser_get_param_double(params, "InternalUnitSystem:UnitMass_in_cgs");
@@ -123,18 +123,22 @@ void params_read_ic_params(struct swift_params *params, struct units* units, str
   const long long npart = parser_get_param_longlong(params, "GlobalData:npart");
 
   /* Convert quantities from IC internal units to SWIFT internal units */
-  if (verbose) message("Converting IC units to SWIFT run units");
+  if (verbose)
+    message("Converting IC units to SWIFT run units");
 
-  const float particle_mass = particle_mass_ic * mass_units_ic / units->mass_units;
+  const float particle_mass =
+      particle_mass_ic * mass_units_ic / units->mass_units;
   check_valid_float(particle_mass, 0);
 
-  float density_average = av_density_ic * density_units_ic / units->density_units;
+  float density_average =
+      av_density_ic * density_units_ic / units->density_units;
   check_valid_float(density_average, 0);
 
   if (density_average > 0.)
     check_valid_float(density_average, 1);
 
-  const float rad_energy_av = av_radiation_ic * energy_units_ic / units->energy_units;
+  const float rad_energy_av =
+      av_radiation_ic * energy_units_ic / units->energy_units;
   if (rad_energy_av != 0.)
     check_valid_float(rad_energy_av, 0);
   if (rad_energy_av < 0.)
@@ -150,7 +154,8 @@ void params_read_ic_params(struct swift_params *params, struct units* units, str
 
   if (density_average == 0.) {
     /* If density = 0 in parameter file, make an estimate yourself. */
-    if (verbose) message("Got zero average density from IC paramfile, estimating myself.");
+    if (verbose)
+      message("Got zero average density from IC paramfile, estimating myself.");
 
     const double totmass = npart * particle_mass;
     density_average = totmass / (boxsize * boxsize * boxsize);
@@ -188,7 +193,9 @@ void params_read_ic_params(struct swift_params *params, struct units* units, str
       parser_get_param_float(params, "ParticleData:smoothingLength");
   if (sml_ic == 0.) {
     /* Try and estimate yourself */
-    if (verbose) message("Got zero smoothing length from IC paramfile, estimating myself.");
+    if (verbose)
+      message(
+          "Got zero smoothing length from IC paramfile, estimating myself.");
     smoothing_length = 0.75 * boxsize / pow(npart, 0.3333333);
     check_valid_float(smoothing_length, 0);
   } else {
@@ -207,7 +214,6 @@ void params_read_ic_params(struct swift_params *params, struct units* units, str
     rad_energy_min = rad_energy_min_ic * energy_units_ic / units->energy_units;
   }
 
-
   /* ------------------------------------------------ */
   /* Finally, store the parameters where they belong. */
   /* ------------------------------------------------ */
@@ -224,8 +230,4 @@ void params_read_ic_params(struct swift_params *params, struct units* units, str
   simulation_params->rad_energy_av = rad_energy_av;
 
   simulation_params->npart = npart;
-
-
 }
-
-

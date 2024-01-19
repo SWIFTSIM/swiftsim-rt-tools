@@ -29,9 +29,9 @@
 #include "grackle_heating_test.h"
 #include "ionization_equilibrium.h"
 #include "mean_molecular_weight.h"
-#include "validity_check_macros.h"
-#include "units.h"
 #include "read_params.h"
+#include "units.h"
+#include "validity_check_macros.h"
 
 /* Some global variables */
 /* --------------------- */
@@ -78,7 +78,9 @@ int warnings = 0;
  * @param units internal units used for the simulation
  * @param verbose are we talkative?
  **/
-void check_gas_quantities(float density, char *name, float T, const struct simulation_params* params, const struct units* units, int verbose) {
+void check_gas_quantities(float density, char *name, float T,
+                          const struct simulation_params *params,
+                          const struct units *units, int verbose) {
 
   /* assume mean molecular weight of 1 for this test. While that isn't correct,
    * it should do the trick for the purpose of this test. */
@@ -91,7 +93,8 @@ void check_gas_quantities(float density, char *name, float T, const struct simul
   const float mu = 1.;
   const float internal_energy_cgs =
       const_kboltz * T / (gamma_minus_one * mu * const_mh);
-  const float internal_energy = internal_energy_cgs / units->internal_energy_units;
+  const float internal_energy =
+      internal_energy_cgs / units->internal_energy_units;
   check_valid_float((double)internal_energy, 1);
 
   /* Get and check other quantities from internal energy */
@@ -165,7 +168,8 @@ void check_gas_quantities(float density, char *name, float T, const struct simul
  * @param verbose are we talkative?
  **/
 void check_grackle_internals(float density, float radiation_energy_density,
-                             char *name, float T, const struct units* units, int verbose) {
+                             char *name, float T, const struct units *units,
+                             int verbose) {
 
   message("checking %s, T=%.1e", name, T);
 
@@ -309,10 +313,13 @@ void check_grackle_internals(float density, float radiation_energy_density,
  * @param verbose are we talkative?
  **/
 void check_radiation_energies(float radEnergy, char *radName, float density,
-                              char *name, float T, const struct simulation_params *params, const struct units* units, int verbose) {
+                              char *name, float T,
+                              const struct simulation_params *params,
+                              const struct units *units, int verbose) {
 
   char fullname[80];
-  const double mean_partV = params->boxsize * params->boxsize * params->boxsize / (double)params->npart;
+  const double mean_partV = params->boxsize * params->boxsize *
+                            params->boxsize / (double)params->npart;
   double volumes[3] = {mean_partV, 1.e-3 * mean_partV, 1.e3 * mean_partV};
   char *vnames[3] = {"V_av", "V_min", "V_max"};
 
@@ -328,7 +335,8 @@ void check_radiation_energies(float radEnergy, char *radName, float density,
     const double rad_energy_density = radEnergy / partV;
     check_valid_float(rad_energy_density, 0);
 
-    check_grackle_internals(density, rad_energy_density, fullname, T, units, verbose);
+    check_grackle_internals(density, rad_energy_density, fullname, T, units,
+                            verbose);
   }
 }
 
@@ -343,8 +351,8 @@ void check_radiation_energies(float radEnergy, char *radName, float density,
  * @param verbose are we talkative?
  **/
 void check_luminosities(float luminosity, float density, char *name, float T,
-                        const struct simulation_params *p, const struct units* units,
-                        int verbose) {
+                        const struct simulation_params *p,
+                        const struct units *units, int verbose) {
 
   char fullname[80];
   sprintf(fullname, "luminosities: L=%.3g, %s", luminosity, name);
@@ -354,8 +362,11 @@ void check_luminosities(float luminosity, float density, char *name, float T,
     return;
   }
 
-  float rad_energy_density = conversions_radiation_energy_density_from_luminosity(luminosity, p, units);
-  check_grackle_internals(density, rad_energy_density, fullname, T, units, verbose);
+  float rad_energy_density =
+      conversions_radiation_energy_density_from_luminosity(luminosity, p,
+                                                           units);
+  check_grackle_internals(density, rad_energy_density, fullname, T, units,
+                          verbose);
 }
 
 int main(void) {
@@ -410,36 +421,44 @@ int main(void) {
   /* Print out the units and parameters for a visual inspection */
   simulation_params_print(&units, &simulation_params);
 
-
   /* ------------------------*/
   /* Prepare to run examples */
   /* ------------------------*/
 
   /* If the min/max densities are too close to the average, re-size them */
-  if (fabs(1. -simulation_params.density_min /simulation_params.density_average) < 0.05) {
+  if (fabs(1. - simulation_params.density_min /
+                    simulation_params.density_average) < 0.05) {
     message("density_min too close to average. Resizing %.3e -> %.3e",
-          simulation_params.density_min, 0.8 *simulation_params.density_average);
-    simulation_params.density_min = 0.8 *simulation_params.density_average;
+            simulation_params.density_min,
+            0.8 * simulation_params.density_average);
+    simulation_params.density_min = 0.8 * simulation_params.density_average;
     check_valid_float(simulation_params.density_min, 1);
   }
-  if (fabs(simulation_params.density_max / simulation_params.density_average - 1.) < 0.05) {
+  if (fabs(simulation_params.density_max / simulation_params.density_average -
+           1.) < 0.05) {
     message("density_max too close to average. Resizing %.3e -> %.3e",
-            simulation_params.density_max, 1.2 * simulation_params.density_average);
+            simulation_params.density_max,
+            1.2 * simulation_params.density_average);
     simulation_params.density_max = 1.2 * simulation_params.density_average;
     check_valid_float(simulation_params.density_max, 1);
   }
 
   /* If the min/max densities are too close to the average, re-size them */
   if (simulation_params.rad_energy_av > 0.) {
-    if (simulation_params.rad_energy_min / simulation_params.rad_energy_av > 1.e-3) {
+    if (simulation_params.rad_energy_min / simulation_params.rad_energy_av >
+        1.e-3) {
       message("photon energy_min too close to average. Resizing %.3e -> %.3e",
-              simulation_params.rad_energy_min, 1.e-3 * simulation_params.rad_energy_av);
-      simulation_params.rad_energy_min = 1.e-3 * simulation_params.rad_energy_av;
+              simulation_params.rad_energy_min,
+              1.e-3 * simulation_params.rad_energy_av);
+      simulation_params.rad_energy_min =
+          1.e-3 * simulation_params.rad_energy_av;
       check_valid_float(simulation_params.rad_energy_min, 0);
     }
-    if (simulation_params.rad_energy_max / simulation_params.rad_energy_av < 1.e3) {
+    if (simulation_params.rad_energy_max / simulation_params.rad_energy_av <
+        1.e3) {
       message("photon energy_max too close to average. Resizing %.3e -> %.3e",
-              simulation_params.rad_energy_max, 1.e3 * simulation_params.rad_energy_av);
+              simulation_params.rad_energy_max,
+              1.e3 * simulation_params.rad_energy_av);
       simulation_params.rad_energy_max = 1.e3 * simulation_params.rad_energy_av;
       check_valid_float(simulation_params.rad_energy_max, 0);
     }
@@ -465,16 +484,22 @@ int main(void) {
   double Erad_luminosity_test_cgs[RT_NGROUPS];
   for (int g = 0; g < RT_NGROUPS; g++) {
     Erad_luminosity_test_cgs[g] =
-        conversions_radiation_energy_density_from_luminosity(simulation_params.star_emission_rates[g], &simulation_params,  &units);
+        conversions_radiation_energy_density_from_luminosity(
+            simulation_params.star_emission_rates[g], &simulation_params,
+            &units);
     Erad_luminosity_test_cgs[g] *= units.energy_density_units;
     check_valid_double(Erad_luminosity_test_cgs[g], 0);
   }
   /* Set up arrays to loop over */
-  float dens_arr[3] = {simulation_params.density_average, simulation_params.density_min, simulation_params.density_max};
+  float dens_arr[3] = {simulation_params.density_average,
+                       simulation_params.density_min,
+                       simulation_params.density_max};
   char *dens_names[3] = {"rho_av", "rho_min", "rho_max"};
   float T_test[7] = {10., 100., 1000., 1.e4, 1.e5, 1.e6, 1.e7};
 
-  float rad_arr[3] = {simulation_params.rad_energy_av, simulation_params.rad_energy_min, simulation_params.rad_energy_max};
+  float rad_arr[3] = {simulation_params.rad_energy_av,
+                      simulation_params.rad_energy_min,
+                      simulation_params.rad_energy_max};
   char *rad_names[3] = {"Erad_av", "Erad_min", "Erad_max"};
 
   /* Run Gas Quantities Checks */
@@ -509,12 +534,14 @@ int main(void) {
         float radEnergy = rad_arr[e];
         char *radName = rad_names[e];
         if (simulation_params.rad_energy_av > 0.)
-          check_radiation_energies(radEnergy, radName, rho, name, T, &simulation_params, &units, verbose);
+          check_radiation_energies(radEnergy, radName, rho, name, T,
+                                   &simulation_params, &units, verbose);
       }
 
       for (int g = 0; g < RT_NGROUPS; g++) {
         float l = simulation_params.star_emission_rates[g];
-        check_luminosities(l, rho, name, T, &simulation_params, &units, verbose);
+        check_luminosities(l, rho, name, T, &simulation_params, &units,
+                           verbose);
       }
     }
   }
@@ -524,7 +551,10 @@ int main(void) {
   for (int d = 0; d < 3; d++) {
     float rho = dens_arr[d];
     char *name = dens_names[d];
-    run_grackle_cooling_test(rho, name, units.mass_units, units.length_units, units.time_units, units.density_units, units.velocity_units, units.internal_energy_units, verbose);
+    run_grackle_cooling_test(rho, name, units.mass_units, units.length_units,
+                             units.time_units, units.density_units,
+                             units.velocity_units, units.internal_energy_units,
+                             verbose);
   }
 
   /* Run Grackle heating test */
@@ -533,8 +563,9 @@ int main(void) {
     float rho = dens_arr[d];
     char *name = dens_names[d];
     run_grackle_heating_test(rho, Erad_heating_test_cgs, name, units.mass_units,
-                             units.length_units, units.time_units, units.density_units,
-                             units.velocity_units, units.internal_energy_units,
+                             units.length_units, units.time_units,
+                             units.density_units, units.velocity_units,
+                             units.internal_energy_units,
                              /*dump_results=*/1, verbose);
   }
 
@@ -547,8 +578,9 @@ int main(void) {
       char fullname[80];
       sprintf(fullname, "%s-NO_OUTPUT-LUMINOSITY_TEST", dens_names[d]);
       run_grackle_heating_test(
-          rho, Erad_luminosity_test_cgs, fullname, units.mass_units, units.length_units,
-          units.time_units, units.density_units, units.velocity_units, units.internal_energy_units,
+          rho, Erad_luminosity_test_cgs, fullname, units.mass_units,
+          units.length_units, units.time_units, units.density_units,
+          units.velocity_units, units.internal_energy_units,
           /*dump_results=*/0, verbose);
     }
   } else {

@@ -1,11 +1,10 @@
 #ifndef VALIDITY_CHECK_MACROS_H
 #define VALIDITY_CHECK_MACROS_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #include <float.h>
-
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /**
  * @file validity_check_macros.h
@@ -15,7 +14,6 @@
  * including filenames for tracebacks etc. Convenience functions,
  * basically.
  */
-
 
 /*! Check that the value is a valid float.
  * Assume the argument given is positive and of type double. */
@@ -139,6 +137,5 @@
       }                                                                        \
     }                                                                          \
   })
-
 
 #endif

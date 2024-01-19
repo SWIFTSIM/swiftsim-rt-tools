@@ -1,7 +1,6 @@
 #ifndef UNITS_H
 #define UNITS_H
 
-
 /*! A struct to store units. */
 struct units {
   double mass_units;
@@ -16,10 +15,7 @@ struct units {
   double power_units;
 };
 
-
-
 void units_init(struct units *units);
-void units_get_internal_units(struct units* u);
-
+void units_get_internal_units(struct units *u);
 
 #endif
