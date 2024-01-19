@@ -5,17 +5,17 @@
 # executable name
 EXEC   = GEARRT_unit_checks
 # source directory
-SRCDIR = src
+SRCDIR = ../src
 # manual definitions
 DEFINES=
 
 # define grackle root directory, if the variable isn't defined already.
-# GRACKLE_ROOT=$(HOME)/local/my_compiles/grackle_64
+# GRACKLE_SWIFT_ROOT=/path/to/your/grackle/install
 
 # Grackle Dirs
 # for 64 bit floats
-GRACKLE_INCL =  -I$(GRACKLE_ROOT)/include
-GRACKLE_LIBS =  -L$(GRACKLE_ROOT)/lib
+GRACKLE_INCL =  -I$(GRACKLE_SWIFT_ROOT)/include
+GRACKLE_LIBS =  -L$(GRACKLE_SWIFT_ROOT)/lib
 CONFIG_BFLOAT= CONFIG_BFLOAT_8
 
 # for 32 bit floats
@@ -23,8 +23,15 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 # GRACKLE_LIBS =  -L$(GRACKLE_FLOAT_ROOT)/lib
 # CONFIG_BFLOAT= CONFIG_BFLOAT_4
 
+# GSL dirs
+# GSL_ROOT=/path/to/your/gsl/install
 GSL_INCL = -I$(GSL_ROOT)/include
 GSL_LIBS = -L$(GSL_ROOT)/lib
+
+# hdf5 dirs
+# HDF5_ROOT=/path/to/your/hdf5/install
+HDF5_INCL += -I$(HDF5_ROOT)/include
+HDF5_LIBS=-L$(HDF5_ROOT)/lib
 
 #==================================
 # COMPILER OPTIONS AND DIRECTIVES
@@ -48,16 +55,18 @@ DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
 # Additional libraries
 LDFLAGS = $(GRACKLE_LIBS)
 LDFLAGS += $(GSL_LIBS)
+LDFLAGS += $(HDF5_LIBS)
 # Additional header files
-INCLUDES = -I. -I./include/
-INCLUDES += -I../grackle/include
+INCLUDES = -I. -I../include/
+INCLUDES += -I../../grackle/include
 INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
-# linking flags
+INCLUDES += -L$(HDF5_INCL)/include
+
+# library flags
 LIBS  = -lgrackle -lgfortran -lhdf5 -lgsl -lblas -lm
 
-LDFLAGS += -L$(HDF5_ROOT)/lib
-INCLUDES += -L$(HDF5_ROOT)/include
+
 
 CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 
@@ -70,7 +79,7 @@ CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 
 #include paths. Will be followed in that order.
 
-VPATH=$(SRCDIR):./include:../grackle/include
+VPATH=$(SRCDIR):../include:../../grackle/include
 
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
 OBJECTS = main.o

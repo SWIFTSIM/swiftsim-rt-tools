@@ -1,57 +1,82 @@
 GEAR-RT Units Check
 =====================
 
-Run a couple of tests to verify whether your choice of units for a simulation 
-might be incompatible with the precision limits for the internal thermochemistry 
+Run a couple of tests to verify whether your choice of units for a simulation
+might be incompatible with the precision limits for the internal thermochemistry
 computations.
 
-This program assumes that we're running with Grackle and primordial chemistry = 1,
-which is the non-equilibrium 6 species network (H0, Hp, He0, Hep, Hepp, e-).
+This program assumes that we're running with Grackle and primordial chemistry =
+1, which is the non-equilibrium 6 species network (H0, Hp, He0, Hep, Hepp, e-).
 
 NOTE: these tests don't inlcude cosmology yet.
 
-NOTE: The grackle library is experiencing active development (state 2023). The API
-might change in the future. We keep a frozen version forked on 
-https://github.com/mladenivkovic/grackle-swift .
-This version is guaranteed to work with swift (and with this repository).
+NOTE: The grackle library is experiencing active development (state 2023). The
+API might change in the future. We keep a frozen version forked on
+[github](https://github.com/mladenivkovic/grackle-swift). This version is
+guaranteed to work with swift (and with this repository).
+
+
+
+
 
 
 Instructions
 -------------
 
-1)  Generate simulation data parameters:
-    You need to generate a .yml file that contains a bunch of simulation 
-    parameters that are necessary for this test to be run. See 
-    `simulation_parameter_example.yml` for a list of all required parameters.
+1)  Generate simulation data parameters: You need to generate a `.yml` file
+    that contains a bunch of simulation parameters that are necessary for this test
+    to be run. See `test/simulation_parameter_example.yml` for a list of all
+    required parameters. That file is an example parameter yml file that the test
+    requires.
 
-    Alternatively, you could run `generate_simulation_parameter_file.py` on
-    a SWIFT snapshot or IC hdf5 file, which will generate the output for you,
+    Alternatively, you could run `generate_simulation_parameter_file.py` on a
+    SWIFT snapshot or IC hdf5 file, which will generate the output for you,
     provided the IC file contains all the required units.
 
     Note that you can freely edit the resulting simulation parameter file
-    afterwards, e.g. if you want to test out different min/max particle 
+    afterwards, e.g. if you want to test out different min/max particle
     densities you might reach when the simulation evolves.
 
     The program expects the file to be named "simulation_parameters.yml" by
-    default. If you want to change that, you can find the filename definition 
-    at the top of the `main()` function in `main.c`. In particular, change
-    this line: 
-    ```
-      char *IC_params_filename = "simulation_parameters.yml";
+    default. If you want to change that, you can find the filename definition
+    at the top of the `main()` function in `main.c`. In particular, change this
+    line: 
+
+    ``` 
+    char *IC_params_filename = "simulation_parameters.yml"; 
     ```
 
 2)  Provide `main.c` with the correct SWIFT runtime parameter file
     Locate the definition of 
+
     ```
       char *sim_run_params_filename = "swift_parameters.yml";`
     ```
+
     in `main()` in `main.c`, and change the file name to the SWIFT parameter
     file that you intend to use for your simulation.
 
-3)  define how many photon groups you are planning to run the simulation 
+3)  Define how many photon groups you are planning to run the simulation 
     with at the top of the file `main.c`, e.g. `#define RT_NGROUPS 3`
 
-4)  Compile and run the test suite using `run.sh`
+4)  Navigate into the `test` directory:
+    ```
+    $cd test/
+    ```
+5)  Compile and run the test suite using `run.sh`.
+    `run.sh` will call `make` to compile the code using the Makefile in
+    `test/Makefile`.
+
+5.1) Depending on your system setup, you may need to change a
+    few variables in the `test/Makefile` file. For example:
+    - The directory where grackle is installed (by providing the
+      `GRACKLE_SWIFT_ROOT` variable with the correct value)
+    - The directory where GSL (gnu scientific library) is installed (by
+      providing the `GSL_ROOT` variable with the correct value)
+    - The directory where HDF5 (hierarchical data format 5 library) is
+      installed (by providing the `HDF5_ROOT` variable with the correct value)
+    - The compiler you want to use (by providing the `CC` variable with the
+      correct value). The default is gcc.
 
 
 Results

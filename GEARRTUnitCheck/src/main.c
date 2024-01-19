@@ -764,11 +764,12 @@ int main(void) {
   /* This needs to be the parameter filename that you plan
    * on running SWIFT with for your simulation */
   /* char *sim_run_params_filename = "swift_parameters.yml"; */
-  char *sim_run_params_filename = "ilievTest0part2.yml";
+  /* char *sim_run_params_filename = "ilievTest0part2.yml"; */
+  char *sim_run_params_filename = "rt_advection1D_high_redshift.yml";
   /* This is the parameter filename for the params that you
    * either set up manually or extracted from the ICs using
    * the provided script. */
-  char *IC_params_filename = "simulation_parameters.yml";
+  char *IC_params_filename = "advectionProblemICs.yml";
 
   /* Print a lot of information to the screen? */
   int verbose = 0;
