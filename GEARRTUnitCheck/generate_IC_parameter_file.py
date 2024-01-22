@@ -5,7 +5,7 @@
 # generate the parameter file required by the GEARRT_unit_checks
 # program.
 #
-# usage: python3 generate_simulation_parameter_file.py <file.hdf5>
+# usage: python3 generate_IC_parameter_file.py <file.hdf5>
 # --------------------------------------------------------------------
 
 import os
@@ -112,11 +112,11 @@ print("Found", group - 1, "photon group ICs")
 
 
 # dump yaml file
-with open("simulation_parameters.yml", "w") as file:
+with open("IC_parameters.yml", "w") as file:
 
     # Write header
 
-    header = "# This file was written by generate_simulation_parameter_file.py\n"
+    header = "# This file was written by generate_IC_parameter_file.py\n"
     header += "# with data extracted from " + os.path.join(os.getcwd(), inputfile)
     header += "\n\n"
     file.write(header)

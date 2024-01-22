@@ -23,51 +23,41 @@ guaranteed to work with swift (and with this repository).
 Instructions
 -------------
 
-1)  Generate simulation data parameters: You need to generate a `.yml` file
-    that contains a bunch of simulation parameters that are necessary for this test
-    to be run. See `test/simulation_parameter_example.yml` for a list of all
-    required parameters. That file is an example parameter yml file that the test
-    requires.
+1)  Generate initial condition data parameters: You need to generate a `.yml`
+    file that contains a bunch of initial condition parameters that are necessary
+    for this test to be run. See `test/initial_condition_parameter_example.yml` for
+    a list of all required parameters. That file is an example parameter yml file
+    that the test requires.
 
-    Alternatively, you could run `generate_simulation_parameter_file.py` on a
-    SWIFT snapshot or IC hdf5 file, which will generate the output for you,
-    provided the IC file contains all the required units.
+    Alternatively, you could run `generate_IC_parameter_file.py` on a SWIFT
+    snapshot or IC hdf5 file, which will generate the output for you, provided
+    the IC file contains all the required units.
 
-    Note that you can freely edit the resulting simulation parameter file
+    Note that you can freely edit the resulting IC parameter file
     afterwards, e.g. if you want to test out different min/max particle
     densities you might reach when the simulation evolves.
 
-    The program expects the file to be named "simulation_parameters.yml" by
-    default. If you want to change that, you can find the filename definition
-    at the top of the `main()` function in `main.c`. In particular, change this
-    line: 
-
-    ``` 
-    char *IC_params_filename = "simulation_parameters.yml"; 
-    ```
-
-2)  Provide `main.c` with the correct SWIFT runtime parameter file
-    Locate the definition of 
+2)  Define how many photon groups you are planning to run the simulation 
+    with at the top of the file `include/rt_ngroups.h`, e.g. 
 
     ```
-      char *sim_run_params_filename = "swift_parameters.yml";`
+    #define RT_NGROUPS 3
     ```
 
-    in `main()` in `main.c`, and change the file name to the SWIFT parameter
-    file that you intend to use for your simulation.
+    The default is 3.
 
-3)  Define how many photon groups you are planning to run the simulation 
-    with at the top of the file `main.c`, e.g. `#define RT_NGROUPS 3`
-
-4)  Navigate into the `test` directory:
+3)  Navigate into the `test` directory:
     ```
     $cd test/
     ```
-5)  Compile and run the test suite using `run.sh`.
-    `run.sh` will call `make` to compile the code using the Makefile in
-    `test/Makefile`.
 
-5.1) Depending on your system setup, you may need to change a
+4)  Compile and run the test suite.
+    You can compile the code using the provided `Makefile` by running
+    ```
+    make 
+    ```
+
+4.1) Depending on your system setup, you may need to change a
     few variables in the `test/Makefile` file. For example:
     - The directory where grackle is installed (by providing the
       `GRACKLE_SWIFT_ROOT` variable with the correct value)
@@ -77,6 +67,36 @@ Instructions
       installed (by providing the `HDF5_ROOT` variable with the correct value)
     - The compiler you want to use (by providing the `CC` variable with the
       correct value). The default is gcc.
+
+
+5)  Run the test suite.
+    When compiled successfully in step 4), an executable `test/GEARRT_unit_checks`
+    is created. To run the test, you need to run this executable.
+
+    The executable expects 2 command line arguments:
+    1)  the .yml parameter file of the ICs or the snapshot you are looking at,
+        which you generated in step 1).
+    2)  the .yml parameter file you intend to use for your simulation.
+
+    The correct usage would then be something like
+
+    ```
+    ./GEARRTUnitCheck path/to/IC_parameters.yml path/to/simulation_parameters.yml
+    ```
+
+    Alternatively, you can modify the two arguments hardcoded in the `test/run.sh`
+    script. The two `.yml` files have been set up from the `../additionalTests/Iliev5`
+    initial conditions, and should work without problems or warnings.
+
+
+6)  If the tests completed without an issue, there should be 6 `.dat` files written
+    as output. Those are results of tests running grackle with the given parameters
+    for a cooling and a heating test.
+    The results are intended to be visually inspected, as it had occurred in the past
+    that weird things kept happening without grackle raising an error.
+    To produce plots, simply run the provided scripts
+    `tests/plot_cooling_tests.py` and `tests/plot_heating_tests.py`.
+    What results you should be expecting is described below.
 
 
 Results
@@ -106,4 +126,5 @@ Results
     that your choice of units is leading to grackle having trouble reaching a 
     convergent solution. Try changing your units and see whether that can make 
     the test finish in seconds.
+
 

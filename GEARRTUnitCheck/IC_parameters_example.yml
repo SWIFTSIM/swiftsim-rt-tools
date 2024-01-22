@@ -1,0 +1,25 @@
+# These are all required parameters for the checks to work.
+
+# Particle related quantities
+ParticleData:
+  ParticleMass: 3.1818268e-08       # particle mass (in internal units)
+  minDensity: 0.                    # (estimate of) minimal density in simulation (in internal units)
+  maxDensity: 0.                    # (estimate of) maximal density in simulation (in internal units)
+  averageDensity: 0.                # average density in simulation (in internal units). NOTE: if = 0., the code will try to compute its own average density based on boxsize, particle mass, and particle number, and try min/max densities with a factor of 10^{+-3}
+  smoothingLength: 0.0003079427     # (estimate of) typical smoothing length (in internal units). If = 0., the code will try to compute its own estimate.
+  minRadiationEnergy: 0.            # minimal radiation energy (of any photon group) present in ICs.
+  maxRadiationEnergy: 0.            # maximal radiation energy (of any photon group) present in ICs.
+  averageRadiationEnergy: 0.        # average radiation energy (of any photon group) present in ICs.
+
+# global data
+GlobalData:
+  boxsize: 0.031875       # boxsize (in internal units)
+  npart: 2515455          # number of gas particles in the simulation
+
+# units of ICs
+InternalUnitSystem:
+  UnitMass_in_cgs: 1.98841586e+43
+  UnitLength_in_cgs: 3.085677580962325e+24
+  UnitVelocity_in_cgs: 100000.22719736812
+  UnitCurrent_in_cgs: 3.3356409519815207e-10
+  UnitTemp_in_cgs: 1.0
