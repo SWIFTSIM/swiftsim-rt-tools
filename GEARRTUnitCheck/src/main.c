@@ -5,8 +5,8 @@
  * ------------------------------------------------- */
 
 /* FPE stuff. Link with -lm */
-/* #define _GNU_SOURCE  */
-/* #include <fenv.h>  */
+/* #define _GNU_SOURCE */
+/* #include <fenv.h> */
 
 /* define RT_NGROUPS before including local headers like my_grackle_utils.h */
 #include "rt_ngroups.h"
@@ -18,20 +18,18 @@
 #include "my_grackle_utils.h"
 
 #include "checks.h"
-#include "constants.h"
 #include "conversions.h"
+#include "cmdlineargs.h"
 #include "grackle_cooling_test.h"
 #include "grackle_heating_test.h"
-#include "ionization_equilibrium.h"
-#include "mean_molecular_weight.h"
 #include "read_params.h"
 #include "units.h"
 #include "validity_check_macros.h"
 
-
 int warnings = 0;
 
-int main(void) {
+
+int main(int argc, char* argv[]) {
 
   /* FPE's, here we come! */
   /* Note: Grackle may have severe issues with these... And that's apparently
@@ -47,11 +45,12 @@ int main(void) {
    * on running SWIFT with for your simulation */
   /* char *sim_run_params_filename = "swift_parameters.yml"; */
   /* char *sim_run_params_filename = "ilievTest0part2.yml"; */
-  char *sim_run_params_filename = "rt_advection1D_high_redshift.yml";
+  char sim_run_params_filename[MAX_FILENAME_SIZE];
   /* This is the parameter filename for the params that you
    * either set up manually or extracted from the ICs using
    * the provided script. */
-  char *IC_params_filename = "advectionProblemICs.yml";
+  char IC_params_filename[MAX_FILENAME_SIZE];
+  read_cmdlineargs(sim_run_params_filename, IC_params_filename, argc, argv);
 
   /* Print a lot of information to the screen? */
   int verbose = 0;
