@@ -10,7 +10,7 @@
 / (see Katz et al. 1996, Table 2)
 *********************************************************************/
 
-gr_float A_Hp(gr_float T) {
+static gr_float A_Hp(gr_float T) {
   /* Recombination rate for H+ in units of cm^3 s^-1 */
   gr_float T3 = T / 1e3;
   gr_float T6 = T / 1e6;
@@ -19,19 +19,19 @@ gr_float A_Hp(gr_float T) {
   return 8.40e-11 / sqrt(T) / pow(T3, 0.2) / (1 + pow(T6, 0.7));
 }
 
-gr_float A_d(gr_float T) {
+static gr_float A_d(gr_float T) {
   /* dielectric recombination of He+ in units of cm^3 s^-1 */
   return 1.9e-3 / pow(T, 1.50) * exp(-470000.0 / T) *
          (1.0 + 0.30 * exp(-94000.0 / T));
 }
 
-gr_float A_Hep(gr_float T) {
+static gr_float A_Hep(gr_float T) {
   /* Recombination rate for He+ */
   /* in units of cm^3 s^-1 */
   return 1.5e-10 / pow(T, 0.6353) + A_d(T);
 }
 
-gr_float A_Hepp(gr_float T) {
+static gr_float A_Hepp(gr_float T) {
   /* Recombination rate for He++ */
   /* in units of cm^3 s^-1 */
   gr_float T3 = T * 1e-3;
@@ -39,26 +39,26 @@ gr_float A_Hepp(gr_float T) {
   return 3.36e-10 / sqrt(T) / pow(T3, 0.2) / (1.0 + pow(T6, 0.7));
 }
 
-gr_float G_H0(gr_float T) {
+static gr_float G_H0(gr_float T) {
   /* (collisional) ionization rate for H0 */
   /* in units of cm^3 s^-1 */
   gr_float T5 = T / 1e5;
   return 1.17e-10 * sqrt(T) * exp(-157809.1 / T) / (1.0 + sqrt(T5));
 }
 
-gr_float G_He0(gr_float T) {
+static gr_float G_He0(gr_float T) {
   /* in units of cm^3 s^-1 */
   gr_float T5 = T / 1e5;
   return 2.38e-11 * sqrt(T) * exp(-285335.4 / T) / (1.0 + sqrt(T5));
 }
 
-gr_float G_Hep(gr_float T) {
+static gr_float G_Hep(gr_float T) {
   /* in units of cm^3 s^-1 */
   gr_float T5 = T / 1e5;
   return 5.68e-12 * sqrt(T) * exp(-631515.0 / T) / (1.0 + sqrt(T5));
 }
 
-void ionization_equilibrium_calculate_densities(gr_float T, gr_float nH,
+static void ionization_equilibrium_calculate_densities(gr_float T, gr_float nH,
                                                 gr_float X, gr_float *nH0,
                                                 gr_float *nHp, gr_float *nHe0,
                                                 gr_float *nHep, gr_float *nHepp,

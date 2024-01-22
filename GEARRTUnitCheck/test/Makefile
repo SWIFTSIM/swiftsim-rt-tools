@@ -88,9 +88,9 @@ HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h cross_sec
 		  my_grackle_utils.h blackbody.h cross_sections.h photon_interaction_rates.h \
 		  parser.h error.h grackle_checks.h grackle_cooling_test.h grackle_heating_test.h \
 		  read_params.h validity_check_macros.h units.h simulation_params.h rt_ngroups.h \
-		  conversions.h
+		  conversions.h checks.h
 
-OBJECTS = main.o read_params.o conversions.o simulation_params.o units.o parser.o 
+OBJECTS = main.o read_params.o checks.o conversions.o simulation_params.o units.o parser.o 
 
 
 #==================================
@@ -117,6 +117,9 @@ simulation_params.o: simulation_params.c simulation_params.h conversions.h error
 	$(CC) -c $< $(CFLAGS) -o $@
 
 conversions.o: conversions.c conversions.h error.h validity_check_macros.h constants.h
+	$(CC) -c $< $(CFLAGS) -o $@
+
+checks.o: checks.c checks.h error.h validity_check_macros.h simulation_params.h units.h
 	$(CC) -c $< $(CFLAGS) -o $@
 
 parser.o: parser.c parser.h error.h
