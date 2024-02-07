@@ -53,6 +53,9 @@ void simulation_params_print(struct units *units,
   message("%22s: %.6e", "density_average", params->density_average);
   message("%22s: %.6e", "density_min", params->density_min);
   message("%22s: %.6e", "density_max", params->density_max);
+  message("%22s: %.6e", "radiation_energy_average", params->rad_energy_av);
+  message("%22s: %.6e", "radiation_energy_min", params->rad_energy_min);
+  message("%22s: %.6e", "radiation_energy_max", params->rad_energy_max);
   message("%22s: %.6e", "boxsize", params->boxsize);
   message("%22s: %.6e", "smoothing length", params->smoothing_length);
   message("%22s: %.6e", "approx dt [internal units]",
