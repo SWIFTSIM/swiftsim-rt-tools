@@ -71,7 +71,7 @@ INCLUDES += $(GSL_INCL)
 INCLUDES += -I$(HDF5_INCL)
 
 # library flags
-LIBS  = -lgrackle $(CCLIBS) -lgfortran -lhdf5 -lgsl -lgslcblas -lm
+LIBS  = -lgrackle $(CCLIBS) -lhdf5 -lgsl -lgslcblas -lm
 
 
 
