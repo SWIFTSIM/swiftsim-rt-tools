@@ -38,7 +38,13 @@ HDF5_LIBS=-L$(HDF5_ROOT)/lib
 #==================================
 
 #Compiler to use
-CC = gcc 
+# gcc
+CC = gcc
+CCLIBS=-lgfortran
+# intel oneAPI
+# CC = icx
+# CCLIBS=-lifcore -lifport
+#
 # additional options
 # NOTE: some SWIFT functions need gcc extensions, so -pedantic will act up
 OPTIONS = -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
@@ -65,7 +71,7 @@ INCLUDES += $(GSL_INCL)
 INCLUDES += -I$(HDF5_INCL)
 
 # library flags
-LIBS  = -lgrackle -lgfortran -lhdf5 -lgsl -lblas -lm
+LIBS  = -lgrackle $(CCLIBS) -lgfortran -lhdf5 -lgsl -lgslcblas -lm
 
 
 
