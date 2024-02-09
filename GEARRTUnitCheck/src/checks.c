@@ -324,9 +324,15 @@ void check_luminosities(float luminosity, float density, char *name, float T,
     return;
   }
 
+  const double mean_partV = params->boxsize * params->boxsize *
+                            params->boxsize / (double)params->npart;
+
   float rad_energy_density = conversions_radiation_energy_density_from_luminosity(luminosity, params, units);
-  check_grackle_internals(density, rad_energy_density, fullname, T, params, units, verbose);
-  check_radiation_energies(rad_energy_density, "luminosityTest", density, name, T, params, units, verbose);
+  float rad_energy = rad_energy_density * mean_partV;
+  check_valid_float(rad_energy, 0);
+
+
+  check_radiation_energies(rad_energy, "luminosityTest", density, name, T, params, units, verbose);
 
 }
 
