@@ -142,4 +142,4 @@ cmdlineargs.o: cmdlineargs.c cmdlineargs.h error.h
 .PHONY: clean # keeps makefile from doing something with a file named clean
 
 clean:
-	rm -f $(OBJECTS) $(EXEC)
+	rm -f $(OBJECTS) $(EXEC) *.dat *.png
