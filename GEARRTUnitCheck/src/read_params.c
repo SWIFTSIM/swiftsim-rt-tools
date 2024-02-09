@@ -13,7 +13,7 @@ extern int warnings;
  * @param params (return) swift_params struct to be filled
  * @param param_filenme filename to read in
  **/
-void params_read_paramfile(struct swift_params *params, char *param_filename) {
+void params_read_file(struct swift_params *params, char *param_filename) {
   message("Reading parameters from file '%s'", param_filename);
   parser_read_file(param_filename, params);
 }
@@ -25,10 +25,10 @@ void params_read_paramfile(struct swift_params *params, char *param_filename) {
  * @param params swift_params struct to read from
  * @param units units to be used in swift internally during the run.
  * @param simulation_params struct containing parameters we'll actually need in
- *this check
+ * this check
  **/
-void params_read_swift_params(struct swift_params *params, struct units *units,
-                              struct simulation_params *simulation_params) {
+void params_read_simulation_params(struct swift_params *params, struct units *units,
+                                   struct simulation_params *simulation_params) {
 
   /* Read in data */
   double mass_units =
@@ -223,7 +223,7 @@ void params_read_ic_params(struct swift_params *params, struct units *units,
   simulation_params->density_min = density_min;
   simulation_params->density_max = density_max;
   simulation_params->boxsize = boxsize;
-  simulation_params->smoothing_length = boxsize;
+  simulation_params->smoothing_length = smoothing_length;
 
   simulation_params->rad_energy_min = rad_energy_min;
   simulation_params->rad_energy_max = rad_energy_max;

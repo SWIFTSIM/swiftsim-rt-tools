@@ -38,31 +38,31 @@ void simulation_params_print(struct units *units,
                              struct simulation_params *params) {
 
   message("Units: [in cgs]");
-  message("%22s: %.6e", "mass units", units->mass_units);
-  message("%22s: %.6e", "length units", units->length_units);
-  message("%22s: %.6e", "time units", units->time_units);
-  message("%22s: %.6e", "density units", units->density_units);
-  message("%22s: %.6e", "velocity units", units->velocity_units);
-  message("%22s: %.6e", "temperature units", units->temperature_units);
-  message("%22s: %.6e", "energy units", units->energy_units);
-  message("%22s: %.6e", "internal energy units", units->internal_energy_units);
+  message("%25s: %.6e", "mass units", units->mass_units);
+  message("%25s: %.6e", "length units", units->length_units);
+  message("%25s: %.6e", "time units", units->time_units);
+  message("%25s: %.6e", "density units", units->density_units);
+  message("%25s: %.6e", "velocity units", units->velocity_units);
+  message("%25s: %.6e", "temperature units", units->temperature_units);
+  message("%25s: %.6e", "energy units", units->energy_units);
+  message("%25s: %.6e", "internal energy units", units->internal_energy_units);
 
   message("");
   message("Variables [internal units]");
-  message("%22s: %.6e", "particle mass", params->particle_mass);
-  message("%22s: %.6e", "density_average", params->density_average);
-  message("%22s: %.6e", "density_min", params->density_min);
-  message("%22s: %.6e", "density_max", params->density_max);
-  message("%22s: %.6e", "radiation_energy_average", params->rad_energy_av);
-  message("%22s: %.6e", "radiation_energy_min", params->rad_energy_min);
-  message("%22s: %.6e", "radiation_energy_max", params->rad_energy_max);
-  message("%22s: %.6e", "boxsize", params->boxsize);
-  message("%22s: %.6e", "smoothing length", params->smoothing_length);
-  message("%22s: %.6e", "approx dt [internal units]",
+  message("%25s: %.6e", "particle mass", params->particle_mass);
+  message("%25s: %.6e", "density_average", params->density_average);
+  message("%25s: %.6e", "density_min", params->density_min);
+  message("%25s: %.6e", "density_max", params->density_max);
+  message("%25s: %.6e", "radiation_energy_average", params->rad_energy_av);
+  message("%25s: %.6e", "radiation_energy_min", params->rad_energy_min);
+  message("%25s: %.6e", "radiation_energy_max", params->rad_energy_max);
+  message("%25s: %.6e", "boxsize", params->boxsize);
+  message("%25s: %.6e", "smoothing length", params->smoothing_length);
+  message("%25s: %.6e", "approx dt [internal units]",
           conversions_estimate_dt(params));
-  message("%22s: %.6e", "approx dt [s]             ",
+  message("%25s: %.6e", "approx dt [s]             ",
           conversions_estimate_dt(params) / units->time_units);
-  message("%22s: %.6e", "approx dt [kyr]           ",
+  message("%25s: %.6e", "approx dt [kyr]           ",
           conversions_estimate_dt(params) * units->time_units / const_yr *
               1e-3);
 }

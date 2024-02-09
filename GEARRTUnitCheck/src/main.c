@@ -40,11 +40,8 @@ int main(int argc, char* argv[]) {
   /* First things first: Read in required data */
   /* ----------------------------------------- */
 
-  /* TODO: make this a cmdline arg? */
   /* This needs to be the parameter filename that you plan
    * on running SWIFT with for your simulation */
-  /* char *sim_run_params_filename = "swift_parameters.yml"; */
-  /* char *sim_run_params_filename = "ilievTest0part2.yml"; */
   char sim_run_params_filename[MAX_FILENAME_SIZE];
   /* This is the parameter filename for the params that you
    * either set up manually or extracted from the ICs using
@@ -56,8 +53,8 @@ int main(int argc, char* argv[]) {
   int verbose = 0;
 
   /* Initialize all sorts of variables and structs. */
-  struct simulation_params simulation_params;
-  simulation_params_init(&simulation_params);
+  struct simulation_params test_params;
+  simulation_params_init(&test_params);
   struct units units;
   units_init(&units);
 
@@ -67,61 +64,52 @@ int main(int argc, char* argv[]) {
   struct swift_params *swift_params =
       (struct swift_params *)malloc(sizeof(struct swift_params));
 
-  params_read_paramfile(swift_params, sim_run_params_filename);
-  params_read_swift_params(swift_params, &units, &simulation_params);
+  params_read_file(swift_params, sim_run_params_filename);
+  params_read_simulation_params(swift_params, &units, &test_params);
 
   /* Get additional internal unit conversions before we continue */
   units_get_internal_units(&units);
 
   /* Read the simulation data parameter file, and the parameters */
-  struct swift_params *sim_params =
+  struct swift_params *ic_params =
       (struct swift_params *)malloc(sizeof(struct swift_params));
-  params_read_paramfile(sim_params, IC_params_filename);
-  params_read_ic_params(sim_params, &units, &simulation_params, verbose);
+  params_read_file(ic_params, IC_params_filename);
+  params_read_ic_params(ic_params, &units, &test_params, verbose);
 
   /* Print out the units and parameters for a visual inspection */
-  simulation_params_print(&units, &simulation_params);
+  simulation_params_print(&units, &test_params);
 
   /* ------------------------*/
   /* Prepare to run examples */
   /* ------------------------*/
 
   /* If the min/max densities are too close to the average, re-size them */
-  if (fabs(1. - simulation_params.density_min /
-                    simulation_params.density_average) < 0.05) {
+  if (fabs(1. - test_params.density_min / test_params.density_average) < 0.05) {
     message("density_min too close to average. Resizing %.3e -> %.3e",
-            simulation_params.density_min,
-            0.8 * simulation_params.density_average);
-    simulation_params.density_min = 0.8 * simulation_params.density_average;
-    check_valid_float(simulation_params.density_min, 1);
+            test_params.density_min, 0.8 * test_params.density_average);
+    test_params.density_min = 0.8 * test_params.density_average;
+    check_valid_float(test_params.density_min, 1);
   }
-  if (fabs(simulation_params.density_max / simulation_params.density_average -
-           1.) < 0.05) {
+  if (fabs(test_params.density_max / test_params.density_average - 1.) < 0.05) {
     message("density_max too close to average. Resizing %.3e -> %.3e",
-            simulation_params.density_max,
-            1.2 * simulation_params.density_average);
-    simulation_params.density_max = 1.2 * simulation_params.density_average;
-    check_valid_float(simulation_params.density_max, 1);
+            test_params.density_max, 1.2 * test_params.density_average);
+    test_params.density_max = 1.2 * test_params.density_average;
+    check_valid_float(test_params.density_max, 1);
   }
 
   /* If the min/max densities are too close to the average, re-size them */
-  if (simulation_params.rad_energy_av > 0.) {
-    if (simulation_params.rad_energy_min / simulation_params.rad_energy_av >
-        1.e-3) {
+  if (test_params.rad_energy_av > 0.) {
+    if (test_params.rad_energy_min / test_params.rad_energy_av > 1.e-3) {
       message("photon energy_min too close to average. Resizing %.3e -> %.3e",
-              simulation_params.rad_energy_min,
-              1.e-3 * simulation_params.rad_energy_av);
-      simulation_params.rad_energy_min =
-          1.e-3 * simulation_params.rad_energy_av;
-      check_valid_float(simulation_params.rad_energy_min, 0);
+              test_params.rad_energy_min, 1.e-3 * test_params.rad_energy_av);
+      test_params.rad_energy_min = 1.e-3 * test_params.rad_energy_av;
+      check_valid_float(test_params.rad_energy_min, 0);
     }
-    if (simulation_params.rad_energy_max / simulation_params.rad_energy_av <
-        1.e3) {
+    if (test_params.rad_energy_max / test_params.rad_energy_av < 1.e3) {
       message("photon energy_max too close to average. Resizing %.3e -> %.3e",
-              simulation_params.rad_energy_max,
-              1.e3 * simulation_params.rad_energy_av);
-      simulation_params.rad_energy_max = 1.e3 * simulation_params.rad_energy_av;
-      check_valid_float(simulation_params.rad_energy_max, 0);
+              test_params.rad_energy_max, 1.e3 * test_params.rad_energy_av);
+      test_params.rad_energy_max = 1.e3 * test_params.rad_energy_av;
+      check_valid_float(test_params.rad_energy_max, 0);
     }
   }
 
@@ -146,21 +134,21 @@ int main(int argc, char* argv[]) {
   for (int g = 0; g < RT_NGROUPS; g++) {
     Erad_luminosity_test_cgs[g] =
         conversions_radiation_energy_density_from_luminosity(
-            simulation_params.star_emission_rates[g], &simulation_params,
+            test_params.star_emission_rates[g], &test_params,
             &units);
     Erad_luminosity_test_cgs[g] *= units.energy_density_units;
     check_valid_double(Erad_luminosity_test_cgs[g], 0);
   }
   /* Set up arrays to loop over */
-  float dens_arr[3] = {simulation_params.density_average,
-                       simulation_params.density_min,
-                       simulation_params.density_max};
+  float dens_arr[3] = {test_params.density_average,
+                       test_params.density_min,
+                       test_params.density_max};
   char *dens_names[3] = {"rho_av", "rho_min", "rho_max"};
   float T_test[7] = {10., 100., 1000., 1.e4, 1.e5, 1.e6, 1.e7};
 
-  float rad_arr[3] = {simulation_params.rad_energy_av,
-                      simulation_params.rad_energy_min,
-                      simulation_params.rad_energy_max};
+  float rad_arr[3] = {test_params.rad_energy_av,
+                      test_params.rad_energy_min,
+                      test_params.rad_energy_max};
   char *rad_names[3] = {"Erad_av", "Erad_min", "Erad_max"};
 
   /* Run Gas Quantities Checks */
@@ -174,7 +162,7 @@ int main(int argc, char* argv[]) {
     char *name = dens_names[d];
     for (int t = 0; t < 7; t++) {
       float T = T_test[t];
-      check_gas_quantities(rho, name, T, &simulation_params, &units, verbose);
+      check_gas_quantities(rho, name, T, &test_params, &units, verbose);
       check_grackle_internals(rho, Ei, name, T, &units, verbose);
     }
   }
@@ -194,14 +182,14 @@ int main(int argc, char* argv[]) {
       for (int e = 0; e < 3; e++) {
         float radEnergy = rad_arr[e];
         char *radName = rad_names[e];
-        if (simulation_params.rad_energy_av > 0.)
+        if (test_params.rad_energy_av > 0.)
           check_radiation_energies(radEnergy, radName, rho, name, T,
-                                   &simulation_params, &units, verbose);
+                                   &test_params, &units, verbose);
       }
 
       for (int g = 0; g < RT_NGROUPS; g++) {
-        float l = simulation_params.star_emission_rates[g];
-        check_luminosities(l, rho, name, T, &simulation_params, &units,
+        float l = test_params.star_emission_rates[g];
+        check_luminosities(l, rho, name, T, &test_params, &units,
                            verbose);
       }
     }
@@ -233,7 +221,7 @@ int main(int argc, char* argv[]) {
   /* Run Grackle heating test with provided luminosities */
   /* --------------------------------------------------- */
 
-  if (simulation_params.use_const_emission_rates) {
+  if (test_params.use_const_emission_rates) {
     for (int d = 0; d < 3; d++) {
       float rho = dens_arr[d];
       char fullname[80];
@@ -250,7 +238,7 @@ int main(int argc, char* argv[]) {
 
   /* Clean up after yourself */
   free(swift_params);
-  free(sim_params);
+  free(ic_params);
 
   message("Check completed with %d warning(s).", warnings);
   message("Bye, and good luck.");
