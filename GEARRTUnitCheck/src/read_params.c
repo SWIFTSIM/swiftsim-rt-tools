@@ -51,6 +51,9 @@ void params_read_simulation_params(struct swift_params *params, struct units *un
                                   photon_groups_Hz);
   }
 
+  double a_begin = parser_get_opt_param_double(params, "Cosmology:a_begin", 1.0);
+  double a_end = parser_get_opt_param_double(params, "Cosmology:a_end", 1.0);
+
   int use_const_emission_rates = 0;
 
   char stellar_model_str[80];
@@ -80,6 +83,8 @@ void params_read_simulation_params(struct swift_params *params, struct units *un
 
   simulation_params->fc = fc;
   simulation_params->c_reduced = c_reduced;
+  simulation_params->a_begin = a_begin;
+  simulation_params->a_end = a_end;
   for (int g = 0; g < RT_NGROUPS; g++) {
     simulation_params->photon_groups_Hz[g] = photon_groups_Hz[g];
     simulation_params->star_emission_rates[g] = star_emission_rates[g];

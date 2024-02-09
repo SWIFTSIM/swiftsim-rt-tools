@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
     for (int t = 0; t < 7; t++) {
       float T = T_test[t];
       check_gas_quantities(rho, name, T, &test_params, &units, verbose);
-      check_grackle_internals(rho, Ei, name, T, &units, verbose);
+      check_grackle_internals(rho, Ei, name, T, &test_params, &units, verbose);
     }
   }
 

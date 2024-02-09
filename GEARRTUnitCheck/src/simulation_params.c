@@ -25,6 +25,9 @@ void simulation_params_init(struct simulation_params *p) {
   p->use_const_emission_rates = 0;
   p->npart = 0ll;
 
+  p->a_begin = 1.;
+  p->a_end = 1.;
+
   for (int g = 0; g < RT_NGROUPS; g++) {
     p->photon_groups_Hz[g] = 0.;
     p->star_emission_rates[g] = 0.;
@@ -58,6 +61,8 @@ void simulation_params_print(struct units *units,
   message("%25s: %.6e", "radiation_energy_max", params->rad_energy_max);
   message("%25s: %.6e", "boxsize", params->boxsize);
   message("%25s: %.6e", "smoothing length", params->smoothing_length);
+  message("%25s: %.6e", "a_begin ", params->a_begin);
+  message("%25s: %.6e", "a_end ", params->a_end);
   message("%25s: %.6e", "approx dt [internal units]",
           conversions_estimate_dt(params));
   message("%25s: %.6e", "approx dt [s]             ",

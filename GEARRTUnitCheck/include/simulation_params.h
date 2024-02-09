@@ -56,6 +56,12 @@ struct simulation_params {
   /*! photon group intervals, in Hz */
   double photon_groups_Hz[RT_NGROUPS];
 
+  /*! scale factor at start of simulation */
+  double a_begin;
+
+  /*! scale factor at start of simulation */
+  double a_end;
+
   /*! Stellar emission rates in internal units (units in which simulation will
    * be run)  */
   double star_emission_rates[RT_NGROUPS];

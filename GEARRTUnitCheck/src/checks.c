@@ -107,28 +107,40 @@ void check_gas_quantities(float density, char *name, float T,
  * @param radiation_energy_density radiation energy density to use
  * @param name name of the test case. NO SPACES.
  * @param T temperature to deal with
+ * @param params simulation parameters.
  * @param units the internal units to be used in the simulation
  * @param verbose are we talkative?
  **/
 void check_grackle_internals(float density, float radiation_energy_density,
-                             char *name, float T, const struct units *units,
+                             char *name, float T,
+                             const struct simulation_params *params,
+                             const struct units *units,
                              int verbose) {
 
   message("checking %s, T=%.1e", name, T);
 
   /* Check that the total number density is within the valid limits for
    * grackle to handle. */
-  const double n_cgs = density * units->density_units / const_mh;
-  check_valid_double(n_cgs, 0);
-  /* Make sure the number density is within the limit of what grackle can do */
-  if (n_cgs < 1e-10)
-    error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
-          "below lower limit of 1e-10",
-          name, density, n_cgs);
-  if (n_cgs > 1e16)
-    error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
-          "above upper limit of 1e16",
-          name, density, n_cgs);
+  /* We need to check the physical values here, so convert cosmo quantities
+   * to physical ones. */
+
+  double scales_arr[2] = {params->a_begin, params->a_end};
+
+  for (int s = 0; s < 2; s++){
+    const double a = scales_arr[s];
+    const double scale = 1. / (a * a * a);
+    const double n_cgs = density * units->density_units * scale / const_mh;
+    check_valid_double(n_cgs, 0);
+    /* Make sure the number density is within the limit of what grackle can do */
+    if (n_cgs < 1e-10)
+      error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
+            "below lower limit of 1e-10",
+            name, density, n_cgs);
+    if (n_cgs > 1e16)
+      error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
+            "above upper limit of 1e16",
+            name, density, n_cgs);
+  }
 
   /* Prepare some grackle internals for later. See cool1d_multi_g.F
    * in grackle's source files for reference. */
@@ -272,14 +284,21 @@ void check_radiation_energies(float radEnergy, char *radName, float density,
     return;
   }
 
+  double flux_factor = params->fc * const_speed_light_c / units->velocity_units;
+
   for (int v = 0; v < 3; v++) {
     sprintf(fullname, "E_rad:%s, %s, %s", radName, name, vnames[v]);
     const double partV = volumes[v];
     const double rad_energy_density = radEnergy / partV;
     check_valid_float(rad_energy_density, 0);
 
-    check_grackle_internals(density, rad_energy_density, fullname, T, units,
-                            verbose);
+    const double flux = flux_factor * rad_energy_density;
+    check_valid_float(flux, 0);
+    // We do intermediate comutations containing F^2, so that needs to fit as well
+    const double f2 = flux * flux;
+    check_valid_float(f2, 0);
+
+    check_grackle_internals(density, rad_energy_density, fullname, T, params, units, verbose);
   }
 }
 
@@ -294,7 +313,7 @@ void check_radiation_energies(float radEnergy, char *radName, float density,
  * @param verbose are we talkative?
  **/
 void check_luminosities(float luminosity, float density, char *name, float T,
-                        const struct simulation_params *p,
+                        const struct simulation_params *params,
                         const struct units *units, int verbose) {
 
   char fullname[80];
@@ -305,11 +324,10 @@ void check_luminosities(float luminosity, float density, char *name, float T,
     return;
   }
 
-  float rad_energy_density =
-      conversions_radiation_energy_density_from_luminosity(luminosity, p,
-                                                           units);
-  check_grackle_internals(density, rad_energy_density, fullname, T, units,
-                          verbose);
+  float rad_energy_density = conversions_radiation_energy_density_from_luminosity(luminosity, params, units);
+  check_grackle_internals(density, rad_energy_density, fullname, T, params, units, verbose);
+  check_radiation_energies(rad_energy_density, "luminosityTest", density, name, T, params, units, verbose);
+
 }
 
 
