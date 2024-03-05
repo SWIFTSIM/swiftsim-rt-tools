@@ -1,7 +1,6 @@
 /* ---------------------------------------------
- * In this example, we start with high internal
- * energies and a fully ionized gas, and just
- * let it cool without any RT.
+ * Compute the a(t) and t(a) time tables and
+ * write them out.
  * --------------------------------------------- */
 
 #include <math.h>
@@ -22,11 +21,10 @@ int main() {
   double length_units = 3.08567758e21;
   double velocity_units = 1e5;
 
-  /* double density_units = */
-  /*     mass_units / length_units / length_units / length_units; */
+  /* double density_units = mass_units / length_units / length_units / length_units; */
   double time_units = length_units / velocity_units;
 
-  time_units = 1.;
+  /* time_units = 2.; */
 
   /* Cosmology                  */
   /* -------------------------- */
@@ -51,8 +49,8 @@ int main() {
   /* Compute a(t) and t(a) tables for interpolation */
   /* ---------------------------------------------- */
 
-  double a_table[COSMO_TABLE_ELEMENTS];
-  double t_table[COSMO_TABLE_ELEMENTS];
+  double *a_table = malloc(sizeof(double) * COSMO_TABLE_ELEMENTS);
+  double *t_table = malloc(sizeof(double) * COSMO_TABLE_ELEMENTS);
 
   cosmo_get_tables(a_table, t_table, &cosmology, a_begin, a_end);
 
@@ -66,6 +64,12 @@ int main() {
   }
   fclose(fd);
 
+
+  free(a_table);
+  free(t_table);
+
+
+  printf("Done.\n");
 
   return 0;
 }

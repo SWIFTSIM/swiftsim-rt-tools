@@ -12,6 +12,6 @@ a = data[:,1]
 
 plt.figure()
 plt.plot(t, a)
-plt.xlabel("t")
-plt.ylabel("a")
+plt.xlabel("t [yr]")
+plt.ylabel("a [1]")
 plt.show()

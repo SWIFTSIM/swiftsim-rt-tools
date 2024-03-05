@@ -81,6 +81,33 @@ double cosmo_get_physical_internal_energy(double u_c, double a){
 
 
 /**
+ * @brief Returns the interpolated value from a table.
+ *
+ * Uses linear interpolation.
+ *
+ * @param table The table of value to interpolate from (should be of length
+ * COSMO_TABLE_ELEMENTS).
+ * @param x The value to interpolate at.
+ * @param x_min The mininum of the range of x.
+ * @param x_max The maximum of the range of x.
+ */
+static inline double interp_table(const double table[COSMO_TABLE_ELEMENTS], const double x,
+                                  const double x_min, const double x_max) {
+
+  const double xx =
+      ((x - x_min) / (x_max - x_min)) * ((double)COSMO_TABLE_ELEMENTS);
+
+  const int i = (int)xx;
+  const int ii = i < COSMO_TABLE_ELEMENTS ? i : COSMO_TABLE_ELEMENTS - 1;
+
+  if (ii < 1)
+    return table[0] * xx;
+  else
+    return table[ii - 1] + (table[ii] - table[ii - 1]) * (xx - ii);
+}
+
+
+/**
  * @brief Computes the integral of the dark-energy equation of state
  * up to a scale-factor a.
  *
@@ -154,8 +181,11 @@ double time_integrand(double a, void *param) {
  */
 void cosmo_convert_H0_to_internal_units(struct cosmology *cosmo, const double time_units){
 
-  const double km_per_Mpc = 3.240756e-20;
-  cosmo->H_0 *= km_per_Mpc / time_units;
+  const double km_per_Mpc = 3.240779e-20;
+  const double H0_cgs = cosmo->H_0 * km_per_Mpc;
+  /* from cgs -> internal units, we divide by time_units.
+   * However, H_0 is in s^-1, so we multiply instead. */
+  cosmo->H_0 = H0_cgs * time_units;
 }
 
 
@@ -169,15 +199,14 @@ void cosmo_convert_H0_to_internal_units(struct cosmology *cosmo, const double ti
  * @param a_end: final scale factor
  * @param
  */
-void  cosmo_get_tables(double a_table[COSMO_TABLE_ELEMENTS], double t_table[COSMO_TABLE_ELEMENTS],
-    struct cosmology *cosmo, double a_begin, double a_end){
+void cosmo_get_tables(double a_table[COSMO_TABLE_ELEMENTS], double t_table[COSMO_TABLE_ELEMENTS], struct cosmology *cosmo, double a_begin, double a_end){
 
   if (a_begin <= 0.) error("a_begin must be > 0. Got=%g", a_begin);
   if (a_end <= 0.) error("a_end must be > 0. Got=%g", a_end);
   if (a_end <= a_begin) error("a_begin must be > a_end Got=%g, %g", a_begin, a_end);
 
-  const double log_a_begin = log10(a_begin);
-  const double log_a_end = log10(a_end);
+  const double log_a_begin = log(a_begin);
+  const double log_a_end = log(a_end);
 
   const double delta_a = (log_a_end - log_a_begin) / COSMO_TABLE_ELEMENTS;
 
@@ -198,9 +227,34 @@ void  cosmo_get_tables(double a_table[COSMO_TABLE_ELEMENTS], double t_table[COSM
                         GSL_INTEG_GAUSS61, space, &result, &abserr);
     t_table[i] = result;
   }
+}
+
+/**
+ * Compute the cosmic time (in internal units) between expansion
+ * scale factors a1 and a2.
+ *
+ * @param a1 scale factor at start of step
+ * @param a2 scale factor at end of step
+ * @param a_begin first scale factor of simulation. Needed for table limits.
+ * @param a_end final scale factor of simulation. Needed for table limits.
+ *
+ * @return dt: physical time between a1 and a2.
+ */
+double cosmo_get_dt(double a1, double a2, double a_begin, double a_end, double t_table[COSMO_TABLE_ELEMENTS]){
+
+  const double log_a1 = log(a1);
+  const double log_a2 = log(a2);
+  const double log_a_begin = log(a_begin);
+  const double log_a_end = log(a_end);
+
+  /* Time between a_begin and a_1 */
+  const double t1 = interp_table(t_table, log_a1, log_a_begin, log_a_end);
+
+  /* Time between a_begin and a_2 */
+  const double t2 = interp_table(t_table, log_a2, log_a_begin, log_a_end);
+
+  return t2 - t1;
 
 
 }
-
-
 #endif

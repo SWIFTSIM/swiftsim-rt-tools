@@ -2,8 +2,6 @@
 # COMPILATION TIME PARAMETERS
 #==================================
 
-# executable name
-EXEC   = cosmo_cooling_test
 # source directory
 SRCDIR = .
 # include directory
@@ -76,7 +74,7 @@ VPATH=$(IDIR):$(SRCDIR)
 
 
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
-OBJECTS = main.o
+OBJECTS =
 
 HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h cosmology.h
 
@@ -94,9 +92,8 @@ all: cosmoTimeTable
 cosmoTimeTable: cosmoTimeTable.c cosmology.h constants.h
 	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
-# main.o: main.c $(HEADERS)
-#     $(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
-
+cosmoDT: cosmoDT.c cosmology.h constants.h
+	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
 
 #==================================
@@ -105,4 +102,4 @@ cosmoTimeTable: cosmoTimeTable.c cosmology.h constants.h
 .PHONY: clean # keeps makefile from doing something with a file named clean
 
 clean:
-	rm -f $(OBJECTS) $(EXEC)
+	rm -f $(OBJECTS) cosmoTimeTable cosmoDT
