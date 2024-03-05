@@ -87,7 +87,7 @@ HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackl
 
 default: all
 
-all: cosmoTimeTable
+all: cosmoTimeTable cosmoDT
 
 cosmoTimeTable: cosmoTimeTable.c cosmology.h constants.h
 	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
