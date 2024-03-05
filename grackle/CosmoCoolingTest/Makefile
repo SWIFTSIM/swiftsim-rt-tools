@@ -24,6 +24,13 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 # GRACKLE_LIBS =  -L$(GRACKLE_FLOAT_ROOT)/lib
 # CONFIG_BFLOAT= CONFIG_BFLOAT_4
 
+
+# GSL dirs
+# GSL_ROOT=/path/to/your/gsl/install
+GSL_INCL = -I$(GSL_ROOT)/include
+GSL_LIBS = -L$(GSL_ROOT)/lib
+
+
 #==================================
 # COMPILER OPTIONS AND DIRECTIVES
 #==================================
@@ -31,7 +38,8 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 #Compiler to use
 CC = gcc 
 # additional options
-OPTIONS = -pedantic -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
+# -pedantic # avoid complaints about error macro
+OPTIONS = -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 # optimization
 # OPT = -O3
 OPT = -Og
@@ -43,13 +51,15 @@ DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
 
 # linking flags
 LDFLAGS = $(GRACKLE_LIBS)
+LDFLAGS += $(GSL_LIBS)
 
 # Additional header files
 INCLUDES = -I$(IDIR) -I.
 INCLUDES += $(GRACKLE_INCL)
+INCLUDES += $(GSL_INCL)
 
 # Additional libraries
-LIBS  = -lgrackle -lgfortran -lm
+LIBS  = -lgrackle -lgfortran -lgsl -lblas -lm
 
 CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 
@@ -68,7 +78,7 @@ VPATH=$(IDIR):$(SRCDIR)
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
 OBJECTS = main.o
 
-HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h
+HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h cosmology.h
 
 
 

@@ -17,6 +17,7 @@
 #include <grackle.h>
 
 #include "constants.h"
+#include "cosmology.h"
 #include "ionization_equilibrium.h"
 #include "mean_molecular_weight.h"
 #include "my_grackle_utils.h"
@@ -32,7 +33,11 @@ int main() {
   /* output file */
   FILE *fd = fopen("out.dat", "w");
   /* output frequency  in number of steps */
-  int output_frequency = 8;
+  const int output_frequency = 4;
+  /* Integrate in intervals of dlog a ? */
+  const int log_integration = 1;
+  /* How many steps to run */
+  const int nsteps = 1000;
 
   /* Define units : use the same as internal units for swift */
   /* ------------------------------------------------------- */
@@ -44,14 +49,41 @@ int main() {
       mass_units / length_units / length_units / length_units;
   double time_units = length_units / velocity_units;
 
-  /* Time integration variables */
+  /* Cosmology                  */
   /* -------------------------- */
-  double t = 0.;
-  double dt = 4.882813e-05; /* in internal units. Copy this from swift output */
-  double tinit = 1e3;       /* in yr; will be converted later */
-  double tend = 1e8;        /* in yr; will be converted later */
-  t = tinit * const_yr / time_units;   /* yr to code units */
-  tend = tend * const_yr / time_units; /* yr to code units */
+  double a_begin = 0.0099;  /* z~100 */
+  double a_end = 0.014081;  /* z~70 */
+
+  const double log_a_begin = log(a_begin);
+  const double log_a_end = log(a_end);
+  /* Only one of these will be used, depending on whether you set
+   * int log_integration = 1 */
+  const double dlog_a = (log_a_end - log_a_begin) / nsteps;
+  const double da = (a_end - a_begin) / nsteps;
+
+  struct cosmology cosmology;
+
+  /* Planck13 (EAGLE flavour) */
+  cosmology.Omega_cdm = 0.2587; /* Dark matter density parameter*/
+  cosmology.Omega_b = 0.04825; /* baryon density parameter*/
+  cosmology.Omega_l= 0.693; /* Dark Energy density parameter */
+  cosmology.Omega_k = 0.;   /* Radiation density parameter */
+  cosmology.Omega_r = 0.;   /* Radiation density parameter */
+  cosmology.Omega_nu = 0.;  /* Neutrino density parameter */
+  cosmology.w_0 = -1.0;     /* Dark-energy equation-of-state parameter at z=0. */
+  cosmology.w_a = 0.;       /* Dark-energy equation-of-state time evolution parameter. */
+  cosmology.H_0 = 67.77;    /* Hubble constant at z=0 in km/s/Mpc */
+
+  cosmo_convert_H0_to_internal_units(&cosmology, time_units);
+
+  /* Compute a(t) and t(a) tables for interpolation */
+  /* ---------------------------------------------- */
+
+  double a_table[COSMO_TABLE_ELEMENTS];
+  double t_table[COSMO_TABLE_ELEMENTS];
+
+  cosmo_get_tables(a_table, t_table, &cosmology, a_begin, a_end);
+
 
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
@@ -60,6 +92,7 @@ int main() {
   double gas_density = 0.00024633363;
   double internal_energy = 21201.879;
 
+
   /* Derived quantities from ICs */
   /* --------------------------- */
 
@@ -67,7 +100,7 @@ int main() {
   double mu_init = mean_molecular_weight_from_mass_fractions(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
   double internal_energy_cgs =
-      internal_energy * length_units * length_units / time_units / time_units;
+      internal_energy * length_units * length_units / (time_units * time_units);
 
   double T = internal_energy_cgs * (const_adiabatic_index - 1) * mu_init *
              const_mh / const_kboltz;
@@ -192,17 +225,25 @@ int main() {
   write_header(stdout);
   write_timestep(stdout, &grackle_fields, &grackle_units_data,
                  &grackle_chemistry_data, &grackle_chemistry_rates,
-                 /*field_index=*/0, t, dt, time_units, /*step=*/0);
+                 /*field_index=*/0, /*t=*/0., /*dt=*/0., time_units, /*step=*/0);
 
   /* Now into a file as well. */
   /* also write down what ICs you used into file */
+  double da_output = da;
+  if (log_integration){
+    double log_a_next = log_a_begin + dlog_a;
+    double a_next = exp(log_a_next);
+    da_output = a_next - a_begin;
+  }
+
+  // TODO: make cosmo version
   write_my_setup(fd, grackle_fields, &grackle_chemistry_data, mass_units,
-                 length_units, velocity_units, dt, hydrogen_fraction_by_mass,
+                 length_units, velocity_units, da_output, hydrogen_fraction_by_mass,
                  gas_density, internal_energy);
   write_header(fd);
   write_timestep(fd, &grackle_fields, &grackle_units_data,
                  &grackle_chemistry_data, &grackle_chemistry_rates,
-                 /*field_index=*/0, t, dt, time_units, /*step=*/0);
+                 /*field_index=*/0, /*t=*/0., /*dt=*/0., time_units, /*step=*/0);
 
   /*********************************************************************
   / Calling the chemistry solver
@@ -210,10 +251,35 @@ int main() {
   *********************************************************************/
 
   int step = 0;
-  while (t < tend) {
+  /* Current expansion scale factor */
+  double a = a_begin;
+  /* log of current expansion scale factor */
+  double log_a = log_a_begin;
+  /* Current time */
+  double t = 0.;
+  /* Current time step size */
+  double dt = 0.;
 
+  /* Value of expansion factor at the end of the step */
+  double a_next = a_begin;
+
+  while (a < a_end) {
+
+    a = a_next;
     t += dt;
     step += 1;
+
+    /* Compute next time step size. */
+    if (log_integration) {
+      /* Marching in steps of equal dlog(a) */
+      log_a += dlog_a;
+      a_next = exp(log_a);
+    } else {
+      /* Marching in steps of equal a */
+      a_next += da;
+    }
+
+    dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
 
     if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates,
                               &grackle_units_data, &grackle_fields, dt) == 0) {
