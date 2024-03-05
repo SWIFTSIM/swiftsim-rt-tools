@@ -37,7 +37,7 @@ int main() {
   /* Integrate in intervals of dlog a ? */
   const int log_integration = 1;
   /* How many steps to run */
-  const int nsteps = 1000;
+  const int nsteps = 2000;
 
   /* Define units : use the same as internal units for swift */
   /* ------------------------------------------------------- */
@@ -171,6 +171,7 @@ int main() {
   /* First, set up the units system. We assume cgs
    * These are conversions from code units to cgs. */
   code_units grackle_units_data;
+  // TODO:
   setup_grackle_units(&grackle_units_data, density_units, length_units,
                       time_units);
 
@@ -222,28 +223,20 @@ int main() {
            nHII, nHeI, nHeII, nHeIII, ne);
   }
 
-  write_header(stdout);
-  write_timestep(stdout, &grackle_fields, &grackle_units_data,
+  write_cosmo_header(stdout);
+  write_cosmo_timestep(stdout, &grackle_fields, &grackle_units_data,
                  &grackle_chemistry_data, &grackle_chemistry_rates,
-                 /*field_index=*/0, /*t=*/0., /*dt=*/0., time_units, /*step=*/0);
+                 /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
+                 time_units, /*step=*/0);
 
-  /* Now into a file as well. */
-  /* also write down what ICs you used into file */
-  double da_output = da;
-  if (log_integration){
-    double log_a_next = log_a_begin + dlog_a;
-    double a_next = exp(log_a_next);
-    da_output = a_next - a_begin;
-  }
-
-  // TODO: make cosmo version
-  write_my_setup(fd, grackle_fields, &grackle_chemistry_data, mass_units,
-                 length_units, velocity_units, da_output, hydrogen_fraction_by_mass,
-                 gas_density, internal_energy);
-  write_header(fd);
-  write_timestep(fd, &grackle_fields, &grackle_units_data,
+  write_my_cosmo_setup(fd, grackle_fields, &grackle_chemistry_data, mass_units,
+                 length_units, velocity_units, a_begin, a_end, &cosmology,
+                 hydrogen_fraction_by_mass, gas_density, internal_energy);
+  write_cosmo_header(fd);
+  write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
                  &grackle_chemistry_data, &grackle_chemistry_rates,
-                 /*field_index=*/0, /*t=*/0., /*dt=*/0., time_units, /*step=*/0);
+                 /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
+                 time_units, /*step=*/0);
 
   /*********************************************************************
   / Calling the chemistry solver
@@ -287,14 +280,14 @@ int main() {
       return EXIT_FAILURE;
     }
 
-    write_timestep(stdout, &grackle_fields, &grackle_units_data,
+    write_cosmo_timestep(stdout, &grackle_fields, &grackle_units_data,
                    &grackle_chemistry_data, &grackle_chemistry_rates,
-                   /*field_index=*/0, t, dt, time_units, step);
+                   /*field_index=*/0, t, dt, a, time_units, step);
 
     if (step % output_frequency == 0)
-      write_timestep(fd, &grackle_fields, &grackle_units_data,
+      write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
                      &grackle_chemistry_data, &grackle_chemistry_rates,
-                     /*field_index=*/0, t, dt, time_units, step);
+                     /*field_index=*/0, t, dt, a, time_units, step);
   }
 
   /* Clean up after yourself */
