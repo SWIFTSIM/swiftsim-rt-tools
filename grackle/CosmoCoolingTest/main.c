@@ -32,12 +32,12 @@ int main() {
   int verbose = 1;
   /* output file */
   FILE *fd = fopen("out.dat", "w");
-  /* output frequency  in number of steps */
+  /* output frequency in number of steps */
   const int output_frequency = 4;
   /* Integrate in intervals of dlog a ? */
   const int log_integration = 1;
   /* How many steps to run */
-  const int nsteps = 2000;
+  const int nsteps = 1000;
 
   /* Define units : use the same as internal units for swift */
   /* ------------------------------------------------------- */
@@ -89,8 +89,9 @@ int main() {
   /* --------------------------------------- */
   double hydrogen_fraction_by_mass = 0.76;
   /* Use solution of swift's output. This is in internal units already. */
-  double gas_density = 0.00024633363;
-  double internal_energy = 21201.879;
+  /* However, these are in physical units. We'll turn them into comoving units later. */
+  double gas_density_phys = 0.00024633363;
+  double internal_energy_phys = 21201.879;
 
 
   /* Derived quantities from ICs */
@@ -99,20 +100,20 @@ int main() {
   /* Assuming fully ionized gas */
   double mu_init = mean_molecular_weight_from_mass_fractions(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
-  double internal_energy_cgs =
-      internal_energy * length_units * length_units / (time_units * time_units);
+  double internal_energy_phys_cgs =
+      internal_energy_phys * length_units * length_units / (time_units * time_units);
 
-  double T = internal_energy_cgs * (const_adiabatic_index - 1) * mu_init *
+  double T_phys = internal_energy_phys_cgs * (const_adiabatic_index - 1) * mu_init *
              const_mh / const_kboltz;
   if (verbose)
-    printf("Initial setup: u_cgs %g T_cgs %g\n", internal_energy_cgs, T);
+    printf("Initial setup: u_cgs %g T_cgs %g [physical units]\n", internal_energy_phys_cgs, T_phys);
 
   /* define the hydrogen number density */
   /* use `gr_float` to use the same type of floats that grackle
    * is compiled in. Compile grackle with precision-32 if you want
    * floats, or precision-64 otherwise. */
   gr_float nH =
-      hydrogen_fraction_by_mass * gas_density / (const_mh / mass_units);
+      hydrogen_fraction_by_mass * gas_density_phys / (const_mh / mass_units);
   gr_float nHI;
   gr_float nHII;
   gr_float nHeI;
@@ -120,8 +121,8 @@ int main() {
   gr_float nHeIII;
   gr_float ne;
 
-  /* get densities of primordial spicies assuming ionization equilibrium */
-  ionization_equilibrium_calculate_densities(T, nH, hydrogen_fraction_by_mass,
+  /* get densities of primordial species assuming ionization equilibrium */
+  ionization_equilibrium_calculate_densities(T_phys, nH, hydrogen_fraction_by_mass,
                                              &nHI, &nHII, &nHeI, &nHeII,
                                              &nHeIII, &ne);
 
@@ -134,6 +135,14 @@ int main() {
    * !! e_density is the electron number density multiplied by proton mass,
    * !! or electron mass density * nH / ne */
   gr_float e_density = ne * (const_mh / mass_units);
+
+  /* Convert them to co-moving frame. */
+  HI_density = cosmo_get_comoving_density(HI_density, a_begin);
+  HII_density = cosmo_get_comoving_density(HII_density, a_begin);
+  HeI_density = cosmo_get_comoving_density(HeI_density, a_begin);
+  HeII_density = cosmo_get_comoving_density(HeII_density, a_begin);
+  HeIII_density = cosmo_get_comoving_density(HeIII_density, a_begin);
+  e_density = cosmo_get_comoving_density(e_density, a_begin);
 
   /* Store them all in a single array for simplicity. */
   gr_float species_densities[12] = {
@@ -171,9 +180,7 @@ int main() {
   /* First, set up the units system. We assume cgs
    * These are conversions from code units to cgs. */
   code_units grackle_units_data;
-  // TODO:
-  setup_grackle_units(&grackle_units_data, density_units, length_units,
-                      time_units);
+  setup_grackle_units_cosmo(&grackle_units_data, density_units, length_units, time_units, a_begin);
 
   /* Chemistry Parameters */
   /* -------------------- */
@@ -206,9 +213,12 @@ int main() {
   /* -------- */
 
   /* Create struct for storing grackle field data */
+  double gas_density_comoving = cosmo_get_comoving_density(gas_density_phys, a_begin);
+  double internal_energy_comoving = cosmo_get_comoving_internal_energy(internal_energy_phys, a_begin);
+
   grackle_field_data grackle_fields;
   setup_grackle_fields(&grackle_fields, species_densities, interaction_rates,
-                       gas_density, internal_energy);
+                       gas_density_comoving, internal_energy_comoving);
 
   /* Write headers */
   /* ------------- */
@@ -219,7 +229,7 @@ int main() {
     printf("%15s%15s%15s%15s%15s%15s%15s%15s\n",
            "Initial setup: ", "Temperature", "nHI", "nHII", "nHeI", "nHeII",
            "nHeIII", "ne");
-    printf("%15s%15g%15g%15g%15g%15g%15g%15g\n\n", "Initial setup: ", T, nHI,
+    printf("%15s%15g%15g%15g%15g%15g%15g%15g\n\n", "Initial setup: ", T_phys, nHI,
            nHII, nHeI, nHeII, nHeIII, ne);
   }
 
@@ -229,9 +239,10 @@ int main() {
                  /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
                  time_units, /*step=*/0);
 
+  /* And now to the output file. */
   write_my_cosmo_setup(fd, grackle_fields, &grackle_chemistry_data, mass_units,
                  length_units, velocity_units, a_begin, a_end, &cosmology,
-                 hydrogen_fraction_by_mass, gas_density, internal_energy);
+                 hydrogen_fraction_by_mass, gas_density_phys, internal_energy_phys);
   write_cosmo_header(fd);
   write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
                  &grackle_chemistry_data, &grackle_chemistry_rates,
@@ -272,8 +283,13 @@ int main() {
       a_next += da;
     }
 
+    /* Apply change in a to grackle. */
+    update_grackle_units_cosmo(&grackle_units_data, density_units, length_units, a);
+
+    /* Get time step size. */
     dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
 
+    /* Solve chemistry. */
     if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates,
                               &grackle_units_data, &grackle_fields, dt) == 0) {
       fprintf(stderr, "Error in solve_chemistry.\n");
@@ -288,6 +304,7 @@ int main() {
       write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
                      &grackle_chemistry_data, &grackle_chemistry_rates,
                      /*field_index=*/0, t, dt, a, time_units, step);
+
   }
 
   /* Clean up after yourself */

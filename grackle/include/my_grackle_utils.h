@@ -546,18 +546,54 @@ void print_grackle_setup_and_field(FILE *fp, grackle_field_data grackle_fields,
 /**
  * @brief Set up the units for grackle.
  **/
-void update_grackle_units_cosmo(code_units *grackle_units_data, double density_units,
-                         double length_units, double time_units) {
+void setup_grackle_units_cosmo(code_units *grackle_units_data, double density_units,
+                         double length_units, double time_units, double a) {
 
-  grackle_units_data->comoving_coordinates = 0; /* no cosmo */
-  grackle_units_data->density_units = density_units;
-  grackle_units_data->length_units = length_units;
+  const double a_inv = 1./ a;
+  const double a_inv3 = a_inv * a_inv * a_inv;
+
+  grackle_units_data->comoving_coordinates = 1;
+  /* The units must convert from code units in the comoving frame to CGS in the
+   * proper frame.
+   * https://grackle.readthedocs.io/en/grackle-3.2.1/Integration.html#comoving-coordinates
+   */
+  grackle_units_data->density_units = density_units * a_inv3;
+  grackle_units_data->length_units = length_units * a;
   grackle_units_data->time_units = time_units;
   grackle_units_data->a_units = 1.0;
-  grackle_units_data->a_value = 1.;
+  grackle_units_data->a_value = a;
 
   /* Set velocity units */
   set_velocity_units(grackle_units_data);
+}
+
+
+/**
+ * @brief Update grackle units to the correct a-factors
+ *
+ * The units need to be set up in a way such that a multiplication of the
+ * field data with the units yields proper values in cgs. So we need to update
+ * the length and density units.
+ **/
+void update_grackle_units_cosmo(code_units *grackle_units_data, double density_units,
+                         double length_units, double a) {
+
+  const double a_inv = 1. / a;
+  const double a_inv3 = a_inv * a_inv * a_inv;
+
+  /* The units must convert from code units in the comoving frame to CGS in the
+   * proper frame.
+   * https://grackle.readthedocs.io/en/grackle-3.2.1/Integration.html#comoving-coordinates
+   */
+  grackle_units_data->density_units = density_units * a_inv3;
+  grackle_units_data->length_units = length_units * a;
+  /* grackle_units_data->time_units = time_units; */ /*constant with a */
+  /* grackle_units_data->a_units = 1.0; */ /* constant with a */
+  grackle_units_data->a_value = a;
+
+  /* Set velocity units */
+  /* set_velocity_units(grackle_units_data); */
+  /* Not necessary - see grackle documentation. */
 }
 
 
@@ -600,8 +636,8 @@ void write_my_cosmo_setup(FILE *fd, grackle_field_data grackle_fields,
   fprintf(fd, "# Cosmology: H_0: %.6g [internal units]\n", cosmo->H_0);
   fprintf(fd, "# hydrogen mass fraction used: %.6g\n",
           hydrogen_fraction_by_mass);
-  fprintf(fd, "# gas density used: %.6g [internal units]\n", gas_density);
-  fprintf(fd, "# inital internal energy used: %.6g [internal units]\n",
+  fprintf(fd, "# gas density used: %.6g [internal units, physical]\n", gas_density);
+  fprintf(fd, "# inital internal energy used: %.6g [internal units, physical]\n",
           internal_energy);
   fprintf(fd, "# Grackle parameters:\n");
   fprintf(fd, "# grackle_chemistry_data.use_grackle = %d\n",
@@ -673,7 +709,8 @@ void write_cosmo_header(FILE *fd) {
 }
 
 /**
- * @brief write the current state of a field with index i to a file/stdout
+ * @brief write the current state of a field with index i to a file/stdout.
+ * Note that all values are in proper/physical units, not in co-moving units.
  **/
 void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
                     code_units *grackle_units_data,
@@ -705,20 +742,23 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
     abort();
   }
 
+  const double a3 = a * a * a;
+  const double ainv2 = 1. / (a * a);
+
   fprintf(fd,
           "%9d %12.6f %12.6g %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e "
           "%15.3e %15.3e %15.3e %15.3e %15.3e\n",
           step, a, 1./a - 1.,
           t / const_yr * time_units, dt / const_yr * time_units,
-          temperature[field_index], mu[field_index],
-          grackle_fields->density[field_index],
-          grackle_fields->HI_density[field_index],
-          grackle_fields->HII_density[field_index],
-          grackle_fields->HeI_density[field_index],
-          grackle_fields->HeII_density[field_index],
-          grackle_fields->HeIII_density[field_index],
-          grackle_fields->e_density[field_index],
-          grackle_fields->internal_energy[field_index]);
+          temperature[field_index] * ainv2, mu[field_index],
+          grackle_fields->density[field_index] * a3,
+          grackle_fields->HI_density[field_index] * a3,
+          grackle_fields->HII_density[field_index] * a3,
+          grackle_fields->HeI_density[field_index] * a3,
+          grackle_fields->HeII_density[field_index] * a3,
+          grackle_fields->HeIII_density[field_index] * a3,
+          grackle_fields->e_density[field_index] * a3,
+          grackle_fields->internal_energy[field_index] * ainv2);
 }
 
 
