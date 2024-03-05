@@ -10,6 +10,8 @@ This version is guaranteed to work with swift (and with this repository).
 
 - CoolingTest: (Re)produce the results from `examples/RadiativeTransferTests/CoolingTest`
 
+- CosmoCoolingTest: Same as CoolingTest, but including cosmological expansion.
+
 - Iliev06Test0Part3: (Re)produce the results from Iliev et al 2006, Test 0, part 3.
   (In which a gas parcel is first heated, and then cooled.)
 
