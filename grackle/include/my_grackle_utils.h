@@ -547,18 +547,24 @@ void print_grackle_setup_and_field(FILE *fp, grackle_field_data grackle_fields,
  * @brief Set up the units for grackle.
  **/
 void setup_grackle_units_cosmo(code_units *grackle_units_data, double density_units,
-                         double length_units, double time_units, double a) {
+                         double length_units, double time_units, double a, int with_cosmo) {
 
-  const double a_inv = 1./ a;
-  const double a_inv3 = a_inv * a_inv * a_inv;
+  double a_inv = 1.;
+  double a_inv3 = 1.;
+  double a_current = 1.;
+  if (with_cosmo){
+    a_inv = 1./ a;
+    a_inv3 = a_inv * a_inv * a_inv;
+    a_current = a;
+  }
 
-  grackle_units_data->comoving_coordinates = 1;
+  grackle_units_data->comoving_coordinates = with_cosmo;
   /* The units must convert from code units in the comoving frame to CGS in the
    * proper frame.
    * https://grackle.readthedocs.io/en/grackle-3.2.1/Integration.html#comoving-coordinates
    */
   grackle_units_data->density_units = density_units * a_inv3;
-  grackle_units_data->length_units = length_units * a;
+  grackle_units_data->length_units = length_units * a_current;
   grackle_units_data->time_units = time_units;
   grackle_units_data->a_units = 1.0;
   grackle_units_data->a_value = a;
@@ -576,24 +582,30 @@ void setup_grackle_units_cosmo(code_units *grackle_units_data, double density_un
  * the length and density units.
  **/
 void update_grackle_units_cosmo(code_units *grackle_units_data, double density_units,
-                         double length_units, double a) {
+                         double length_units, double a, int with_cosmo) {
 
-  const double a_inv = 1. / a;
-  const double a_inv3 = a_inv * a_inv * a_inv;
+  double a_inv = 1.;
+  double a_inv3 = 1.;
+  double a_current = 1.;
+  if (with_cosmo){
+    a_inv = 1./ a;
+    a_inv3 = a_inv * a_inv * a_inv;
+    a_current = a;
+  }
 
   /* The units must convert from code units in the comoving frame to CGS in the
    * proper frame.
    * https://grackle.readthedocs.io/en/grackle-3.2.1/Integration.html#comoving-coordinates
    */
   grackle_units_data->density_units = density_units * a_inv3;
-  grackle_units_data->length_units = length_units * a;
+  grackle_units_data->length_units = length_units * a_current;
   /* grackle_units_data->time_units = time_units; */ /*constant with a */
   /* grackle_units_data->a_units = 1.0; */ /* constant with a */
   grackle_units_data->a_value = a;
 
   /* Set velocity units */
-  /* set_velocity_units(grackle_units_data); */
   /* Not necessary - see grackle documentation. */
+  /* set_velocity_units(grackle_units_data); */
 }
 
 
@@ -612,19 +624,21 @@ void update_grackle_units_cosmo(code_units *grackle_units_data, double density_u
  * @param hydrogen_fraction_by_mass hydrogen fraction by mass used.
  * @param gas_density gas density used. In internal units.
  * @param internal_energy internal energy used. In internal units.
+ * @param with_cosmo Are we accounting for expansion?
  **/
 void write_my_cosmo_setup(FILE *fd, grackle_field_data grackle_fields,
                     chemistry_data *grackle_chemistry_data, double mass_units,
                     double length_units, double velocity_units,
                     double a_begin, double a_end, struct cosmology * cosmo,
                     double hydrogen_fraction_by_mass, double gas_density,
-                    double internal_energy) {
+                    double internal_energy, const int with_cosmo) {
   fprintf(fd, "# Result file created using grackle standalone program.\n");
   fprintf(fd, "# mass units used: %.6g [g]\n", mass_units);
   fprintf(fd, "# length units used: %.6g [cm]\n", length_units);
   fprintf(fd, "# velocity units units used: %.6g [cm/s]\n", velocity_units);
   fprintf(fd, "# a_begin: %.6g [1]\n", a_begin);
   fprintf(fd, "# a_end: %.6g [1]\n", a_end);
+  fprintf(fd, "# with cosmo: %.2d\n", with_cosmo);
   fprintf(fd, "# Cosmology: Omega_CDM: %.6g [1]\n", cosmo->Omega_cdm);
   fprintf(fd, "# Cosmology: Omega_b: %.6g [1]\n", cosmo->Omega_b);
   fprintf(fd, "# Cosmology: Omega_lambda: %.6g [1]\n", cosmo->Omega_l);
@@ -717,7 +731,7 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
                     chemistry_data *grackle_chemistry_data,
                     chemistry_data_storage *grackle_chemistry_rates,
                     int field_index, double t, double dt, double a, double time_units,
-                    int step) {
+                    int step, int with_cosmo) {
 
   /* Additional arrays to store temperature and mean molecular weights
    * of each cell. */
@@ -742,8 +756,13 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
     abort();
   }
 
-  const double a3 = a * a * a;
-  const double ainv2 = 1. / (a * a);
+  double a3 = 1.;
+  double ainv2 = 1.;
+
+  if (with_cosmo){
+    a3 = a * a * a;
+    ainv2 = 1. / (a * a);
+  }
 
   fprintf(fd,
           "%9d %12.6f %12.6g %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e "

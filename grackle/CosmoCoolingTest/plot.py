@@ -41,18 +41,20 @@ density_units = mass_units / length_units ** 3
 # Read in all other data
 data = np.loadtxt(resultfile)
 
-Time = data[:, 1]
+a = data[:, 1]
+z = data[:, 2]
+Time = data[:, 3]
 Time_Myr = Time * 1e-6
-dt = data[:, 2]
-Temperature = data[:, 3]
-mu = data[:, 4]
-tot_density = data[:, 5]  # mass density
-HI_density = data[:, 6]
-HII_density = data[:, 7]
-HeI_density = data[:, 8]
-HeII_density = data[:, 9]
-HeIII_density = data[:, 10]
-e_density = data[:, 11]  # number density
+dt = data[:, 4]
+Temperature = data[:, 5]
+mu = data[:, 6]
+tot_density = data[:, 7]  # mass density
+HI_density = data[:, 8]
+HII_density = data[:, 9]
+HeI_density = data[:, 10]
+HeII_density = data[:, 11]
+HeIII_density = data[:, 12]
+e_density = data[:, 13]  # number density
 
 
 # compute number density for all species

@@ -30,14 +30,22 @@ int main() {
 
   /* Print some extra data to screen? */
   int verbose = 1;
-  /* output file */
-  FILE *fd = fopen("out.dat", "w");
   /* output frequency in number of steps */
   const int output_frequency = 4;
   /* Integrate in intervals of dlog a ? */
   const int log_integration = 1;
   /* How many steps to run */
-  const int nsteps = 1000;
+  const int nsteps = 2000;
+  /* Option to turn off cosmological integration. Intended to comare results
+   * of cosmo and non-cosmo outputs with identical ICs. */
+  const int with_cosmo = 1;
+  /* output file */
+  FILE *fd;
+  if (with_cosmo){
+    fd = fopen("out.dat", "w");
+  } else {
+    fd = fopen("outNoCosmo.dat", "w");
+  }
 
   /* Define units : use the same as internal units for swift */
   /* ------------------------------------------------------- */
@@ -137,12 +145,15 @@ int main() {
   gr_float e_density = ne * (const_mh / mass_units);
 
   /* Convert them to co-moving frame. */
-  HI_density = cosmo_get_comoving_density(HI_density, a_begin);
-  HII_density = cosmo_get_comoving_density(HII_density, a_begin);
-  HeI_density = cosmo_get_comoving_density(HeI_density, a_begin);
-  HeII_density = cosmo_get_comoving_density(HeII_density, a_begin);
-  HeIII_density = cosmo_get_comoving_density(HeIII_density, a_begin);
-  e_density = cosmo_get_comoving_density(e_density, a_begin);
+  double a_convert_comoving = 1.;
+  if (with_cosmo) a_convert_comoving = a_begin;
+
+  HI_density = cosmo_get_comoving_density(HI_density, a_convert_comoving);
+  HII_density = cosmo_get_comoving_density(HII_density, a_convert_comoving);
+  HeI_density = cosmo_get_comoving_density(HeI_density, a_convert_comoving);
+  HeII_density = cosmo_get_comoving_density(HeII_density, a_convert_comoving);
+  HeIII_density = cosmo_get_comoving_density(HeIII_density, a_convert_comoving);
+  e_density = cosmo_get_comoving_density(e_density, a_convert_comoving);
 
   /* Store them all in a single array for simplicity. */
   gr_float species_densities[12] = {
@@ -159,6 +170,7 @@ int main() {
   int use_radiative_transfer = 0;
   char *grackle_data_file = "";
 
+  /* These are in cgs anyway, so no transform to co-moving coordinates necessary. */
   gr_float RT_HI_ionization_rate = 0.;
   gr_float RT_HeI_ionization_rate = 0.;
   gr_float RT_HeII_ionization_rate = 0.;
@@ -180,7 +192,7 @@ int main() {
   /* First, set up the units system. We assume cgs
    * These are conversions from code units to cgs. */
   code_units grackle_units_data;
-  setup_grackle_units_cosmo(&grackle_units_data, density_units, length_units, time_units, a_begin);
+  setup_grackle_units_cosmo(&grackle_units_data, density_units, length_units, time_units, a_begin, with_cosmo);
 
   /* Chemistry Parameters */
   /* -------------------- */
@@ -237,17 +249,18 @@ int main() {
   write_cosmo_timestep(stdout, &grackle_fields, &grackle_units_data,
                  &grackle_chemistry_data, &grackle_chemistry_rates,
                  /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
-                 time_units, /*step=*/0);
+                 time_units, /*step=*/0, with_cosmo);
 
   /* And now to the output file. */
   write_my_cosmo_setup(fd, grackle_fields, &grackle_chemistry_data, mass_units,
                  length_units, velocity_units, a_begin, a_end, &cosmology,
-                 hydrogen_fraction_by_mass, gas_density_phys, internal_energy_phys);
+                 hydrogen_fraction_by_mass, gas_density_phys, internal_energy_phys,
+                 with_cosmo);
   write_cosmo_header(fd);
   write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
                  &grackle_chemistry_data, &grackle_chemistry_rates,
                  /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
-                 time_units, /*step=*/0);
+                 time_units, /*step=*/0, with_cosmo);
 
   /*********************************************************************
   / Calling the chemistry solver
@@ -284,7 +297,7 @@ int main() {
     }
 
     /* Apply change in a to grackle. */
-    update_grackle_units_cosmo(&grackle_units_data, density_units, length_units, a);
+    update_grackle_units_cosmo(&grackle_units_data, density_units, length_units, a, with_cosmo);
 
     /* Get time step size. */
     dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
@@ -298,12 +311,12 @@ int main() {
 
     write_cosmo_timestep(stdout, &grackle_fields, &grackle_units_data,
                    &grackle_chemistry_data, &grackle_chemistry_rates,
-                   /*field_index=*/0, t, dt, a, time_units, step);
+                   /*field_index=*/0, t, dt, a, time_units, step, with_cosmo);
 
     if (step % output_frequency == 0)
       write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
                      &grackle_chemistry_data, &grackle_chemistry_rates,
-                     /*field_index=*/0, t, dt, a, time_units, step);
+                     /*field_index=*/0, t, dt, a, time_units, step, with_cosmo);
 
   }
 
