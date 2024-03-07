@@ -37,8 +37,11 @@ int main() {
   /* How many steps to run */
   const int nsteps = 2000;
   /* Option to turn off cosmological integration. Intended to comare results
-   * of cosmo and non-cosmo outputs with identical ICs. */
-  const int with_cosmo = 1;
+   * of cosmo and non-cosmo outputs with identical ICs run over the identical
+   * time frame, specified by a_begin and a_end.
+   * Ideally, we want to find an example where the results are visibly
+   * different. */
+  const int with_cosmo = 0;
   /* output file */
   FILE *fd;
   if (with_cosmo){
@@ -59,8 +62,13 @@ int main() {
 
   /* Cosmology                  */
   /* -------------------------- */
-  double a_begin = 0.0099;  /* z~100 */
-  double a_end = 0.014081;  /* z~70 */
+  /* double a_begin = 0.0099;  [> z~100 <] */
+  /* double a_end = 0.014081;  [> z~70 <] */
+  /* double a_begin = 0.0625;  [> z~15 <] */
+  /* double a_end = 0.09091;  [> z~10 <] */
+  double a_begin = 0.0476;  /* z~20 */
+  double a_end = 0.166667;  /* z~5 */
+
 
   const double log_a_begin = log(a_begin);
   const double log_a_end = log(a_end);
@@ -68,6 +76,10 @@ int main() {
    * int log_integration = 1 */
   const double dlog_a = (log_a_end - log_a_begin) / nsteps;
   const double da = (a_end - a_begin) / nsteps;
+
+  /* Use this a for conversions to comoving frame. */
+  double a_convert_comoving = 1.;
+  if (with_cosmo) a_convert_comoving = a_begin;
 
   struct cosmology cosmology;
 
@@ -144,10 +156,7 @@ int main() {
    * !! or electron mass density * nH / ne */
   gr_float e_density = ne * (const_mh / mass_units);
 
-  /* Convert them to co-moving frame. */
-  double a_convert_comoving = 1.;
-  if (with_cosmo) a_convert_comoving = a_begin;
-
+  /* Convert them to co-moving frame*/
   HI_density = cosmo_get_comoving_density(HI_density, a_convert_comoving);
   HII_density = cosmo_get_comoving_density(HII_density, a_convert_comoving);
   HeI_density = cosmo_get_comoving_density(HeI_density, a_convert_comoving);
@@ -225,8 +234,8 @@ int main() {
   /* -------- */
 
   /* Create struct for storing grackle field data */
-  double gas_density_comoving = cosmo_get_comoving_density(gas_density_phys, a_begin);
-  double internal_energy_comoving = cosmo_get_comoving_internal_energy(internal_energy_phys, a_begin);
+  double gas_density_comoving = cosmo_get_comoving_density(gas_density_phys, a_convert_comoving);
+  double internal_energy_comoving = cosmo_get_comoving_internal_energy(internal_energy_phys, a_convert_comoving);
 
   grackle_field_data grackle_fields;
   setup_grackle_fields(&grackle_fields, species_densities, interaction_rates,

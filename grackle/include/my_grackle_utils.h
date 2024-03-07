@@ -549,24 +549,20 @@ void print_grackle_setup_and_field(FILE *fp, grackle_field_data grackle_fields,
 void setup_grackle_units_cosmo(code_units *grackle_units_data, double density_units,
                          double length_units, double time_units, double a, int with_cosmo) {
 
-  double a_inv = 1.;
-  double a_inv3 = 1.;
-  double a_current = 1.;
-  if (with_cosmo){
-    a_inv = 1./ a;
-    a_inv3 = a_inv * a_inv * a_inv;
-    a_current = a;
-  }
+  double a_use = 1.;
+  if (with_cosmo) a_use = a;
 
   grackle_units_data->comoving_coordinates = with_cosmo;
   /* The units must convert from code units in the comoving frame to CGS in the
    * proper frame.
    * https://grackle.readthedocs.io/en/grackle-3.2.1/Integration.html#comoving-coordinates
    */
-  grackle_units_data->density_units = density_units * a_inv3;
-  grackle_units_data->length_units = length_units * a_current;
+  grackle_units_data->density_units = cosmo_get_physical_density(density_units, a_use);
+  grackle_units_data->length_units = cosmo_get_physical_distance(length_units, a_use);
+
   grackle_units_data->time_units = time_units;
   grackle_units_data->a_units = 1.0;
+  /* grackle_units_data->a_value = a_use; */
   grackle_units_data->a_value = a;
 
   /* Set velocity units */
@@ -584,23 +580,18 @@ void setup_grackle_units_cosmo(code_units *grackle_units_data, double density_un
 void update_grackle_units_cosmo(code_units *grackle_units_data, double density_units,
                          double length_units, double a, int with_cosmo) {
 
-  double a_inv = 1.;
-  double a_inv3 = 1.;
-  double a_current = 1.;
-  if (with_cosmo){
-    a_inv = 1./ a;
-    a_inv3 = a_inv * a_inv * a_inv;
-    a_current = a;
-  }
+  double a_use = 1.;
+  if (with_cosmo) a_use = a;
 
   /* The units must convert from code units in the comoving frame to CGS in the
    * proper frame.
    * https://grackle.readthedocs.io/en/grackle-3.2.1/Integration.html#comoving-coordinates
    */
-  grackle_units_data->density_units = density_units * a_inv3;
-  grackle_units_data->length_units = length_units * a_current;
+  grackle_units_data->density_units = cosmo_get_physical_density(density_units, a_use);
+  grackle_units_data->length_units = cosmo_get_physical_distance(length_units, a_use);
   /* grackle_units_data->time_units = time_units; */ /*constant with a */
   /* grackle_units_data->a_units = 1.0; */ /* constant with a */
+  /* grackle_units_data->a_value = a_use; */
   grackle_units_data->a_value = a;
 
   /* Set velocity units */
@@ -756,28 +747,24 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
     abort();
   }
 
-  double a3 = 1.;
-  double ainv2 = 1.;
-
-  if (with_cosmo){
-    a3 = a * a * a;
-    ainv2 = 1. / (a * a);
-  }
+  double a_use = 1.;
+  if (with_cosmo) a_use = a;
 
   fprintf(fd,
           "%9d %12.6f %12.6g %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e "
           "%15.3e %15.3e %15.3e %15.3e %15.3e\n",
           step, a, 1./a - 1.,
           t / const_yr * time_units, dt / const_yr * time_units,
-          temperature[field_index] * ainv2, mu[field_index],
-          grackle_fields->density[field_index] * a3,
-          grackle_fields->HI_density[field_index] * a3,
-          grackle_fields->HII_density[field_index] * a3,
-          grackle_fields->HeI_density[field_index] * a3,
-          grackle_fields->HeII_density[field_index] * a3,
-          grackle_fields->HeIII_density[field_index] * a3,
-          grackle_fields->e_density[field_index] * a3,
-          grackle_fields->internal_energy[field_index] * ainv2);
+          cosmo_get_physical_temperature(temperature[field_index], a_use),
+          mu[field_index],
+          cosmo_get_physical_density(grackle_fields->density[field_index], a_use),
+          cosmo_get_physical_density(grackle_fields->HI_density[field_index], a_use),
+          cosmo_get_physical_density(grackle_fields->HII_density[field_index], a_use),
+          cosmo_get_physical_density(grackle_fields->HeI_density[field_index], a_use),
+          cosmo_get_physical_density(grackle_fields->HeII_density[field_index], a_use),
+          cosmo_get_physical_density(grackle_fields->HeIII_density[field_index], a_use),
+          cosmo_get_physical_density(grackle_fields->e_density[field_index], a_use),
+          cosmo_get_physical_internal_energy(grackle_fields->internal_energy[field_index], a_use));
 }
 
 

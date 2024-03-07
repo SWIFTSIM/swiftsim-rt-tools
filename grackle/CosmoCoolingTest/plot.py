@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 
 # file to read from
 resultfile = "out.dat"
+#  resultfile = "outNoCosmo.dat"
 
 plotkwargs = {"alpha": 0.4}
 

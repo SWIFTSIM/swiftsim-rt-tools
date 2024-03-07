@@ -63,11 +63,29 @@ double cosmo_get_physical_density(double rho_c, double a){
 
 
 /**
+ * Compute comoving distance from physical distance
+ **/
+double cosmo_get_comoving_distance(double r_p, double a){
+
+  return r_p / a;
+}
+
+
+/**
+ * Compute physical distance from comoving distance
+ **/
+double cosmo_get_physical_distance(double r_c, double a){
+
+  return r_c * a;
+}
+
+
+/**
  * Compute comoving specific internal energy from physical specific internal energy.
  **/
 double cosmo_get_comoving_internal_energy(double u_p, double a){
 
-  return u_p * a * a;
+  return u_p / (a * a);
 }
 
 
@@ -76,8 +94,32 @@ double cosmo_get_comoving_internal_energy(double u_p, double a){
  **/
 double cosmo_get_physical_internal_energy(double u_c, double a){
 
-  return u_c / (a * a);
+  return u_c * a * a;
 }
+
+
+
+/**
+ * Compute comoving temperature from proper temperature
+ **/
+double cosmo_get_comoving_temperature(double T_p, double a){
+  /* Transforms the same as internal energy. */
+  return cosmo_get_comoving_internal_energy(T_p, a);
+}
+
+
+/**
+ * Compute physical temperature from proper temperature
+ **/
+double cosmo_get_physical_temperature(double T_c, double a){
+  /* Transforms the same as internal energy. */
+  return cosmo_get_physical_internal_energy(T_c, a);
+}
+
+
+
+
+
 
 
 /**
