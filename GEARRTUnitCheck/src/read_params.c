@@ -27,8 +27,9 @@ void params_read_file(struct swift_params *params, char *param_filename) {
  * @param simulation_params struct containing parameters we'll actually need in
  * this check
  **/
-void params_read_simulation_params(struct swift_params *params, struct units *units,
-                                   struct simulation_params *simulation_params) {
+void params_read_simulation_params(
+    struct swift_params *params, struct units *units,
+    struct simulation_params *simulation_params) {
 
   /* Read in data */
   double mass_units =
@@ -51,7 +52,8 @@ void params_read_simulation_params(struct swift_params *params, struct units *un
                                   photon_groups_Hz);
   }
 
-  double a_begin = parser_get_opt_param_double(params, "Cosmology:a_begin", 1.0);
+  double a_begin =
+      parser_get_opt_param_double(params, "Cosmology:a_begin", 1.0);
   double a_end = parser_get_opt_param_double(params, "Cosmology:a_end", 1.0);
 
   int use_const_emission_rates = 0;

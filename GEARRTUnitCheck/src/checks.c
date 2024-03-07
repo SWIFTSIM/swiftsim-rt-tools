@@ -1,14 +1,13 @@
 #include "checks.h"
-#include "conversions.h"
 #include "constants.h"
-#include "validity_check_macros.h"
+#include "conversions.h"
 #include "error.h"
+#include "validity_check_macros.h"
 
 #define OMIT_LEGACY_INTERNAL_GRACKLE_FUNC
 #include "ionization_equilibrium.h"
 
 extern int warnings;
-
 
 /**
  * @brief Check whether other gas quantities derived from the
@@ -114,8 +113,7 @@ void check_gas_quantities(float density, char *name, float T,
 void check_grackle_internals(float density, float radiation_energy_density,
                              char *name, float T,
                              const struct simulation_params *params,
-                             const struct units *units,
-                             int verbose) {
+                             const struct units *units, int verbose) {
 
   message("checking %s, T=%.1e", name, T);
 
@@ -126,12 +124,13 @@ void check_grackle_internals(float density, float radiation_energy_density,
 
   double scales_arr[2] = {params->a_begin, params->a_end};
 
-  for (int s = 0; s < 2; s++){
+  for (int s = 0; s < 2; s++) {
     const double a = scales_arr[s];
     const double scale = 1. / (a * a * a);
     const double n_cgs = density * units->density_units * scale / const_mh;
     check_valid_double(n_cgs, 0);
-    /* Make sure the number density is within the limit of what grackle can do */
+    /* Make sure the number density is within the limit of what grackle can do
+     */
     if (n_cgs < 1e-10)
       error("case=%s density=%.3e gives number density=%.3e [cm^-3] which is "
             "below lower limit of 1e-10",
@@ -294,11 +293,13 @@ void check_radiation_energies(float radEnergy, char *radName, float density,
 
     const double flux = flux_factor * rad_energy_density;
     check_valid_float(flux, 0);
-    // We do intermediate comutations containing F^2, so that needs to fit as well
+    // We do intermediate comutations containing F^2, so that needs to fit as
+    // well
     const double f2 = flux * flux;
     check_valid_float(f2, 0);
 
-    check_grackle_internals(density, rad_energy_density, fullname, T, params, units, verbose);
+    check_grackle_internals(density, rad_energy_density, fullname, T, params,
+                            units, verbose);
   }
 }
 
@@ -327,13 +328,12 @@ void check_luminosities(float luminosity, float density, char *name, float T,
   const double mean_partV = params->boxsize * params->boxsize *
                             params->boxsize / (double)params->npart;
 
-  float rad_energy_density = conversions_radiation_energy_density_from_luminosity(luminosity, params, units);
+  float rad_energy_density =
+      conversions_radiation_energy_density_from_luminosity(luminosity, params,
+                                                           units);
   float rad_energy = rad_energy_density * mean_partV;
   check_valid_float(rad_energy, 0);
 
-
-  check_radiation_energies(rad_energy, "luminosityTest", density, name, T, params, units, verbose);
-
+  check_radiation_energies(rad_energy, "luminosityTest", density, name, T,
+                           params, units, verbose);
 }
-
-

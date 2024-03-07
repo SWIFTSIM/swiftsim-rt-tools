@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include "constants.h"
+#include "cosmology.h"
 #include "mean_molecular_weight.h"
 
 /**
@@ -330,6 +331,7 @@ void write_header(FILE *fd) {
           "HeII dens [IU]", "HeIII dens [IU]", "e- n. dens [IU]",
           "IntrnEnerg [IU]");
 }
+
 /**
  * @brief write the current state of a field with index i to a file/stdout
  **/
@@ -534,6 +536,251 @@ void print_grackle_setup_and_field(FILE *fp, grackle_field_data grackle_fields,
   rt_print_grackle_field(RT_HeII_ionization_rate);
   rt_print_grackle_field(RT_H2_dissociation_rate);
   rt_print_grackle_field(RT_heating_rate);
+}
+
+/*----------------------------------------------------------- */
+/*----------------------------------------------------------- */
+
+/**
+ * @brief Set up the units for grackle.
+ **/
+void setup_grackle_units_cosmo(code_units *grackle_units_data,
+                               double density_units, double length_units,
+                               double time_units, double a, int with_cosmo) {
+
+  double a_use = 1.;
+  if (with_cosmo)
+    a_use = a;
+
+  grackle_units_data->comoving_coordinates = with_cosmo;
+  /* The units must convert from code units in the comoving frame to CGS in the
+   * proper frame.
+   * https://grackle.readthedocs.io/en/grackle-3.2.1/Integration.html#comoving-coordinates
+   */
+  grackle_units_data->density_units =
+      cosmo_get_physical_density(density_units, a_use);
+  grackle_units_data->length_units =
+      cosmo_get_physical_distance(length_units, a_use);
+
+  grackle_units_data->time_units = time_units;
+  grackle_units_data->a_units = 1.0;
+  /* grackle_units_data->a_value = a_use; */
+  grackle_units_data->a_value = a;
+
+  /* Set velocity units */
+  set_velocity_units(grackle_units_data);
+}
+
+/**
+ * @brief Update grackle units to the correct a-factors
+ *
+ * The units need to be set up in a way such that a multiplication of the
+ * field data with the units yields proper values in cgs. So we need to update
+ * the length and density units.
+ **/
+void update_grackle_units_cosmo(code_units *grackle_units_data,
+                                double density_units, double length_units,
+                                double a, int with_cosmo) {
+
+  double a_use = 1.;
+  if (with_cosmo)
+    a_use = a;
+
+  /* The units must convert from code units in the comoving frame to CGS in the
+   * proper frame.
+   * https://grackle.readthedocs.io/en/grackle-3.2.1/Integration.html#comoving-coordinates
+   */
+  grackle_units_data->density_units =
+      cosmo_get_physical_density(density_units, a_use);
+  grackle_units_data->length_units =
+      cosmo_get_physical_distance(length_units, a_use);
+  /* grackle_units_data->time_units = time_units; */ /*constant with a */
+  /* grackle_units_data->a_units = 1.0; */           /* constant with a */
+  /* grackle_units_data->a_value = a_use; */
+  grackle_units_data->a_value = a;
+
+  /* Set velocity units */
+  /* Not necessary - see grackle documentation. */
+  /* set_velocity_units(grackle_units_data); */
+}
+
+/**
+ * @brief Dump the setup used to generate the example
+ *
+ * @param fp FILE pointer to write into.
+ * @param grackle_fields grackle field data
+ * @param grackle_chemistry_data grackle chemistry data.
+ * @param mass_units mass units that convert internal units to cgs
+ * @param length_units length units that convert internal units to cgs
+ * @param velocity_units velocity units that convert internal units to cgs
+ * @param a_begin scale factor at the start of time integration
+ * @param a_end scale factor at the end of time integration
+ * @param cosmo cosmology struct
+ * @param hydrogen_fraction_by_mass hydrogen fraction by mass used.
+ * @param gas_density gas density used. In internal units.
+ * @param internal_energy internal energy used. In internal units.
+ * @param with_cosmo Are we accounting for expansion?
+ **/
+void write_my_cosmo_setup(FILE *fd, grackle_field_data grackle_fields,
+                          chemistry_data *grackle_chemistry_data,
+                          double mass_units, double length_units,
+                          double velocity_units, double a_begin, double a_end,
+                          struct cosmology *cosmo,
+                          double hydrogen_fraction_by_mass, double gas_density,
+                          double internal_energy, const int with_cosmo) {
+  fprintf(fd, "# Result file created using grackle standalone program.\n");
+  fprintf(fd, "# mass units used: %.6g [g]\n", mass_units);
+  fprintf(fd, "# length units used: %.6g [cm]\n", length_units);
+  fprintf(fd, "# velocity units units used: %.6g [cm/s]\n", velocity_units);
+  fprintf(fd, "# a_begin: %.6g [1]\n", a_begin);
+  fprintf(fd, "# a_end: %.6g [1]\n", a_end);
+  fprintf(fd, "# with cosmo: %.2d\n", with_cosmo);
+  fprintf(fd, "# Cosmology: Omega_CDM: %.6g [1]\n", cosmo->Omega_cdm);
+  fprintf(fd, "# Cosmology: Omega_b: %.6g [1]\n", cosmo->Omega_b);
+  fprintf(fd, "# Cosmology: Omega_lambda: %.6g [1]\n", cosmo->Omega_l);
+  fprintf(fd, "# Cosmology: Omega_k: %.6g [1]\n", cosmo->Omega_k);
+  fprintf(fd, "# Cosmology: Omega_nu: %.6g [1]\n", cosmo->Omega_nu);
+  fprintf(fd, "# Cosmology: Omega_r: %.6g [1]\n", cosmo->Omega_r);
+  fprintf(fd, "# Cosmology: w_0: %.6g [1]\n", cosmo->w_0);
+  fprintf(fd, "# Cosmology: w_a: %.6g [1]\n", cosmo->w_a);
+  fprintf(fd, "# Cosmology: H_0: %.6g [internal units]\n", cosmo->H_0);
+  fprintf(fd, "# hydrogen mass fraction used: %.6g\n",
+          hydrogen_fraction_by_mass);
+  fprintf(fd, "# gas density used: %.6g [internal units, physical]\n",
+          gas_density);
+  fprintf(fd,
+          "# inital internal energy used: %.6g [internal units, physical]\n",
+          internal_energy);
+  fprintf(fd, "# Grackle parameters:\n");
+  fprintf(fd, "# grackle_chemistry_data.use_grackle = %d\n",
+          grackle_chemistry_data->use_grackle);
+  fprintf(fd, "# grackle_chemistry_data.with_radiative_cooling %d\n",
+          grackle_chemistry_data->with_radiative_cooling);
+  fprintf(fd, "# grackle_chemistry_data.primordial_chemistry = %d\n",
+          grackle_chemistry_data->primordial_chemistry);
+  fprintf(fd, "# grackle_chemistry_data.dust_chemistry = %d\n",
+          grackle_chemistry_data->dust_chemistry);
+  fprintf(fd, "# grackle_chemistry_data.metal_cooling = %d\n",
+          grackle_chemistry_data->metal_cooling);
+  fprintf(fd, "# grackle_chemistry_data.UVbackground = %d\n",
+          grackle_chemistry_data->UVbackground);
+  fprintf(fd, "# grackle_chemistry_data.CaseBRecombination = %d\n",
+          grackle_chemistry_data->CaseBRecombination);
+  fprintf(fd, "# grackle_chemistry_data.grackle_data_file = %s\n",
+          grackle_chemistry_data->grackle_data_file);
+  fprintf(fd, "# grackle_chemistry_data.use_radiative_transfer = %d\n",
+          grackle_chemistry_data->use_radiative_transfer);
+  fprintf(fd, "# grackle_chemistry_data.HydrogenFractionByMass = %.3g\n",
+          grackle_chemistry_data->HydrogenFractionByMass);
+  fprintf(fd, "# grackle_chemistry_data.Gamma = %.6g\n",
+          grackle_chemistry_data->Gamma);
+  fprintf(fd, "# Grackle field data:\n");
+
+#define write_grackle_field(v)                                                 \
+  if (grackle_fields.v != NULL)                                                \
+  fprintf(fd, "# grackle_fields." #v " = %g\n", grackle_fields.v[0])
+
+  write_grackle_field(density);
+  write_grackle_field(internal_energy);
+  write_grackle_field(HI_density);
+  write_grackle_field(HII_density);
+  write_grackle_field(HeI_density);
+  write_grackle_field(HeII_density);
+  write_grackle_field(HeIII_density);
+  write_grackle_field(e_density);
+  write_grackle_field(HM_density);
+  write_grackle_field(H2I_density);
+  write_grackle_field(H2II_density);
+  write_grackle_field(DI_density);
+  write_grackle_field(DII_density);
+  write_grackle_field(HDI_density);
+  write_grackle_field(metal_density);
+  write_grackle_field(x_velocity);
+  write_grackle_field(y_velocity);
+  write_grackle_field(z_velocity);
+  write_grackle_field(volumetric_heating_rate);
+  write_grackle_field(specific_heating_rate);
+  write_grackle_field(RT_HI_ionization_rate);
+  write_grackle_field(RT_HeI_ionization_rate);
+  write_grackle_field(RT_HeII_ionization_rate);
+  write_grackle_field(RT_H2_dissociation_rate);
+  write_grackle_field(RT_heating_rate);
+}
+
+/**
+ * @brief write header to a file/stdout
+ **/
+void write_cosmo_header(FILE *fd) {
+
+  fprintf(fd,
+          "#%8s %12s %12s %15s %15s %15s %15s %15s %15s %15s %15s %15s %15s "
+          "%15s %15s\n",
+          "step", "a", "z", "Time [yr]", "dt [yr]", "Temperature [K]",
+          "Mean M Wgt [1]", "Tot dens [IU]", "HI dens [IU]", "HII dens [IU]",
+          "HeI dens [IU]", "HeII dens [IU]", "HeIII dens [IU]",
+          "e- n. dens [IU]", "IntrnEnerg [IU]");
+}
+
+/**
+ * @brief write the current state of a field with index i to a file/stdout.
+ * Note that all values are in proper/physical units, not in co-moving units.
+ **/
+void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
+                          code_units *grackle_units_data,
+                          chemistry_data *grackle_chemistry_data,
+                          chemistry_data_storage *grackle_chemistry_rates,
+                          int field_index, double t, double dt, double a,
+                          double time_units, int step, int with_cosmo) {
+
+  /* Additional arrays to store temperature and mean molecular weights
+   * of each cell. */
+  gr_float temperature[FIELD_SIZE];
+  gr_float mu[FIELD_SIZE];
+  for (int i = 0; i < FIELD_SIZE; i++) {
+    temperature[i] = 0.;
+    mu[i] = 0.;
+  }
+
+  /* Grab temperature and mean molecular weights. */
+  if (local_calculate_temperature(grackle_chemistry_data,
+                                  grackle_chemistry_rates, grackle_units_data,
+                                  grackle_fields, temperature) == 0) {
+    fprintf(stderr, "Error in calculate_temperature.\n");
+    abort();
+  }
+
+  if (mean_weight_local_like_grackle(grackle_chemistry_data, grackle_fields,
+                                     mu) != SUCCESS) {
+    fprintf(stderr, "Error in local_calculate_mean_weight.\n");
+    abort();
+  }
+
+  double a_use = 1.;
+  if (with_cosmo)
+    a_use = a;
+
+  fprintf(
+      fd,
+      "%9d %12.6f %12.6g %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e %15.3e "
+      "%15.3e %15.3e %15.3e %15.3e %15.3e\n",
+      step, a, 1. / a - 1., t / const_yr * time_units,
+      dt / const_yr * time_units,
+      cosmo_get_physical_temperature(temperature[field_index], a_use),
+      mu[field_index],
+      cosmo_get_physical_density(grackle_fields->density[field_index], a_use),
+      cosmo_get_physical_density(grackle_fields->HI_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->HII_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->HeI_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->HeII_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->HeIII_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->e_density[field_index], a_use),
+      cosmo_get_physical_internal_energy(
+          grackle_fields->internal_energy[field_index], a_use));
 }
 
 #endif /* MY_GRACKLE_UTILS_H */

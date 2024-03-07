@@ -18,8 +18,8 @@
 #include "my_grackle_utils.h"
 
 #include "checks.h"
-#include "conversions.h"
 #include "cmdlineargs.h"
+#include "conversions.h"
 #include "grackle_cooling_test.h"
 #include "grackle_heating_test.h"
 #include "read_params.h"
@@ -28,8 +28,7 @@
 
 int warnings = 0;
 
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
   /* FPE's, here we come! */
   /* Note: Grackle may have severe issues with these... And that's apparently
@@ -134,20 +133,17 @@ int main(int argc, char* argv[]) {
   for (int g = 0; g < RT_NGROUPS; g++) {
     Erad_luminosity_test_cgs[g] =
         conversions_radiation_energy_density_from_luminosity(
-            test_params.star_emission_rates[g], &test_params,
-            &units);
+            test_params.star_emission_rates[g], &test_params, &units);
     Erad_luminosity_test_cgs[g] *= units.energy_density_units;
     check_valid_double(Erad_luminosity_test_cgs[g], 0);
   }
   /* Set up arrays to loop over */
-  float dens_arr[3] = {test_params.density_average,
-                       test_params.density_min,
+  float dens_arr[3] = {test_params.density_average, test_params.density_min,
                        test_params.density_max};
   char *dens_names[3] = {"rho_av", "rho_min", "rho_max"};
   float T_test[7] = {10., 100., 1000., 1.e4, 1.e5, 1.e6, 1.e7};
 
-  float rad_arr[3] = {test_params.rad_energy_av,
-                      test_params.rad_energy_min,
+  float rad_arr[3] = {test_params.rad_energy_av, test_params.rad_energy_min,
                       test_params.rad_energy_max};
   char *rad_names[3] = {"Erad_av", "Erad_min", "Erad_max"};
 
@@ -189,8 +185,7 @@ int main(int argc, char* argv[]) {
 
       for (int g = 0; g < RT_NGROUPS; g++) {
         float l = test_params.star_emission_rates[g];
-        check_luminosities(l, rho, name, T, &test_params, &units,
-                           verbose);
+        check_luminosities(l, rho, name, T, &test_params, &units, verbose);
       }
     }
   }
