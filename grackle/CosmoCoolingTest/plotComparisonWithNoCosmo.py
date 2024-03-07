@@ -28,7 +28,6 @@ ax4 = fig.add_subplot(2, 2, 4)
 
 plotnr = 0
 for file, label in [("out.dat", "with cosmo"), ("outNoCosmo.dat", "no cosmo")]:
-    #  for file, label in [("outNoCosmo.dat", "no cosmo")]:
 
     # Read in units.
     f = open(file, "r")
