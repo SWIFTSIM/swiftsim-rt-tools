@@ -41,7 +41,7 @@ int main() {
    * time frame, specified by a_begin and a_end.
    * Ideally, we want to find an example where the results are visibly
    * different. */
-  const int with_cosmo = 0;
+  const int with_cosmo = 1;
   /* output file */
   FILE *fd;
   if (with_cosmo) {
