@@ -58,11 +58,9 @@ static gr_float G_Hep(gr_float T) {
   return 5.68e-12 * sqrt(T) * exp(-631515.0 / T) / (1.0 + sqrt(T5));
 }
 
-static void ionization_equilibrium_calculate_densities(gr_float T, gr_float nH,
-                                                gr_float X, gr_float *nH0,
-                                                gr_float *nHp, gr_float *nHe0,
-                                                gr_float *nHep, gr_float *nHepp,
-                                                gr_float *ne) {
+static void ionization_equilibrium_calculate_densities(
+    gr_float T, gr_float nH, gr_float X, gr_float *nH0, gr_float *nHp,
+    gr_float *nHe0, gr_float *nHep, gr_float *nHepp, gr_float *ne) {
   /* Calculates densities of all species assuming
    * ionization equilibrium. This function is used to
    * compute initial conditions. */

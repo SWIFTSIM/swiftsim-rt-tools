@@ -44,7 +44,7 @@ int main() {
   const int with_cosmo = 0;
   /* output file */
   FILE *fd;
-  if (with_cosmo){
+  if (with_cosmo) {
     fd = fopen("out.dat", "w");
   } else {
     fd = fopen("outNoCosmo.dat", "w");
@@ -66,9 +66,8 @@ int main() {
   /* double a_end = 0.014081;  [> z~70 <] */
   /* double a_begin = 0.0625;  [> z~15 <] */
   /* double a_end = 0.09091;  [> z~10 <] */
-  double a_begin = 0.0476;  /* z~20 */
-  double a_end = 0.166667;  /* z~5 */
-
+  double a_begin = 0.0476; /* z~20 */
+  double a_end = 0.166667; /* z~5 */
 
   const double log_a_begin = log(a_begin);
   const double log_a_end = log(a_end);
@@ -79,20 +78,22 @@ int main() {
 
   /* Use this a for conversions to comoving frame. */
   double a_convert_comoving = 1.;
-  if (with_cosmo) a_convert_comoving = a_begin;
+  if (with_cosmo)
+    a_convert_comoving = a_begin;
 
   struct cosmology cosmology;
 
   /* Planck13 (EAGLE flavour) */
   cosmology.Omega_cdm = 0.2587; /* Dark matter density parameter*/
-  cosmology.Omega_b = 0.04825; /* baryon density parameter*/
-  cosmology.Omega_l= 0.693; /* Dark Energy density parameter */
-  cosmology.Omega_k = 0.;   /* Radiation density parameter */
-  cosmology.Omega_r = 0.;   /* Radiation density parameter */
-  cosmology.Omega_nu = 0.;  /* Neutrino density parameter */
-  cosmology.w_0 = -1.0;     /* Dark-energy equation-of-state parameter at z=0. */
-  cosmology.w_a = 0.;       /* Dark-energy equation-of-state time evolution parameter. */
-  cosmology.H_0 = 67.77;    /* Hubble constant at z=0 in km/s/Mpc */
+  cosmology.Omega_b = 0.04825;  /* baryon density parameter*/
+  cosmology.Omega_l = 0.693;    /* Dark Energy density parameter */
+  cosmology.Omega_k = 0.;       /* Radiation density parameter */
+  cosmology.Omega_r = 0.;       /* Radiation density parameter */
+  cosmology.Omega_nu = 0.;      /* Neutrino density parameter */
+  cosmology.w_0 = -1.0; /* Dark-energy equation-of-state parameter at z=0. */
+  cosmology.w_a =
+      0.; /* Dark-energy equation-of-state time evolution parameter. */
+  cosmology.H_0 = 67.77; /* Hubble constant at z=0 in km/s/Mpc */
 
   cosmo_convert_H0_to_internal_units(&cosmology, time_units);
 
@@ -104,15 +105,14 @@ int main() {
 
   cosmo_get_tables(a_table, t_table, &cosmology, a_begin, a_end);
 
-
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
   double hydrogen_fraction_by_mass = 0.76;
   /* Use solution of swift's output. This is in internal units already. */
-  /* However, these are in physical units. We'll turn them into comoving units later. */
+  /* However, these are in physical units. We'll turn them into comoving units
+   * later. */
   double gas_density_phys = 0.00024633363;
   double internal_energy_phys = 21201.879;
-
 
   /* Derived quantities from ICs */
   /* --------------------------- */
@@ -120,13 +120,14 @@ int main() {
   /* Assuming fully ionized gas */
   double mu_init = mean_molecular_weight_from_mass_fractions(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
-  double internal_energy_phys_cgs =
-      internal_energy_phys * length_units * length_units / (time_units * time_units);
+  double internal_energy_phys_cgs = internal_energy_phys * length_units *
+                                    length_units / (time_units * time_units);
 
-  double T_phys = internal_energy_phys_cgs * (const_adiabatic_index - 1) * mu_init *
-             const_mh / const_kboltz;
+  double T_phys = internal_energy_phys_cgs * (const_adiabatic_index - 1) *
+                  mu_init * const_mh / const_kboltz;
   if (verbose)
-    printf("Initial setup: u_cgs %g T_cgs %g [physical units]\n", internal_energy_phys_cgs, T_phys);
+    printf("Initial setup: u_cgs %g T_cgs %g [physical units]\n",
+           internal_energy_phys_cgs, T_phys);
 
   /* define the hydrogen number density */
   /* use `gr_float` to use the same type of floats that grackle
@@ -142,9 +143,9 @@ int main() {
   gr_float ne;
 
   /* get densities of primordial species assuming ionization equilibrium */
-  ionization_equilibrium_calculate_densities(T_phys, nH, hydrogen_fraction_by_mass,
-                                             &nHI, &nHII, &nHeI, &nHeII,
-                                             &nHeIII, &ne);
+  ionization_equilibrium_calculate_densities(
+      T_phys, nH, hydrogen_fraction_by_mass, &nHI, &nHII, &nHeI, &nHeII,
+      &nHeIII, &ne);
 
   gr_float HI_density = nHI * (const_mh / mass_units);
   gr_float HII_density = nHII * (const_mh / mass_units);
@@ -179,7 +180,8 @@ int main() {
   int use_radiative_transfer = 0;
   char *grackle_data_file = "";
 
-  /* These are in cgs anyway, so no transform to co-moving coordinates necessary. */
+  /* These are in cgs anyway, so no transform to co-moving coordinates
+   * necessary. */
   gr_float RT_HI_ionization_rate = 0.;
   gr_float RT_HeI_ionization_rate = 0.;
   gr_float RT_HeII_ionization_rate = 0.;
@@ -201,7 +203,8 @@ int main() {
   /* First, set up the units system. We assume cgs
    * These are conversions from code units to cgs. */
   code_units grackle_units_data;
-  setup_grackle_units_cosmo(&grackle_units_data, density_units, length_units, time_units, a_begin, with_cosmo);
+  setup_grackle_units_cosmo(&grackle_units_data, density_units, length_units,
+                            time_units, a_begin, with_cosmo);
 
   /* Chemistry Parameters */
   /* -------------------- */
@@ -234,8 +237,10 @@ int main() {
   /* -------- */
 
   /* Create struct for storing grackle field data */
-  double gas_density_comoving = cosmo_get_comoving_density(gas_density_phys, a_convert_comoving);
-  double internal_energy_comoving = cosmo_get_comoving_internal_energy(internal_energy_phys, a_convert_comoving);
+  double gas_density_comoving =
+      cosmo_get_comoving_density(gas_density_phys, a_convert_comoving);
+  double internal_energy_comoving = cosmo_get_comoving_internal_energy(
+      internal_energy_phys, a_convert_comoving);
 
   grackle_field_data grackle_fields;
   setup_grackle_fields(&grackle_fields, species_densities, interaction_rates,
@@ -250,26 +255,26 @@ int main() {
     printf("%15s%15s%15s%15s%15s%15s%15s%15s\n",
            "Initial setup: ", "Temperature", "nHI", "nHII", "nHeI", "nHeII",
            "nHeIII", "ne");
-    printf("%15s%15g%15g%15g%15g%15g%15g%15g\n\n", "Initial setup: ", T_phys, nHI,
-           nHII, nHeI, nHeII, nHeIII, ne);
+    printf("%15s%15g%15g%15g%15g%15g%15g%15g\n\n", "Initial setup: ", T_phys,
+           nHI, nHII, nHeI, nHeII, nHeIII, ne);
   }
 
   write_cosmo_header(stdout);
   write_cosmo_timestep(stdout, &grackle_fields, &grackle_units_data,
-                 &grackle_chemistry_data, &grackle_chemistry_rates,
-                 /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
-                 time_units, /*step=*/0, with_cosmo);
+                       &grackle_chemistry_data, &grackle_chemistry_rates,
+                       /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
+                       time_units, /*step=*/0, with_cosmo);
 
   /* And now to the output file. */
   write_my_cosmo_setup(fd, grackle_fields, &grackle_chemistry_data, mass_units,
-                 length_units, velocity_units, a_begin, a_end, &cosmology,
-                 hydrogen_fraction_by_mass, gas_density_phys, internal_energy_phys,
-                 with_cosmo);
+                       length_units, velocity_units, a_begin, a_end, &cosmology,
+                       hydrogen_fraction_by_mass, gas_density_phys,
+                       internal_energy_phys, with_cosmo);
   write_cosmo_header(fd);
   write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
-                 &grackle_chemistry_data, &grackle_chemistry_rates,
-                 /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
-                 time_units, /*step=*/0, with_cosmo);
+                       &grackle_chemistry_data, &grackle_chemistry_rates,
+                       /*field_index=*/0, /*t=*/0., /*dt=*/0., a_begin,
+                       time_units, /*step=*/0, with_cosmo);
 
   /*********************************************************************
   / Calling the chemistry solver
@@ -306,7 +311,8 @@ int main() {
     }
 
     /* Apply change in a to grackle. */
-    update_grackle_units_cosmo(&grackle_units_data, density_units, length_units, a, with_cosmo);
+    update_grackle_units_cosmo(&grackle_units_data, density_units, length_units,
+                               a, with_cosmo);
 
     /* Get time step size. */
     dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
@@ -319,14 +325,15 @@ int main() {
     }
 
     write_cosmo_timestep(stdout, &grackle_fields, &grackle_units_data,
-                   &grackle_chemistry_data, &grackle_chemistry_rates,
-                   /*field_index=*/0, t, dt, a, time_units, step, with_cosmo);
+                         &grackle_chemistry_data, &grackle_chemistry_rates,
+                         /*field_index=*/0, t, dt, a, time_units, step,
+                         with_cosmo);
 
     if (step % output_frequency == 0)
       write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
-                     &grackle_chemistry_data, &grackle_chemistry_rates,
-                     /*field_index=*/0, t, dt, a, time_units, step, with_cosmo);
-
+                           &grackle_chemistry_data, &grackle_chemistry_rates,
+                           /*field_index=*/0, t, dt, a, time_units, step,
+                           with_cosmo);
   }
 
   /* Clean up after yourself */

@@ -9,12 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #include "constants.h"
 #include "cosmology.h"
 
 int main() {
-
 
   /* Define units : use the same as internal units for swift */
   /* ------------------------------------------------------- */
@@ -22,7 +20,8 @@ int main() {
   double length_units = 3.08567758e21;
   double velocity_units = 1e5;
 
-  /* double density_units = mass_units / length_units / length_units / length_units; */
+  /* double density_units = mass_units / length_units / length_units /
+   * length_units; */
   double time_units = length_units / velocity_units;
 
   /* Cosmology                  */
@@ -35,14 +34,15 @@ int main() {
   /* Planck13 (EAGLE flavour) */
 
   cosmology.Omega_cdm = 0.2587; /* Dark matter density parameter*/
-  cosmology.Omega_b = 0.04825; /* baryon density parameter*/
-  cosmology.Omega_l= 0.693; /* Dark Energy density parameter */
-  cosmology.Omega_k = 0.;   /* Radiation density parameter */
-  cosmology.Omega_r = 0.;   /* Radiation density parameter */
-  cosmology.Omega_nu = 0.;  /* Neutrino density parameter */
-  cosmology.w_0 = -1.0;     /* Dark-energy equation-of-state parameter at z=0. */
-  cosmology.w_a = 0.;       /* Dark-energy equation-of-state time evolution parameter. */
-  cosmology.H_0 = 67.77;    /* Hubble constant at z=0 in km/s/Mpc */
+  cosmology.Omega_b = 0.04825;  /* baryon density parameter*/
+  cosmology.Omega_l = 0.693;    /* Dark Energy density parameter */
+  cosmology.Omega_k = 0.;       /* Radiation density parameter */
+  cosmology.Omega_r = 0.;       /* Radiation density parameter */
+  cosmology.Omega_nu = 0.;      /* Neutrino density parameter */
+  cosmology.w_0 = -1.0; /* Dark-energy equation-of-state parameter at z=0. */
+  cosmology.w_a =
+      0.; /* Dark-energy equation-of-state time evolution parameter. */
+  cosmology.H_0 = 67.77; /* Hubble constant at z=0 in km/s/Mpc */
 
   cosmo_convert_H0_to_internal_units(&cosmology, time_units);
 
@@ -64,10 +64,9 @@ int main() {
   const double log_a_end = log(a_end);
   const double dlog_a = (log_a_end - log_a_begin) / nsteps;
 
-
   double tolerance = 1.e-4;
-  if (10. / (double)nsteps > tolerance) tolerance = 10. / (double) nsteps;
-
+  if (10. / (double)nsteps > tolerance)
+    tolerance = 10. / (double)nsteps;
 
   /* Use linear steps */
   /* ---------------- */
@@ -75,7 +74,7 @@ int main() {
 
   a = a_begin;
   int steps = 0;
-  while (a < a_end){
+  while (a < a_end) {
     steps++;
     a_next = a + da;
     double dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
@@ -85,13 +84,11 @@ int main() {
   }
 
   printf("LINEAR:      Expect=%12.6g Got=%12.6g Ratio=%12.6g Steps=%6i\n",
-      t_tot, t_linear, t_linear/t_tot, steps
-      );
+         t_tot, t_linear, t_linear / t_tot, steps);
 
-  double dev = fabs(1. - t_linear/t_tot);
-  if (dev > tolerance) error("Deviation too large: %g", dev);
-
-
+  double dev = fabs(1. - t_linear / t_tot);
+  if (dev > tolerance)
+    error("Deviation too large: %g", dev);
 
   /* Use log steps */
   /* ---------------- */
@@ -100,7 +97,7 @@ int main() {
   double log_a = log_a_begin;
   a = a_begin;
   steps = 0;
-  while (a < a_end){
+  while (a < a_end) {
     steps++;
 
     double log_a_next = log_a + dlog_a;
@@ -113,11 +110,11 @@ int main() {
   }
 
   printf("LOGARITHMIC: Expect=%12.6g Got=%12.6g Ratio=%12.6g Steps=%6i\n",
-      t_tot, t_log, t_log/t_tot, steps
-      );
+         t_tot, t_log, t_log / t_tot, steps);
 
-  dev = fabs(1. - t_log/t_tot);
-  if (dev > tolerance) error("Deviation too large: %g", dev);
+  dev = fabs(1. - t_log / t_tot);
+  if (dev > tolerance)
+    error("Deviation too large: %g", dev);
 
   printf("Done.\n");
 

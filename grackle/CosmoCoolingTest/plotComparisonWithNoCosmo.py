@@ -26,10 +26,9 @@ ax3 = fig.add_subplot(2, 2, 3)
 ax4 = fig.add_subplot(2, 2, 4)
 
 
-
 plotnr = 0
 for file, label in [("out.dat", "with cosmo"), ("outNoCosmo.dat", "no cosmo")]:
-#  for file, label in [("outNoCosmo.dat", "no cosmo")]:
+    #  for file, label in [("outNoCosmo.dat", "no cosmo")]:
 
     # Read in units.
     f = open(file, "r")
@@ -70,7 +69,6 @@ for file, label in [("out.dat", "with cosmo"), ("outNoCosmo.dat", "no cosmo")]:
     HeIII_density = data[:, 12]
     e_density = data[:, 13]  # number density
 
-
     # compute number density for all species
     nHI = HI_density * density_units / mh
     # in part per cc
@@ -93,35 +91,31 @@ for file, label in [("out.dat", "with cosmo"), ("outNoCosmo.dat", "no cosmo")]:
     XHeII = HeII_density / tot_density
     XHeIII = HeIII_density / tot_density
 
-
     ax1.plot(Time_Myr, Temperature, label=label, **plotkwargs)
     ax2.plot(Time_Myr, mu, label=label)
-
 
     if plotnr == 0:
         ls = "-"
     else:
         ls = "--"
 
-    ax3.plot(Time_Myr, nHI, ls=ls, label=r"$\rm{HI}$ "+label, **plotkwargs)
+    ax3.plot(Time_Myr, nHI, ls=ls, label=r"$\rm{HI}$ " + label, **plotkwargs)
     #  ax3.plot(Time_Myr, nHII, ls=ls, label=r"$\rm{HII}$", **plotkwargs)
-    ax3.plot(Time_Myr, nHeI, ls=ls, label=r"$\rm{HeI}$ "+label, **plotkwargs)
+    ax3.plot(Time_Myr, nHeI, ls=ls, label=r"$\rm{HeI}$ " + label, **plotkwargs)
     #  ax3.plot(Time_Myr, nHeII, ls=ls, label=r"$\rm{HeII}$", **plotkwargs)
     #  ax3.plot(Time_Myr, nHeIII, ls=ls, label=r"$\rm{HeIII}$", **plotkwargs)
     #  ax3.plot(Time_Myr, ne, ls=ls, label=r"$\rm{n_e}$", **plotkwargs)
-    ax3.plot(Time_Myr, n, label=r"$\rm{Tot}$ "+label, alpha=1)
+    ax3.plot(Time_Myr, n, label=r"$\rm{Tot}$ " + label, alpha=1)
 
     Xtot = XHI + XHII + XHeI + XHeII + XHeIII
-    ax4.plot(Time_Myr, XHI, ls=ls, label=r"$\rm{XHeI}$ "+ label, **plotkwargs)
+    ax4.plot(Time_Myr, XHI, ls=ls, label=r"$\rm{XHeI}$ " + label, **plotkwargs)
     #  ax4.plot(Time_Myr, XHII, ls=ls, label=r"$\rm{XHeII}$", **plotkwargs)
     ax4.plot(Time_Myr, XHeI, ls=ls, label=r"$\rm{XHeI}$ " + label, **plotkwargs)
     #  ax4.plot(Time_Myr, XHeII, ls=ls, label=r"$\rm{XHeII}$", **plotkwargs)
     #  ax4.plot(Time_Myr, XHeIII, ls=ls, label=r"$\rm{XHeIII}$", **plotkwargs)
-    ax4.plot(Time_Myr, Xtot, ls=ls, label="Tot "+label, **plotkwargs)
+    ax4.plot(Time_Myr, Xtot, ls=ls, label="Tot " + label, **plotkwargs)
 
     plotnr += 1
-
-
 
 
 ax1.semilogy()

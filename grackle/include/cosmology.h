@@ -22,15 +22,14 @@
 #ifndef COSMOLOGY_H
 #define COSMOLOGY_H
 
-#include <math.h>
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_interp.h>
+#include <math.h>
 
 #include "error.h"
 
 #define COSMO_TABLE_ELEMENTS 30000
 #define MY_GSL_WORKSPACE_SIZE 100000
-
 
 struct cosmology {
   double Omega_cdm;
@@ -47,80 +46,62 @@ struct cosmology {
 /**
  * Compute comoving density from physical density.
  **/
-double cosmo_get_comoving_density(double rho_p, double a){
+double cosmo_get_comoving_density(double rho_p, double a) {
 
   return rho_p * a * a * a;
 }
 
-
 /**
  * Compute physical density from comoving density.
  **/
-double cosmo_get_physical_density(double rho_c, double a){
+double cosmo_get_physical_density(double rho_c, double a) {
 
   return rho_c / (a * a * a);
 }
 
-
 /**
  * Compute comoving distance from physical distance
  **/
-double cosmo_get_comoving_distance(double r_p, double a){
-
-  return r_p / a;
-}
-
+double cosmo_get_comoving_distance(double r_p, double a) { return r_p / a; }
 
 /**
  * Compute physical distance from comoving distance
  **/
-double cosmo_get_physical_distance(double r_c, double a){
-
-  return r_c * a;
-}
-
+double cosmo_get_physical_distance(double r_c, double a) { return r_c * a; }
 
 /**
- * Compute comoving specific internal energy from physical specific internal energy.
+ * Compute comoving specific internal energy from physical specific internal
+ *energy.
  **/
-double cosmo_get_comoving_internal_energy(double u_p, double a){
+double cosmo_get_comoving_internal_energy(double u_p, double a) {
 
   return u_p / (a * a);
 }
 
-
 /**
- * Compute physical specific internal energy from comoving specific internal energy.
+ * Compute physical specific internal energy from comoving specific internal
+ *energy.
  **/
-double cosmo_get_physical_internal_energy(double u_c, double a){
+double cosmo_get_physical_internal_energy(double u_c, double a) {
 
   return u_c * a * a;
 }
 
-
-
 /**
  * Compute comoving temperature from proper temperature
  **/
-double cosmo_get_comoving_temperature(double T_p, double a){
+double cosmo_get_comoving_temperature(double T_p, double a) {
   /* Transforms the same as internal energy. */
   return cosmo_get_comoving_internal_energy(T_p, a);
 }
 
-
 /**
  * Compute physical temperature from proper temperature
  **/
-double cosmo_get_physical_temperature(double T_c, double a){
+double cosmo_get_physical_temperature(double T_c, double a) {
   /* Transforms the same as internal energy. */
   return cosmo_get_physical_internal_energy(T_c, a);
 }
-
-
-
-
-
-
 
 /**
  * @brief Returns the interpolated value from a table.
@@ -133,8 +114,9 @@ double cosmo_get_physical_temperature(double T_c, double a){
  * @param x_min The mininum of the range of x.
  * @param x_max The maximum of the range of x.
  */
-static inline double interp_table(const double table[COSMO_TABLE_ELEMENTS], const double x,
-                                  const double x_min, const double x_max) {
+static inline double interp_table(const double table[COSMO_TABLE_ELEMENTS],
+                                  const double x, const double x_min,
+                                  const double x_max) {
 
   const double xx =
       ((x - x_min) / (x_max - x_min)) * ((double)COSMO_TABLE_ELEMENTS);
@@ -148,7 +130,6 @@ static inline double interp_table(const double table[COSMO_TABLE_ELEMENTS], cons
     return table[ii - 1] + (table[ii] - table[ii - 1]) * (xx - ii);
 }
 
-
 /**
  * @brief Computes the integral of the dark-energy equation of state
  * up to a scale-factor a.
@@ -160,12 +141,10 @@ static inline double interp_table(const double table[COSMO_TABLE_ELEMENTS], cons
  * @param w0 The equation of state parameter at z=0.
  * @param wa The equation of state evolution parameter.
  */
-__attribute__((const)) static inline double w_tilde(const double a,
-                                                    const double w0,
-                                                    const double wa) {
+__attribute__((const)) static inline double
+w_tilde(const double a, const double w0, const double wa) {
   return (a - 1.) * wa - (1. + w0 + wa) * log(a);
 }
-
 
 /**
  * @brief Compute E(z)$.
@@ -178,9 +157,9 @@ __attribute__((const)) static inline double w_tilde(const double a,
  * @param wa The equation of state evolution parameter.
  * @param a The current scale-factor.
  */
-__attribute__((const)) static inline double E(
-    const double Omega_r, const double Omega_m, const double Omega_k,
-    const double Omega_l, const double w0, const double wa, const double a) {
+__attribute__((const)) static inline double
+E(const double Omega_r, const double Omega_m, const double Omega_k,
+  const double Omega_l, const double w0, const double wa, const double a) {
 
   const double a_inv = 1. / a;
 
@@ -189,8 +168,6 @@ __attribute__((const)) static inline double E(
               Omega_k * a_inv * a_inv +                 /* Curvature */
               Omega_l * exp(3. * w_tilde(a, w0, wa)));  /* Lambda */
 }
-
-
 
 /**
  * @brief Computes dt for the current cosmology.
@@ -217,11 +194,11 @@ double time_integrand(double a, void *param) {
   return (1. / H) * a_inv;
 }
 
-
 /**
  * Convert H0 from km/s/Mpc to internal units.
  */
-void cosmo_convert_H0_to_internal_units(struct cosmology *cosmo, const double time_units){
+void cosmo_convert_H0_to_internal_units(struct cosmology *cosmo,
+                                        const double time_units) {
 
   const double km_per_Mpc = 3.240779e-20;
   const double H0_cgs = cosmo->H_0 * km_per_Mpc;
@@ -229,7 +206,6 @@ void cosmo_convert_H0_to_internal_units(struct cosmology *cosmo, const double ti
    * However, H_0 is in s^-1, so we multiply instead. */
   cosmo->H_0 = H0_cgs * time_units;
 }
-
 
 /**
  * Compute tables a(t) and t(a) for a given cosmology.
@@ -241,19 +217,24 @@ void cosmo_convert_H0_to_internal_units(struct cosmology *cosmo, const double ti
  * @param a_end: final scale factor
  * @param
  */
-void cosmo_get_tables(double a_table[COSMO_TABLE_ELEMENTS], double t_table[COSMO_TABLE_ELEMENTS], struct cosmology *cosmo, double a_begin, double a_end){
+void cosmo_get_tables(double a_table[COSMO_TABLE_ELEMENTS],
+                      double t_table[COSMO_TABLE_ELEMENTS],
+                      struct cosmology *cosmo, double a_begin, double a_end) {
 
-  if (a_begin <= 0.) error("a_begin must be > 0. Got=%g", a_begin);
-  if (a_end <= 0.) error("a_end must be > 0. Got=%g", a_end);
-  if (a_end <= a_begin) error("a_begin must be > a_end Got=%g, %g", a_begin, a_end);
+  if (a_begin <= 0.)
+    error("a_begin must be > 0. Got=%g", a_begin);
+  if (a_end <= 0.)
+    error("a_end must be > 0. Got=%g", a_end);
+  if (a_end <= a_begin)
+    error("a_begin must be > a_end Got=%g, %g", a_begin, a_end);
 
   const double log_a_begin = log(a_begin);
   const double log_a_end = log(a_end);
 
   const double delta_a = (log_a_end - log_a_begin) / COSMO_TABLE_ELEMENTS;
 
-  for (int i = 0; i < COSMO_TABLE_ELEMENTS; i++){
-    a_table[i] = exp(log_a_begin + delta_a * (i+1));
+  for (int i = 0; i < COSMO_TABLE_ELEMENTS; i++) {
+    a_table[i] = exp(log_a_begin + delta_a * (i + 1));
   }
 
   /* Initalise the GSL workspace */
@@ -264,9 +245,10 @@ void cosmo_get_tables(double a_table[COSMO_TABLE_ELEMENTS], double t_table[COSMO
 
   /* Integrate the time \int_{a_begin}^{a_table[i]} dt */
   gsl_function F = {&time_integrand, cosmo};
-  for (int i = 0; i < COSMO_TABLE_ELEMENTS; i++){
-    gsl_integration_qag(&F, a_begin, a_table[i], 0, 1.0e-10, MY_GSL_WORKSPACE_SIZE,
-                        GSL_INTEG_GAUSS61, space, &result, &abserr);
+  for (int i = 0; i < COSMO_TABLE_ELEMENTS; i++) {
+    gsl_integration_qag(&F, a_begin, a_table[i], 0, 1.0e-10,
+                        MY_GSL_WORKSPACE_SIZE, GSL_INTEG_GAUSS61, space,
+                        &result, &abserr);
     t_table[i] = result;
   }
 }
@@ -282,7 +264,8 @@ void cosmo_get_tables(double a_table[COSMO_TABLE_ELEMENTS], double t_table[COSMO
  *
  * @return dt: physical time between a1 and a2.
  */
-double cosmo_get_dt(double a1, double a2, double a_begin, double a_end, double t_table[COSMO_TABLE_ELEMENTS]){
+double cosmo_get_dt(double a1, double a2, double a_begin, double a_end,
+                    double t_table[COSMO_TABLE_ELEMENTS]) {
 
   const double log_a1 = log(a1);
   const double log_a2 = log(a2);
@@ -296,7 +279,5 @@ double cosmo_get_dt(double a1, double a2, double a_begin, double a_end, double t
   const double t2 = interp_table(t_table, log_a2, log_a_begin, log_a_end);
 
   return t2 - t1;
-
-
 }
 #endif

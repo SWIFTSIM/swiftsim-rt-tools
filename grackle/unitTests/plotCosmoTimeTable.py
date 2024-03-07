@@ -2,13 +2,13 @@
 
 
 import numpy as np
-from matplotlib  import pyplot as plt
+from matplotlib import pyplot as plt
 
 
 data = np.loadtxt("cosmoTimeTable.dat", dtype=float, delimiter=",")
 
-t = data[:,0]
-a = data[:,1]
+t = data[:, 0]
+a = data[:, 1]
 
 plt.figure()
 plt.plot(t, a)
