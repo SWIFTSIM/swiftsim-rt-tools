@@ -30,6 +30,12 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 GSL_INCL = -I$(GSL_ROOT)/include
 GSL_LIBS = -L$(GSL_ROOT)/lib
 
+# blas dirs
+# BLAS_ROOT=/path/to/your/blas/install
+# BLAS_ROOT=$(OPENBLAS_ROOT)
+BLAS_INCL = -I$(BLAS_ROOT)/include
+BLAS_LIBS = -L$(BLAS_ROOT)/lib
+
 
 #==================================
 # COMPILER OPTIONS AND DIRECTIVES
@@ -52,11 +58,13 @@ DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
 # linking flags
 LDFLAGS = $(GRACKLE_LIBS)
 LDFLAGS += $(GSL_LIBS)
+LDFLAGS += $(BLAS_LIBS)
 
 # Additional header files
 INCLUDES = -I$(IDIR) -I.
 INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
+INCLUDES += $(BLAS_INCL)
 
 # Additional libraries
 LIBS  = -lgrackle -lgfortran -lgsl -lblas -lm
