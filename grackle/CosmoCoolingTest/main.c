@@ -321,11 +321,11 @@ int main() {
     dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
 
     /* Solve chemistry. */
-    /* if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates, */
-    /*                           &grackle_units_data, &grackle_fields, dt) == 0) { */
-    /*   fprintf(stderr, "Error in solve_chemistry.\n"); */
-    /*   return EXIT_FAILURE; */
-    /* } */
+    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates,
+                              &grackle_units_data, &grackle_fields, dt) == 0) {
+      fprintf(stderr, "Error in solve_chemistry.\n");
+      return EXIT_FAILURE;
+    }
 
     write_cosmo_timestep(stdout, &grackle_fields, &grackle_units_data,
                          &grackle_chemistry_data, &grackle_chemistry_rates,

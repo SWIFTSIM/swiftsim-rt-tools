@@ -564,8 +564,9 @@ void setup_grackle_units_cosmo(code_units *grackle_units_data,
 
   grackle_units_data->time_units = time_units;
   grackle_units_data->a_units = 1.0;
-  /* grackle_units_data->a_value = a_use; */
-  grackle_units_data->a_value = 1.0;
+  grackle_units_data->a_value = a_use;
+  /* grackle_units_data->a_value = a; */
+  /* grackle_units_data->a_value = 1.; */
 
   /* Set velocity units */
   set_velocity_units(grackle_units_data);
@@ -595,8 +596,10 @@ void update_grackle_units_cosmo(code_units *grackle_units_data,
   grackle_units_data->length_units =
       cosmo_get_physical_distance(length_units, a_use);
   /* grackle_units_data->time_units = time_units; */ /*constant with a */
-  /* grackle_units_data->a_units = 1.0; */           /* constant with a */
-  grackle_units_data->a_value = a;
+  /* grackle_units_data->a_units = 1.0; <]           [> constant with a */
+  /* grackle_units_data->a_value = a; */
+  grackle_units_data->a_value = a_use;
+  /* grackle_units_data->a_value = 1.; */
 
   /* Set velocity units */
   /* Not necessary - see grackle documentation. */
@@ -764,7 +767,6 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
       "%15.3e %15.3e %15.3e %15.3e %15.3e\n",
       step, a, 1. / a - 1., t / const_yr * time_units,
       dt / const_yr * time_units,
-      /* temperature[field_index], */
       cosmo_get_physical_temperature(temperature[field_index], a_use),
       mu[field_index],
       cosmo_get_physical_density(grackle_fields->density[field_index], a_use),

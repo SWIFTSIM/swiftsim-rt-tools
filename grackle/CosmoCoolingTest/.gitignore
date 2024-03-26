@@ -2,3 +2,4 @@ cosmo_cooling_test_physical
 cosmo_cooling_test
 out.dat
 *dat
+*log

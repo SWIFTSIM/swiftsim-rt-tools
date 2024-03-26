@@ -198,9 +198,8 @@ int main() {
   /* First, set up the units system. We assume cgs
    * These are conversions from code units to cgs. */
   code_units grackle_units_data;
-  /* setup_grackle_units_cosmo(&grackle_units_data, density_units, length_units, */
-  /*                           time_units, a_begin, [>with_cosmo=<]0); */
-  setup_grackle_units(&grackle_units_data, density_units, length_units, time_units);
+  setup_grackle_units_cosmo(&grackle_units_data, density_units, length_units,
+                            time_units, a_begin, /*with_cosmo=*/0);
 
   /* Chemistry Parameters */
   /* -------------------- */
@@ -339,11 +338,11 @@ int main() {
     }
 
     /* Solve chemistry. */
-    /* if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates, */
-    /*                           &grackle_units_data, &grackle_fields, dt) == 0) { */
-    /*   fprintf(stderr, "Error in solve_chemistry.\n"); */
-    /*   return EXIT_FAILURE; */
-    /* } */
+    if (local_solve_chemistry(&grackle_chemistry_data, &grackle_chemistry_rates,
+                              &grackle_units_data, &grackle_fields, dt) == 0) {
+      fprintf(stderr, "Error in solve_chemistry.\n");
+      return EXIT_FAILURE;
+    }
 
     write_cosmo_timestep(stdout, &grackle_fields, &grackle_units_data,
                          &grackle_chemistry_data, &grackle_chemistry_rates,
