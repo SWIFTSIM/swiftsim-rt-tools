@@ -113,8 +113,8 @@ ax3.set_xscale("log")
 ax3.legend()
 
 Xtot = XHI + XHII + XHeI + XHeII + XHeIII
-ax4.plot(Time_Myr, XHI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
-ax4.plot(Time_Myr, XHII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
+ax4.plot(Time_Myr, XHI, ls=":", label=r"$\rm{XHI}$", **plotkwargs)
+ax4.plot(Time_Myr, XHII, ls="-.", label=r"$\rm{XHII}$", **plotkwargs)
 ax4.plot(Time_Myr, XHeI, ls=":", label=r"$\rm{XHeI}$", **plotkwargs)
 ax4.plot(Time_Myr, XHeII, ls="-.", label=r"$\rm{XHeII}$", **plotkwargs)
 ax4.plot(Time_Myr, XHeIII, ls="--", label=r"$\rm{XHeIII}$", **plotkwargs)

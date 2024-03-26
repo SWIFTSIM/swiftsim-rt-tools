@@ -84,9 +84,9 @@ VPATH=$(IDIR):$(SRCDIR)
 
 
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
-OBJECTS = main.o
+OBJECTS = main.o main_physical.o 
 
-HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h cosmology.h
+HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h cosmology.h 
 
 
 
@@ -95,12 +95,18 @@ HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackl
 #==================================
 
 
-default: $(EXEC)
+default: $(EXEC) $(EXEC)_physical
 
-$(EXEC): $(OBJECTS) $(HEADERS)
+$(EXEC): main.o $(HEADERS)
+	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS)
+
+$(EXEC)_physical: main_physical.o $(HEADERS)
 	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
 main.o: main.c $(HEADERS)
+	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
+
+main_physical.o: main_physical.c $(HEADERS)
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 
 
