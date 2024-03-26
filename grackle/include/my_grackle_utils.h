@@ -256,7 +256,7 @@ void write_my_setup(FILE *fd, grackle_field_data grackle_fields,
   fprintf(fd, "# Result file created using grackle standalone program.\n");
   fprintf(fd, "# mass units used: %.6g [g]\n", mass_units);
   fprintf(fd, "# length units used: %.6g [cm]\n", length_units);
-  fprintf(fd, "# velocity units units used: %.6g [cm/s]\n", velocity_units);
+  fprintf(fd, "# velocity units used: %.6g [cm/s]\n", velocity_units);
   fprintf(fd, "# dt used: %.6g [internal units]\n", dt);
   fprintf(fd, "# hydrogen mass fraction used: %.6g\n",
           hydrogen_fraction_by_mass);
@@ -564,8 +564,7 @@ void setup_grackle_units_cosmo(code_units *grackle_units_data,
 
   grackle_units_data->time_units = time_units;
   grackle_units_data->a_units = 1.0;
-  /* grackle_units_data->a_value = a_use; */
-  grackle_units_data->a_value = a;
+  grackle_units_data->a_value = a_use;
 
   /* Set velocity units */
   set_velocity_units(grackle_units_data);
@@ -631,7 +630,7 @@ void write_my_cosmo_setup(FILE *fd, grackle_field_data grackle_fields,
   fprintf(fd, "# Result file created using grackle standalone program.\n");
   fprintf(fd, "# mass units used: %.6g [g]\n", mass_units);
   fprintf(fd, "# length units used: %.6g [cm]\n", length_units);
-  fprintf(fd, "# velocity units units used: %.6g [cm/s]\n", velocity_units);
+  fprintf(fd, "# velocity units used: %.6g [cm/s]\n", velocity_units);
   fprintf(fd, "# a_begin: %.6g [1]\n", a_begin);
   fprintf(fd, "# a_end: %.6g [1]\n", a_end);
   fprintf(fd, "# with cosmo: %.2d\n", with_cosmo);

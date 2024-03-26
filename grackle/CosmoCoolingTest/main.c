@@ -31,11 +31,11 @@ int main() {
   /* Print some extra data to screen? */
   int verbose = 1;
   /* output frequency in number of steps */
-  const int output_frequency = 4;
+  const int output_frequency = 100;
   /* Integrate in intervals of dlog a ? */
-  const int log_integration = 1;
+  const int log_integration = 0;
   /* How many steps to run */
-  const int nsteps = 2000;
+  const int nsteps = 100000;
   /* Option to turn off cosmological integration. Intended to comare results
    * of cosmo and non-cosmo outputs with identical ICs run over the identical
    * time frame, specified by a_begin and a_end.
