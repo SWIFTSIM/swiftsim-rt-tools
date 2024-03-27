@@ -69,7 +69,7 @@ for file, label in [("out.dat", "comoving"), ("outPhysical.dat", "physical")]:
     HeII_density = data[:, 11]
     HeIII_density = data[:, 12]
     e_density = data[:, 13]  # number density
-    internal_energy = data[:, 14]  # number density
+    internal_energy = data[:, 14]
 
     # compute number density for all species
     nHI = HI_density * density_units / mh
@@ -92,6 +92,8 @@ for file, label in [("out.dat", "comoving"), ("outPhysical.dat", "physical")]:
     XHeI = HeI_density / tot_density
     XHeII = HeII_density / tot_density
     XHeIII = HeIII_density / tot_density
+
+    internal_energy = internal_energy * velocity_units**2
 
     if plotnr == 0:
         ls = "-"
