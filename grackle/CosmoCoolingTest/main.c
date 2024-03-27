@@ -31,11 +31,11 @@ int main() {
   /* Print some extra data to screen? */
   int verbose = 1;
   /* output frequency in number of steps */
-  const int output_frequency = 1;
+  const int output_frequency = 10;
   /* Integrate in intervals of dlog a ? */
   const int log_integration = 0;
   /* How many steps to run */
-  const int nsteps = 20000;
+  const int nsteps = 100000;
   /* Option to turn off cosmological integration. Intended to comare results
    * of cosmo and non-cosmo outputs with identical ICs run over the identical
    * time frame, specified by a_begin and a_end.
@@ -52,7 +52,7 @@ int main() {
 
   /* Define units : use the same as internal units for swift */
   /* ------------------------------------------------------- */
-  double mass_units = 1.99848e43;
+  double mass_units = 1.99848e33;
   double length_units = 3.08567758e21;
   double velocity_units = 1e5;
 
@@ -111,11 +111,12 @@ int main() {
   /* Set up initial conditions for gas cells */
   /* --------------------------------------- */
   double hydrogen_fraction_by_mass = 0.76;
-  /* Use solution of swift's output. This is in internal units already. */
-  /* However, these are in physical units. We'll turn them into comoving units
-   * later. */
-  double gas_density_phys = 0.00024633363 / 20.;
-  double internal_energy_phys = 21201.879;
+
+  double gas_density_cgs = 1.6756058890024518e-25;
+  double internal_energy_cgs = 212018790000000.0;
+
+  double gas_density_phys =  gas_density_cgs / density_units;
+  double internal_energy_phys = internal_energy_cgs / (velocity_units * velocity_units);
 
   /* Derived quantities from ICs */
   /* --------------------------- */
@@ -123,14 +124,12 @@ int main() {
   /* Assuming fully ionized gas */
   double mu_init = mean_molecular_weight_from_mass_fractions(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
-  double internal_energy_phys_cgs = internal_energy_phys * length_units *
-                                    length_units / (time_units * time_units);
 
-  double T_phys = internal_energy_phys_cgs * (const_adiabatic_index - 1) *
+  double T_phys = internal_energy_cgs * (const_adiabatic_index - 1) *
                   mu_init * const_mh / const_kboltz;
   if (verbose)
     printf("Initial setup: u_cgs %g T_cgs %g [physical units]\n",
-           internal_energy_phys_cgs, T_phys);
+           internal_energy_cgs, T_phys);
 
   /* define the hydrogen number density */
   /* use `gr_float` to use the same type of floats that grackle
