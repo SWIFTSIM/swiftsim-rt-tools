@@ -770,13 +770,19 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
       cosmo_get_physical_temperature(temperature[field_index], a_use),
       mu[field_index],
       cosmo_get_physical_density(grackle_fields->density[field_index], a_use),
-      cosmo_get_physical_density(grackle_fields->HI_density[field_index], a_use),
-      cosmo_get_physical_density(grackle_fields->HII_density[field_index], a_use),
-      cosmo_get_physical_density(grackle_fields->HeI_density[field_index], a_use),
-      cosmo_get_physical_density(grackle_fields->HeII_density[field_index], a_use),
-      cosmo_get_physical_density(grackle_fields->HeIII_density[field_index], a_use),
+      cosmo_get_physical_density(grackle_fields->HI_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->HII_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->HeI_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->HeII_density[field_index],
+                                 a_use),
+      cosmo_get_physical_density(grackle_fields->HeIII_density[field_index],
+                                 a_use),
       cosmo_get_physical_density(grackle_fields->e_density[field_index], a_use),
-      cosmo_get_physical_internal_energy(grackle_fields->internal_energy[field_index], a_use));
+      cosmo_get_physical_internal_energy(
+          grackle_fields->internal_energy[field_index], a_use));
 }
 
 #endif /* MY_GRACKLE_UTILS_H */

@@ -115,8 +115,9 @@ int main() {
   double gas_density_cgs = 1.6756058890024518e-25;
   double internal_energy_cgs = 212018790000000.0;
 
-  double gas_density_phys =  gas_density_cgs / density_units;
-  double internal_energy_phys = internal_energy_cgs / (velocity_units * velocity_units);
+  double gas_density_phys = gas_density_cgs / density_units;
+  double internal_energy_phys =
+      internal_energy_cgs / (velocity_units * velocity_units);
 
   /* Derived quantities from ICs */
   /* --------------------------- */
@@ -125,8 +126,8 @@ int main() {
   double mu_init = mean_molecular_weight_from_mass_fractions(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
 
-  double T_phys = internal_energy_cgs * (const_adiabatic_index - 1) *
-                  mu_init * const_mh / const_kboltz;
+  double T_phys = internal_energy_cgs * (const_adiabatic_index - 1) * mu_init *
+                  const_mh / const_kboltz;
   if (verbose)
     printf("Initial setup: u_cgs %g T_cgs %g [physical units]\n",
            internal_energy_cgs, T_phys);

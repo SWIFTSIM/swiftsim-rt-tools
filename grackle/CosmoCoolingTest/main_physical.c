@@ -115,8 +115,9 @@ int main() {
   double gas_density_cgs = 1.6756058890024518e-25;
   double internal_energy_cgs = 212018790000000.0;
 
-  double gas_density_phys =  gas_density_cgs / density_units;
-  double internal_energy_phys = internal_energy_cgs / (velocity_units * velocity_units);
+  double gas_density_phys = gas_density_cgs / density_units;
+  double internal_energy_phys =
+      internal_energy_cgs / (velocity_units * velocity_units);
 
   /* Derived quantities from ICs */
   /* --------------------------- */
@@ -125,8 +126,8 @@ int main() {
   double mu_init = mean_molecular_weight_from_mass_fractions(
       0., hydrogen_fraction_by_mass, 0., 0., (1. - hydrogen_fraction_by_mass));
 
-  double T_phys = internal_energy_cgs * (const_adiabatic_index - 1) *
-                  mu_init * const_mh / const_kboltz;
+  double T_phys = internal_energy_cgs * (const_adiabatic_index - 1) * mu_init *
+                  const_mh / const_kboltz;
   if (verbose)
     printf("Initial setup: u_cgs %g T_cgs %g [physical units]\n",
            internal_energy_cgs, T_phys);
@@ -306,34 +307,48 @@ int main() {
     dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
 
     /* Update physical quantities */
-    if (with_cosmo){
-      for (int i = 0; i < FIELD_SIZE; i++){
-        double rho_comoving = cosmo_get_comoving_density(grackle_fields.density[i], a);
-        grackle_fields.density[i] = cosmo_get_physical_density(rho_comoving, a_next);
+    if (with_cosmo) {
+      for (int i = 0; i < FIELD_SIZE; i++) {
+        double rho_comoving =
+            cosmo_get_comoving_density(grackle_fields.density[i], a);
+        grackle_fields.density[i] =
+            cosmo_get_physical_density(rho_comoving, a_next);
 
-        double u_comoving = cosmo_get_comoving_internal_energy(grackle_fields.internal_energy[i], a);
-        grackle_fields.internal_energy[i] = cosmo_get_physical_internal_energy(u_comoving, a_next);
+        double u_comoving = cosmo_get_comoving_internal_energy(
+            grackle_fields.internal_energy[i], a);
+        grackle_fields.internal_energy[i] =
+            cosmo_get_physical_internal_energy(u_comoving, a_next);
 
-        double HI_comoving = cosmo_get_comoving_density(grackle_fields.HI_density[i], a);
-        grackle_fields.HI_density[i] = cosmo_get_physical_density(HI_comoving, a_next);
+        double HI_comoving =
+            cosmo_get_comoving_density(grackle_fields.HI_density[i], a);
+        grackle_fields.HI_density[i] =
+            cosmo_get_physical_density(HI_comoving, a_next);
 
-        double HII_comoving = cosmo_get_comoving_density(grackle_fields.HII_density[i], a);
-        grackle_fields.HII_density[i] = cosmo_get_physical_density(HII_comoving, a_next);
+        double HII_comoving =
+            cosmo_get_comoving_density(grackle_fields.HII_density[i], a);
+        grackle_fields.HII_density[i] =
+            cosmo_get_physical_density(HII_comoving, a_next);
 
-        double HeI_comoving = cosmo_get_comoving_density(grackle_fields.HeI_density[i], a);
-        grackle_fields.HeI_density[i] = cosmo_get_physical_density(HeI_comoving, a_next);
+        double HeI_comoving =
+            cosmo_get_comoving_density(grackle_fields.HeI_density[i], a);
+        grackle_fields.HeI_density[i] =
+            cosmo_get_physical_density(HeI_comoving, a_next);
 
-        double HeII_comoving = cosmo_get_comoving_density(grackle_fields.HeII_density[i], a);
-        grackle_fields.HeII_density[i] = cosmo_get_physical_density(HeII_comoving, a_next);
+        double HeII_comoving =
+            cosmo_get_comoving_density(grackle_fields.HeII_density[i], a);
+        grackle_fields.HeII_density[i] =
+            cosmo_get_physical_density(HeII_comoving, a_next);
 
-        double HeIII_comoving = cosmo_get_comoving_density(grackle_fields.HeIII_density[i], a);
-        grackle_fields.HeIII_density[i] = cosmo_get_physical_density(HeIII_comoving, a_next);
+        double HeIII_comoving =
+            cosmo_get_comoving_density(grackle_fields.HeIII_density[i], a);
+        grackle_fields.HeIII_density[i] =
+            cosmo_get_physical_density(HeIII_comoving, a_next);
 
-        double e_comoving = cosmo_get_comoving_density(grackle_fields.e_density[i], a);
-        grackle_fields.e_density[i] = cosmo_get_physical_density(e_comoving, a_next);
-
+        double e_comoving =
+            cosmo_get_comoving_density(grackle_fields.e_density[i], a);
+        grackle_fields.e_density[i] =
+            cosmo_get_physical_density(e_comoving, a_next);
       }
-
     }
 
     /* Solve chemistry. */
@@ -352,7 +367,7 @@ int main() {
       write_cosmo_timestep(fd, &grackle_fields, &grackle_units_data,
                            &grackle_chemistry_data, &grackle_chemistry_rates,
                            /*field_index=*/0, t, dt, a, time_units, step,
-                         /*with_cosmo=*/0);
+                           /*with_cosmo=*/0);
   }
 
   /* Clean up after yourself */

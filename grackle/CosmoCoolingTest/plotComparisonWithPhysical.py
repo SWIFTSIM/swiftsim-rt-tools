@@ -93,26 +93,24 @@ for file, label in [("out.dat", "comoving"), ("outPhysical.dat", "physical")]:
     XHeII = HeII_density / tot_density
     XHeIII = HeIII_density / tot_density
 
-    internal_energy = internal_energy * velocity_units**2
+    internal_energy = internal_energy * velocity_units ** 2
 
     if plotnr == 0:
         ls = "-"
     else:
         ls = "--"
 
-
     ax1.plot(Time_Myr, Temperature, ls=ls, label=label, **plotkwargs)
     ax2.plot(Time_Myr, internal_energy, ls=ls, label=label, **plotkwargs)
     ax3.plot(Time_Myr, mu, ls=ls, label=label)
-
 
     ax4.plot(Time_Myr, nHI, ls=ls, label=r"$\rm{HI}$ " + label, **plotkwargs)
     ax4.plot(Time_Myr, nHeI, ls=ls, label=r"$\rm{HeI}$ " + label, **plotkwargs)
     ax4.plot(Time_Myr, n, ls=ls, label=r"$\rm{Tot}$ " + label, alpha=1)
 
-    ax5.plot(Time_Myr, nHII, ls=ls, label=r"$\rm{HII}$ "+label, **plotkwargs)
-    ax5.plot(Time_Myr, nHeII, ls=ls, label=r"$\rm{HeII}$ "+label, **plotkwargs)
-    ax5.plot(Time_Myr, nHeIII, ls=ls, label=r"$\rm{HeIII}$ "+label, **plotkwargs)
+    ax5.plot(Time_Myr, nHII, ls=ls, label=r"$\rm{HII}$ " + label, **plotkwargs)
+    ax5.plot(Time_Myr, nHeII, ls=ls, label=r"$\rm{HeII}$ " + label, **plotkwargs)
+    ax5.plot(Time_Myr, nHeIII, ls=ls, label=r"$\rm{HeIII}$ " + label, **plotkwargs)
     #  ax5.plot(Time_Myr, ne, ls=ls, label=r"$\rm{n_e}$"+label, **plotkwargs)
 
     Xtot = XHI + XHII + XHeI + XHeII + XHeIII

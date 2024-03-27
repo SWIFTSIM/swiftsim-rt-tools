@@ -84,7 +84,7 @@ double cosmo_get_comoving_internal_energy(double u_p, double a) {
  **/
 double cosmo_get_physical_internal_energy(double u_c, double a) {
 
-  return u_c /( a * a );
+  return u_c / (a * a);
 }
 
 /**
