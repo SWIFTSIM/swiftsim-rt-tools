@@ -3,7 +3,7 @@
 #==================================
 
 # executable name
-EXEC   = cosmo_redshift_test
+EXEC   = analytic
 # source directory
 SRCDIR = .
 # include directory
@@ -76,7 +76,7 @@ VPATH=$(IDIR):$(SRCDIR)
 
 
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
-OBJECTS = main.o
+OBJECTS = main_analytic.o main_finlator.o makeIC.o
 
 HEADERS = constants.h cosmology.h redshift.h
 
@@ -87,7 +87,7 @@ HEADERS = constants.h cosmology.h redshift.h
 #==================================
 
 
-#default: $(EXEC)
+default: $(EXEC) makeIC finlator
 
 $(EXEC): $(OBJECTS) $(HEADERS)
 	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
@@ -95,7 +95,13 @@ $(EXEC): $(OBJECTS) $(HEADERS)
 makeIC: IC.o $(HEADERS)
 	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
-main.o: main.c $(HEADERS)
+finlator: main_finlator.o $(HEADERS)
+	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
+
+main_analytic.o: main_analytic.c $(HEADERS)
+	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
+
+main_finlator.o: main_finlator.c $(HEADERS)
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 
 IC.o: makeIC.c $(HEADERS)
@@ -107,5 +113,5 @@ IC.o: makeIC.c $(HEADERS)
 .PHONY: clean # keeps makefile from doing something with a file named clean
 
 clean:
-	rm -f $(OBJECTS) $(EXEC)
-	rm -f IC.o $(EXEC2)
+	rm -f $(OBJECTS) $(EXEC) makeIC finlator
+	rm -f IC.o makeIC

@@ -36,7 +36,10 @@
 
 /* Extra check just in case some program already defined this macro */
 #ifndef RT_NGROUPS
-#define RT_NGROUPS 11
+#define RT_NGROUPS 10
 #endif
+
+#define SHIFT_BB 1
+#define FLAT_IC 0
 
 #endif /* define CONSTANTS_H */

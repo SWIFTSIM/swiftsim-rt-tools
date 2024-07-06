@@ -59,7 +59,6 @@ double cosmo_get_physical_radiative_temperature(double T_c, double a) {
   return T_c / a;
 }
 
-
 /**
  * Compute comoving density from physical density.
  **/
@@ -74,6 +73,22 @@ double cosmo_get_comoving_density(double rho_p, double a) {
 double cosmo_get_physical_density(double rho_c, double a) {
 
   return rho_c / (a * a * a);
+}
+
+/**
+ * Compute comoving energy density from physical energy density.
+ * Transforms in the same way as density
+ **/
+double cosmo_get_comoving_energy_density(double rho_p, double a) {
+  return cosmo_get_comoving_density(rho_p, a);
+}
+
+/**
+ * Compute physical energy density from comoving energy density.
+ * Transforms in the same way as density
+ **/
+double cosmo_get_physical_energy_density(double rho_c, double a) {
+  return cosmo_get_physical_density(rho_c, a);
 }
 
 /**

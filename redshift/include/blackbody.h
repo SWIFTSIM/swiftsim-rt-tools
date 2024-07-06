@@ -36,17 +36,41 @@ double blackbody_spectrum_intensity(const double nu, const double T,
   return 2. * hnu * nu2 / (c * c) * temp;
 }
 
-double blackbody_spectrum_intensity_first_derivative(
-    const double nu, const double T, const double kB, const double h_planck,
-    const double c) {
+double blackbody_energy_density(const double nu, const double T,
+                                const double kB, const double h_planck,
+                                const double c) {
+
+  const double hnu = h_planck * nu;
+  const double kT = kB * T;
+  const double nu2 = nu * nu;
+  double temp;
+  if (hnu / kT < 1e-6) {
+    /* prevent division by zero, use Taylor approximation */
+    temp = kT;
+  } else if (hnu / kT > 700.) {
+    /* prevent infs */
+    temp = 0.;
+  } else {
+    temp = 1. / (exp(hnu / kT) - 1.);
+  }
+  return 8. * hnu * nu2 * M_PI / (c * c * c) * temp;
+}
+
+double blackbody_spectrum_intensity_first_derivative(const double nu,
+                                                     const double T,
+                                                     const double kB,
+                                                     const double h_planck,
+                                                     const double c) {
 
   const double hnu = h_planck * nu;
   const double kT = kB * T;
   const double hnu2 = hnu * nu;
   const double exponential = exp(hnu / kT);
 
-  const double num = -2 * hnu2 * ((hnu - 3 * kT) * exponential + 3 * kT);  // Numerator
-  const double denom = c * c * kT * (exponential - 1) * (exponential - 1); // Denominator
+  const double num =
+      -2 * hnu2 * ((hnu - 3 * kT) * exponential + 3 * kT); // Numerator
+  const double denom =
+      c * c * kT * (exponential - 1) * (exponential - 1); // Denominator
 
   return num / denom;
 }

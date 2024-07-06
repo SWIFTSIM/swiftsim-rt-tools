@@ -34,14 +34,14 @@ int main() {
    * different. */
   const int with_cosmo = 1;
   /* Option to turn off shifting of the BB spectrum using T_bb ~ 1/a */
-  const int with_shifting_BB = 1;
-  const int flat_spectrum = 0;
+  const int with_shifting_BB = SHIFT_BB;
+  const int flat_spectrum = FLAT_IC;
   /* output file */
   FILE *fd;
   if (with_shifting_BB) {
-    fd = fopen("out.dat", "w");
+    fd = fopen("finlator.dat", "w");
   } else {
-    fd = fopen("out.dat", "w");
+    fd = fopen("finlator.dat", "w");
   }
 
   /* Define units : use the same as internal units for swift */
@@ -54,8 +54,8 @@ int main() {
       mass_units / length_units / length_units / length_units;
   double time_units = length_units / velocity_units;
   double energy_units = mass_units * velocity_units * velocity_units;
-  (void)energy_units;
-  (void)density_units;
+  (void)energy_units; // Unused for now
+  (void)density_units; // Unused for now
 
   /* Cosmology                  */
   /* -------------------------- */
@@ -65,8 +65,8 @@ int main() {
   /* double a_end = 0.09091;  [> z~10 <] */
   /* double a_begin = 0.0476; [> z~20 <] */
   /* double a_end = 0.166667; [> z~5 <] */
-  double a_begin = 0.0909;
-  double a_end = 0.1428571;
+  double a_begin = 0.0909;  // [> z=10 <]]
+  double a_end = 0.1428571; // [>z=6<]
 
   const double log_a_begin = log(a_begin);
   const double log_a_end = log(a_end);
@@ -109,76 +109,75 @@ int main() {
   /* Use solution of swift's output. This is in internal units already. */
   /* However, these are in physical units. We'll turn them into comoving units
    * later. */
-  double gas_density_phys = 2.463186927340698e-04;
-  double internal_energy_phys = 2.120106942539497e+04;
-  double gas_volume_phys = 1.e10; /* Internal units */
+  // double gas_density_phys = 2.463186927340698e-04; // Unused for now
+  // double internal_energy_phys = 2.120106942539497e+04; // Unused for now
+  double gas_volume_phys = 1; /* Assume 1 for simplicity */
 
   /* Derived quantities from ICs */
   /* --------------------------- */
 
-  /* Gas Data */
+  /* Black body temperature */
+  double BB_temperature_phys = 1e5; /* Kelvin */
+  
+  /* Photon Data */
   /* -------- */
-
-  /* Read in photon energy from file */
-  FILE *energy_file = fopen("photon_energies", "rb");
-
   double photon_energy[RT_NGROUPS];
-  size_t temp = fread(photon_energy, sizeof(double), LEN(photon_energy), energy_file);
+  double physical_photon_energy_density[RT_NGROUPS];
+  double comoving_photon_energy_density[RT_NGROUPS];
+  double frequency_bins[RT_NGROUPS];
+  
+  /* Read in physical photon energy from file */
+  FILE *energy_file = fopen("photon_energies", "rb");
+  size_t temp = fread(photon_energy, sizeof(double), RT_NGROUPS, energy_file);
   (void)temp;
   fclose(energy_file); 
 
   for (int g = 0; g < RT_NGROUPS; g++) {
-    if (flat_spectrum) {
-      photon_energy[g] = 1;
+    if (flat_spectrum == 1) {
+      physical_photon_energy_density[g] = 756600.0 / RT_NGROUPS;
     } else {
-      photon_energy[g] *= 1e-19;
+      physical_photon_energy_density[g] = photon_energy[g] / gas_volume_phys;
+  
     }
-    //printf("%.10e\n", photon_energy[g]);
   }
+
+
   /* Read photon frequency bins from file */
   FILE *bins_file = fopen("frequency_bins", "rb");
-
-  double frequency_bins[RT_NGROUPS];
-  temp = fread(frequency_bins, sizeof(double), LEN(frequency_bins), bins_file);
+  temp = fread(frequency_bins, sizeof(double), RT_NGROUPS, bins_file);
   (void)temp;
   fclose(bins_file);
 
-  double BB_temperature_phys = 1e6; /* Kelvin */
-  // (void)BB_temperature;
-  // (void)frequency_bins;
-
-
-  /* Create struct for storing grackle field data */
-  double gas_density_comoving =
-      cosmo_get_comoving_density(gas_density_phys, a_convert_comoving);
-  double internal_energy_comoving = cosmo_get_comoving_internal_energy(
-      internal_energy_phys, a_convert_comoving);
+  /* Convert proper IC quantities to comoving */
   double gas_volume_comoving = cosmo_get_comoving_volume(gas_volume_phys, a_convert_comoving);
   double BB_temperature_comoving = cosmo_get_comoving_radiative_temperature(BB_temperature_phys, a_convert_comoving);
-  (void)gas_density_comoving;
-  (void)internal_energy_comoving;
-  
+  for (int g = 0; g < RT_NGROUPS; g++) {
+    comoving_photon_energy_density[g] = cosmo_get_comoving_energy_density(physical_photon_energy_density[g], a_begin);
+  }
+
   /* Write headers */
   /* ------------- */
 
   /* First to stdout */
 
-  double total_photon_energy = 0.;
+  double comoving_total_photon_energy_density = 0.;
   for (int i = 0; i < RT_NGROUPS; i++) {
-    total_photon_energy += photon_energy[i];
+    comoving_total_photon_energy_density += comoving_photon_energy_density[i];
   }
-  
+
+  /* Convert to physical to write */
+  double total_photon_energy_density_phys = cosmo_get_physical_energy_density(comoving_total_photon_energy_density, a_begin);
   if (verbose) {
     printf("%15s%15s\n",
            "Initial setup: ", "Photon energy");
-    printf("%15s%15f\n\n", "Initial setup: ", total_photon_energy);
+    printf("%15s%15f\n\n", "Initial setup: ", total_photon_energy_density_phys);
   }
 
   write_cosmo_header(stdout);
-  write_cosmo_timestep(stdout, 0, a_begin, total_photon_energy, gas_volume_phys, BB_temperature_phys, with_shifting_BB);
+  write_cosmo_timestep(stdout, 0, a_begin, total_photon_energy_density_phys * gas_volume_phys, gas_volume_phys, BB_temperature_phys, with_shifting_BB);
 
   write_cosmo_header(fd);
-  write_cosmo_timestep(fd, 0, a_begin, total_photon_energy, gas_volume_phys, BB_temperature_phys, with_shifting_BB);
+  write_cosmo_timestep(fd, 0, a_begin, total_photon_energy_density_phys * gas_volume_phys, gas_volume_phys, BB_temperature_phys, with_shifting_BB);
 
   /*********************************************************************
   / Calling the redshift solver
@@ -197,26 +196,12 @@ int main() {
 
   /* Value of expansion factor at the end of the step */
   double a_next = a_begin;
-
-
-  double redshift_factor[RT_NGROUPS];
-
+  
+  double redshift_average_energy[RT_NGROUPS];
+  
   while (a < a_end) {    
-    
     /* Reset total photon energy */
-    total_photon_energy = 0.;
-
-    /* Recalculate BB temperature */
-    double new_BB_temperature;
-    if (with_shifting_BB) {
-      new_BB_temperature = cosmo_get_physical_radiative_temperature(BB_temperature_comoving, a);
-    } else {
-      new_BB_temperature = BB_temperature_phys;
-    }
-    calculate_redshift_factor(redshift_factor, frequency_bins, new_BB_temperature);
-    
-    
-    double H = 1 / (time_integrand(a, &cosmology) * a);
+    comoving_total_photon_energy_density = 0.;
 
     a = a_next;
     t += dt;
@@ -231,39 +216,48 @@ int main() {
       /* Marching in steps of equal a */
       a_next += da;
     }
-    
+   
+    /* Calculate Hubble parameter
+     * time_integrand returns 1/E = 1/(a*H) */ 
+    double H = 1 / (time_integrand(a_next, &cosmology) * a_next);
     dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
+    
+    /* Recalculate BB temperature */
+    double new_BB_temperature;
+    if (with_shifting_BB) {
+      new_BB_temperature = cosmo_get_physical_radiative_temperature(BB_temperature_comoving, a);
+    } else {
+      new_BB_temperature = BB_temperature_phys;
+    }
+   
+    
+    /* Calculate the average redshift energy from Finlator+2009 method */
+    calculate_redshift_average_energy(redshift_average_energy, frequency_bins, new_BB_temperature);
 
     /* Update photon energy */
-    for (int i = 0; i < RT_NGROUPS; i++) {
-      printf("[group %d] - Redshift factor : %.10e\n", i+1, redshift_factor[i]);
-      //printf("[group %d] - Photon energy   : %.10e\n", i+1, photon_energy[i]);
-      /*if (redshift_factor[i] > 0) {
-	if (i < RT_NGROUPS - 1) {
-          photon_energy[i] -= H * dt * (redshift_factor[i] * photon_energy[i+1] + 0*photon_energy[i]);
-	}
-      } else {
-	photon_energy[i] += H * dt * (redshift_factor[i] * photon_energy[i] + 0*photon_energy[i]);
-      }
-      */ 
-      
-      photon_energy[i] -= H * dt * (1 * photon_energy[i] + 0*photon_energy[i]);
-      /*if (i+1 < RT_NGROUPS) {
-        photon_energy[i] += H * dt * (redshift_factor[i] * photon_energy[i+1] + 0*photon_energy[i+1]);
-      } */
+    /* -------------------  */ 
+    
+    for (int i = 0; i < RT_NGROUPS; i++) { 
+      printf("Finlator energy: %.10e\n", redshift_average_energy[i]);
+      comoving_photon_energy_density[i] -= H * dt * comoving_photon_energy_density[i] * -redshift_average_energy[i]; 
+      if (comoving_photon_energy_density[i] < 0.) {
+          comoving_photon_energy_density[i] = 0.;
+      } 
     }
     
     for (int i = 0; i < RT_NGROUPS; i++) {
-      total_photon_energy += photon_energy[i];
+      comoving_total_photon_energy_density += comoving_photon_energy_density[i];
     }
 
-    /* Update volume */
-    gas_volume_phys = cosmo_get_physical_volume(gas_volume_comoving, a);
+    total_photon_energy_density_phys = cosmo_get_physical_energy_density(comoving_total_photon_energy_density, a_next);
     
-    write_cosmo_timestep(stdout, step, a, total_photon_energy, gas_volume_phys, new_BB_temperature, with_shifting_BB);
+    /* Update volume */
+    gas_volume_phys = cosmo_get_physical_volume(gas_volume_comoving, a_next);
+    
+    write_cosmo_timestep(stdout, step, a_next, total_photon_energy_density_phys * gas_volume_phys, gas_volume_phys, new_BB_temperature, with_shifting_BB);
 
     if (step % output_frequency == 0)
-      write_cosmo_timestep(fd, step, a, total_photon_energy, gas_volume_phys, new_BB_temperature, with_shifting_BB);
+      write_cosmo_timestep(fd, step, a_next, total_photon_energy_density_phys * gas_volume_phys, gas_volume_phys, new_BB_temperature, with_shifting_BB);
   }
 
   /* Clean up after yourself */
