@@ -19,4 +19,4 @@ This behaviour can be changed in the [include/constants.h](include/constants.h) 
 * `FLAT_IC` must be `1` or `0`
 
 ## Run
-To run the test is straightforward. Three `run.sh` files are shipped. Choose your implementation and run `./run_[implementation].sh`. A plot of the energy density decay will be generated and saved under `[implementation].png`. Using the command `./run.sh` runs both implementations and plots both in the same figure under `finlator_analytic_same_plot.png`
+To run the test is straightforward. Three `run.sh` files are shipped. Choose your implementation and run `./run[implementation].sh`. A plot of the energy density decay will be generated and saved under `[implementation].png`. Using the command `./run.sh` runs both implementations and plots both in the same figure under `finlator_analytic_same_plot.png`
