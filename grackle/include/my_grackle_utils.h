@@ -771,8 +771,7 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
       step, a, 1. / a - 1., t / const_yr * time_units,
       dt / const_yr * time_units,
       /* cosmo_get_physical_temperature(temperature[field_index], a_use), */
-      temperature[field_index],
-      mu[field_index],
+      temperature[field_index], mu[field_index],
       cosmo_get_physical_density(grackle_fields->density[field_index], a_use),
       cosmo_get_physical_density(grackle_fields->HI_density[field_index],
                                  a_use),
@@ -787,8 +786,7 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
       cosmo_get_physical_density(grackle_fields->e_density[field_index], a_use),
       /* Internal energy is already in physical coordinates due to grackle's
        * cosmo unit conventions */
-          grackle_fields->internal_energy[field_index]
-      );
+      grackle_fields->internal_energy[field_index]);
 }
 
 #endif /* MY_GRACKLE_UTILS_H */
