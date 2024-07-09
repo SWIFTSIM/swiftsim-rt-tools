@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 # --------------------------------------------------------------------------
-# Make comparison plots between a run with cosmology enabled, and a run
-# without cosmology enabled.
-# You'll have to manually tweak the `with_cosmo` variable in main.c
-# and compile and run the program twice to get the output data for both
-# cases.
+# Compare outputs between using grackle with cosmo units, and without.
+# In both cases, make sure you use `with_cosmo = 1` in the main.c files.
+# We expect 2 outputs: `out.dat` and `outPhysical.dat`. You obtain those
+# by compining and running main.c (-> cosmo_cooling_test, out.dat) and
+# main_physical.c (-> cosmo_cooling_test_physical, outPhysical.dat)
 # --------------------------------------------------------------------------
 
 import numpy as np

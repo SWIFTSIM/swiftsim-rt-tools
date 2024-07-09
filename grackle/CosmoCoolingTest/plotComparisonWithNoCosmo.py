@@ -141,4 +141,4 @@ ax4.grid()
 ax4.set_xscale("log")
 
 plt.tight_layout()
-plt.savefig("cosmo_cooling_comparison.png", dpi=300)
+plt.savefig("cosmo_cooling_comparison_with_and_without_expansion.png", dpi=300)

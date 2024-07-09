@@ -242,12 +242,14 @@ int main() {
   /* Create struct for storing grackle field data */
   double gas_density_comoving =
       cosmo_get_comoving_density(gas_density_phys, a_convert_comoving);
-  double internal_energy_comoving = cosmo_get_comoving_internal_energy(
-      internal_energy_phys, a_convert_comoving);
+  /* We need to pass grackle the proper internal energy due to its choices of
+   * units */
+  /* double internal_energy_comoving = cosmo_get_comoving_internal_energy(
+         internal_energy_phys, a_convert_comoving); */
 
   grackle_field_data grackle_fields;
   setup_grackle_fields(&grackle_fields, species_densities, interaction_rates,
-                       gas_density_comoving, internal_energy_comoving);
+                       gas_density_comoving, internal_energy_phys);
 
   /* Write headers */
   /* ------------- */
@@ -316,6 +318,15 @@ int main() {
     /* Apply change in a to grackle. */
     update_grackle_units_cosmo(&grackle_units_data, density_units, length_units,
                                a, with_cosmo);
+
+    /* The internal energy needs to be updated as if it were in proper
+     * coordinates due to Grackle's internal units choices. */
+    for (int i = 0; i < FIELD_SIZE; i++) {
+      double u_comoving = cosmo_get_comoving_internal_energy(
+          grackle_fields.internal_energy[i], a);
+      grackle_fields.internal_energy[i] =
+          cosmo_get_physical_internal_energy(u_comoving, a_next);
+    }
 
     /* Get time step size. */
     dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
