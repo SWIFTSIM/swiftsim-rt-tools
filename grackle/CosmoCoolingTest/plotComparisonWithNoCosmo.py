@@ -2,7 +2,9 @@
 
 # --------------------------------------------------------------------------
 # Make comparison plots between a run with cosmology enabled, and a run
-# without cosmology enabled.
+# without cosmology enabled. The purpose of this exercise is to find
+# initial conditions which are visibly different over some redshift range.
+#
 # You'll have to manually tweak the `with_cosmo` variable in main.c
 # and compile and run the program twice to get the output data for both
 # cases.
