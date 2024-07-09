@@ -729,6 +729,8 @@ void write_cosmo_header(FILE *fd) {
 /**
  * @brief write the current state of a field with index i to a file/stdout.
  * Note that all values are in proper/physical units, not in co-moving units.
+ *
+ * @param with_cosmo Are we running with grackle's cosmology units?
  **/
 void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
                           code_units *grackle_units_data,
@@ -760,9 +762,12 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
     abort();
   }
 
+  /* a_use is the expansion factor we use for conversions. Use the `a` provided
+   * as a parameter to display where in time we are in the printout. */
   double a_use = 1.;
-  if (with_cosmo)
+  if (with_cosmo){
     a_use = a;
+  }
 
   fprintf(
       fd,
@@ -770,7 +775,7 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
       "%15.3e %15.3e %15.3e %15.3e %15.3e\n",
       step, a, 1. / a - 1., t / const_yr * time_units,
       dt / const_yr * time_units,
-      /* cosmo_get_physical_temperature(temperature[field_index], a_use), */
+      /* See comment for internal energy */
       temperature[field_index], mu[field_index],
       cosmo_get_physical_density(grackle_fields->density[field_index], a_use),
       cosmo_get_physical_density(grackle_fields->HI_density[field_index],
