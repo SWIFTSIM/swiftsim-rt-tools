@@ -765,7 +765,7 @@ void write_cosmo_timestep(FILE *fd, grackle_field_data *grackle_fields,
   /* a_use is the expansion factor we use for conversions. Use the `a` provided
    * as a parameter to display where in time we are in the printout. */
   double a_use = 1.;
-  if (with_cosmo){
+  if (with_cosmo) {
     a_use = a;
   }
 

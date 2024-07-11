@@ -66,11 +66,17 @@ int main() {
   /* double a_end = 0.014081;  [> z~70 <] */
   /* double a_begin = 0.0625;  [> z~15 <] */
   /* double a_end = 0.09091;  [> z~10 <] */
-  double a_begin = 0.0476; /* z~20 */
+  /* double a_begin = 0.0476; [> z~20 <] */
   /* double a_begin = 0.09091;  [> z~10 <] */
   /* double a_end = 0.166667; [> z~5 <] */
-  double a_end = 0.2; /* z~4 */
+  /* double a_end = 0.2; [> z~4 <] */
   /* double a_end = 1.0; [> z~5 <] */
+
+  /* Note that with grackles cosmological integration, CMB heating is
+   * always switched on. This will lead to different results at high
+   * redshifts. */
+  double a_begin = 0.238095; /* z ~ 3.2 */
+  double a_end = 1.;         /* z ~ 0 */
 
   const double log_a_begin = log(a_begin);
   const double log_a_end = log(a_end);
