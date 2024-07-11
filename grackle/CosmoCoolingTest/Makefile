@@ -30,6 +30,12 @@ CONFIG_BFLOAT= CONFIG_BFLOAT_8
 GSL_INCL = -I$(GSL_ROOT)/include
 GSL_LIBS = -L$(GSL_ROOT)/lib
 
+# blas dirs
+# BLAS_ROOT=/path/to/your/blas/install
+# BLAS_ROOT=$(OPENBLAS_ROOT)
+BLAS_INCL = -I$(BLAS_ROOT)/include
+BLAS_LIBS = -L$(BLAS_ROOT)/lib
+
 
 #==================================
 # COMPILER OPTIONS AND DIRECTIVES
@@ -45,18 +51,20 @@ OPTIONS = -std=c11 -DH5_USE_16_API -fPIC -D$(CONFIG_BFLOAT)
 OPT = -Og
 # dev options
 # DEV =
-DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
+DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds #-Werror
 # Warning: -ffinite-math-only assumes all math will be finite, 
 # and won't catch infs and nans
 
 # linking flags
 LDFLAGS = $(GRACKLE_LIBS)
 LDFLAGS += $(GSL_LIBS)
+LDFLAGS += $(BLAS_LIBS)
 
 # Additional header files
 INCLUDES = -I$(IDIR) -I.
 INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
+INCLUDES += $(BLAS_INCL)
 
 # Additional libraries
 LIBS  = -lgrackle -lgfortran -lgsl -lblas -lm
@@ -76,9 +84,9 @@ VPATH=$(IDIR):$(SRCDIR)
 
 
 # OBJECTS = $(notdir $(patsubst %.c, %.o, $(wildcard $(SRCDIR)/*.c)))
-OBJECTS = main.o
+OBJECTS = main.o main_physical.o 
 
-HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h cosmology.h
+HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackle_utils.h cosmology.h 
 
 
 
@@ -87,12 +95,18 @@ HEADERS = constants.h ionization_equilibrium.h mean_molecular_weight.h my_grackl
 #==================================
 
 
-default: $(EXEC)
+default: $(EXEC) $(EXEC)_physical
 
-$(EXEC): $(OBJECTS) $(HEADERS)
+$(EXEC): main.o $(HEADERS)
+	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS)
+
+$(EXEC)_physical: main_physical.o $(HEADERS)
 	$(CC) -o $@ $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(LIBS) 
 
 main.o: main.c $(HEADERS)
+	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
+
+main_physical.o: main_physical.c $(HEADERS)
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 
 

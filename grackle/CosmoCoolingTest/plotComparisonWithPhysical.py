@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
 # --------------------------------------------------------------------------
-# Make comparison plots between a run with cosmology enabled, and a run
-# without cosmology enabled. The purpose of this exercise is to find
-# initial conditions which are visibly different over some redshift range.
-#
-# You'll have to manually tweak the `with_cosmo` variable in main.c
-# and compile and run the program twice to get the output data for both
-# cases.
+# Compare outputs between using grackle with cosmo units, and without.
+# In both cases, make sure you use `with_cosmo = 1` in the main.c files.
+# We expect 2 outputs: `out.dat` and `outPhysical.dat`. You obtain those
+# by compining and running main.c (-> cosmo_cooling_test, out.dat) and
+# main_physical.c (-> cosmo_cooling_test_physical, outPhysical.dat)
 # --------------------------------------------------------------------------
 
 import numpy as np
@@ -21,15 +19,17 @@ plotkwargs = {"alpha": 0.4}
 mh = 1.67262171e-24  # Hydrogen mass in g
 
 
-fig = plt.figure(figsize=(8, 6))
-ax1 = fig.add_subplot(2, 2, 1)
-ax2 = fig.add_subplot(2, 2, 2)
-ax3 = fig.add_subplot(2, 2, 3)
-ax4 = fig.add_subplot(2, 2, 4)
+fig = plt.figure(figsize=(12, 6))
+ax1 = fig.add_subplot(2, 3, 1)
+ax2 = fig.add_subplot(2, 3, 2)
+ax3 = fig.add_subplot(2, 3, 3)
+ax4 = fig.add_subplot(2, 3, 4)
+ax5 = fig.add_subplot(2, 3, 5)
+ax6 = fig.add_subplot(2, 3, 6)
 
 
 plotnr = 0
-for file, label in [("out.dat", "with cosmo"), ("outNoCosmo.dat", "no cosmo")]:
+for file, label in [("out.dat", "comoving"), ("outPhysical.dat", "physical")]:
 
     # Read in units.
     f = open(file, "r")
@@ -69,6 +69,7 @@ for file, label in [("out.dat", "with cosmo"), ("outNoCosmo.dat", "no cosmo")]:
     HeII_density = data[:, 11]
     HeIII_density = data[:, 12]
     e_density = data[:, 13]  # number density
+    internal_energy = data[:, 14]
 
     # compute number density for all species
     nHI = HI_density * density_units / mh
@@ -92,29 +93,33 @@ for file, label in [("out.dat", "with cosmo"), ("outNoCosmo.dat", "no cosmo")]:
     XHeII = HeII_density / tot_density
     XHeIII = HeIII_density / tot_density
 
-    ax1.plot(Time_Myr, Temperature, label=label, **plotkwargs)
-    ax2.plot(Time_Myr, mu, label=label)
+    internal_energy = internal_energy * velocity_units ** 2
 
     if plotnr == 0:
         ls = "-"
     else:
         ls = "--"
 
-    ax3.plot(Time_Myr, nHI, ls=ls, label=r"$\rm{HI}$ " + label, **plotkwargs)
-    #  ax3.plot(Time_Myr, nHII, ls=ls, label=r"$\rm{HII}$", **plotkwargs)
-    ax3.plot(Time_Myr, nHeI, ls=ls, label=r"$\rm{HeI}$ " + label, **plotkwargs)
-    #  ax3.plot(Time_Myr, nHeII, ls=ls, label=r"$\rm{HeII}$", **plotkwargs)
-    #  ax3.plot(Time_Myr, nHeIII, ls=ls, label=r"$\rm{HeIII}$", **plotkwargs)
-    #  ax3.plot(Time_Myr, ne, ls=ls, label=r"$\rm{n_e}$", **plotkwargs)
-    ax3.plot(Time_Myr, n, label=r"$\rm{Tot}$ " + label, alpha=1)
+    ax1.plot(Time_Myr, Temperature, ls=ls, label=label, **plotkwargs)
+    ax2.plot(Time_Myr, internal_energy, ls=ls, label=label, **plotkwargs)
+    ax3.plot(Time_Myr, mu, ls=ls, label=label)
+
+    ax4.plot(Time_Myr, nHI, ls=ls, label=r"$\rm{HI}$ " + label, **plotkwargs)
+    ax4.plot(Time_Myr, nHeI, ls=ls, label=r"$\rm{HeI}$ " + label, **plotkwargs)
+    ax4.plot(Time_Myr, n, ls=ls, label=r"$\rm{Tot}$ " + label, alpha=1)
+
+    ax5.plot(Time_Myr, nHII, ls=ls, label=r"$\rm{HII}$ " + label, **plotkwargs)
+    ax5.plot(Time_Myr, nHeII, ls=ls, label=r"$\rm{HeII}$ " + label, **plotkwargs)
+    ax5.plot(Time_Myr, nHeIII, ls=ls, label=r"$\rm{HeIII}$ " + label, **plotkwargs)
+    #  ax5.plot(Time_Myr, ne, ls=ls, label=r"$\rm{n_e}$"+label, **plotkwargs)
 
     Xtot = XHI + XHII + XHeI + XHeII + XHeIII
-    ax4.plot(Time_Myr, XHI, ls=ls, label=r"$\rm{XHeI}$ " + label, **plotkwargs)
-    #  ax4.plot(Time_Myr, XHII, ls=ls, label=r"$\rm{XHeII}$", **plotkwargs)
-    ax4.plot(Time_Myr, XHeI, ls=ls, label=r"$\rm{XHeI}$ " + label, **plotkwargs)
-    #  ax4.plot(Time_Myr, XHeII, ls=ls, label=r"$\rm{XHeII}$", **plotkwargs)
-    #  ax4.plot(Time_Myr, XHeIII, ls=ls, label=r"$\rm{XHeIII}$", **plotkwargs)
-    ax4.plot(Time_Myr, Xtot, ls=ls, label="Tot " + label, **plotkwargs)
+    ax6.plot(Time_Myr, XHI, ls=ls, label=r"$\rm{XHI}$ " + label, **plotkwargs)
+    #  ax6.plot(Time_Myr, XHII, ls=ls, label=r"$\rm{XHII}$", **plotkwargs)
+    ax6.plot(Time_Myr, XHeI, ls=ls, label=r"$\rm{XHeI}$ " + label, **plotkwargs)
+    #  ax6.plot(Time_Myr, XHeII, ls=ls, label=r"$\rm{XHeII}$", **plotkwargs)
+    #  ax6.plot(Time_Myr, XHeIII, ls=ls, label=r"$\rm{XHeIII}$", **plotkwargs)
+    ax6.plot(Time_Myr, Xtot, ls=ls, label="Tot " + label, **plotkwargs)
 
     plotnr += 1
 
@@ -125,22 +130,36 @@ ax1.set_ylabel(r"$\rm{Temperature\,\,[K]}$")
 ax1.set_xscale("log")
 ax1.legend()
 
+
+ax2.semilogy()
 ax2.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
-ax2.set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
+ax2.set_ylabel(r"$\rm{Internal Energy\,}$")
 ax2.set_xscale("log")
 ax2.legend()
 
 
 ax3.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
-ax3.set_ylabel(r"$\rm{Number\,\,Densities}\ [\rm{cm}^{-3}]$")
+ax3.set_ylabel(r"$\rm{Mean\,\,Mol.\,\,Weight}$")
 ax3.set_xscale("log")
 ax3.legend()
 
+
 ax4.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
-ax4.set_ylabel(r"$\rm{HeI,HeII,HeIII\,\,mass fraction}$")
-ax4.legend()
-ax4.grid()
+ax4.set_ylabel(r"$\rm{Number\,\,Densities}\ [\rm{cm}^{-3}]$")
 ax4.set_xscale("log")
+ax4.legend()
+
+ax5.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax5.set_ylabel(r"$\rm{Number\,\,Densities}\ [\rm{cm}^{-3}]$")
+ax5.set_xscale("log")
+ax5.legend()
+
+
+ax6.set_xlabel(r"$\rm{Time\,\,[Myr]}$")
+ax6.set_ylabel(r"$\rm{HeI,HeII,HeIII\,\,mass fraction}$")
+ax6.legend()
+ax6.grid()
+ax6.set_xscale("log")
 
 plt.tight_layout()
-plt.savefig("cosmo_cooling_comparison_with_and_without_expansion.png", dpi=300)
+plt.savefig("cosmo_cooling_comparison.png", dpi=300)
