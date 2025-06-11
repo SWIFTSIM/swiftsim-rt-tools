@@ -37,3 +37,6 @@ SWIFT.
 
 -   `readCosmologicalRadiativeTransferComparisonProjectData` - read in data from
     the cosmological radiative transfer comparison project (Iliev et al 2006, 2009)
+
+-   `redshift` - standalone program to let a packet of radiation redshift, either
+    accounting for or neglecting an additional redshift interval
