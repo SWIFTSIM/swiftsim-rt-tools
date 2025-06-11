@@ -13,7 +13,7 @@ The first implementation is based on [Finlator et al. (2009)](https://doi.org/10
 * Initial radiation field assuming blackbody spectrum
 * Blackbody spectrum temperature redshifted during time evolution according to $T = T_\mathrm{init} a^{-1}$
 
-This behaviour can be changed in the [include/constants.h](include/constants.h) file. Change the definitions of `RT_NGROUPS`, `SHIFT_BB`, or `FLAT_IC`. 
+This behaviour can be changed in the [include/constants.h](include/constants.h) file. Change the definitions of `RT_NGROUPS`, `SHIFT_BB`, or `FLAT_IC`.
 * `RT_NGROUPS` must be a positive integer
 * `SHIFT_BB` must be `1` or `0`
 * `FLAT_IC` must be `1` or `0`

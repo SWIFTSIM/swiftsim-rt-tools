@@ -11,24 +11,37 @@ IDIR = ./include
 # manual definitions
 DEFINES=
 
+# Depending on the compiler, you need to link a different fortran library
+# to successfully link grackle.
+# gcc: -lgfortran
+# intel: -lifcore
+
+# for gcc 
+# GRACKLE_FORTRAN_LIB=-lgfortran
+# for intel
+GRACKLE_FORTRAN_LIB=-lifcore -lifport
+
 # define grackle root directory, if the variable isn't defined already.
 # GRACKLE_SWIFT_ROOT=/path/to/your/grackle/install
 # Grackle Dirs
 # for 64 bit floats
 GRACKLE_INCL =  -I$(GRACKLE_SWIFT_ROOT)/include
-GRACKLE_LIBS =  -L$(GRACKLE_SWIFT_ROOT)/lib
+GRACKLE_LD =  -L$(GRACKLE_SWIFT_ROOT)/lib
+GRACKLE_LIBS = -lgrackle $(GRACKLE_FORTRAN_LIB)
 CONFIG_BFLOAT= CONFIG_BFLOAT_8
 
 # for 32 bit floats
 # GRACKLE_INCL =  -I$(GRACKLE_FLOAT_ROOT)/include
-# GRACKLE_LIBS =  -L$(GRACKLE_FLOAT_ROOT)/lib
+# GRACKLE_LD =  -L$(GRACKLE_FLOAT_ROOT)/lib
+# GRACKLE_LIBS = -lgrackle -lgfortran
 # CONFIG_BFLOAT= CONFIG_BFLOAT_4
 
 
 # GSL dirs
 # GSL_ROOT=/path/to/your/gsl/install
 GSL_INCL = -I$(GSL_ROOT)/include
-GSL_LIBS = -L$(GSL_ROOT)/lib
+GSL_LD = -L$(GSL_ROOT)/lib
+GSL_LIBS = -lblas -lgsl -lgslcblas
 
 
 #==================================
@@ -50,8 +63,8 @@ DEV = -g -Wall -Wextra -fsignaling-nans -Warray-bounds -Werror
 # and won't catch infs and nans
 
 # linking flags
-LDFLAGS = $(GRACKLE_LIBS)
-LDFLAGS += $(GSL_LIBS)
+LDFLAGS = $(GRACKLE_LD)
+LDFLAGS += $(GSL_LD)
 
 # Additional header files
 INCLUDES = -I$(IDIR) -I.
@@ -59,7 +72,7 @@ INCLUDES += $(GRACKLE_INCL)
 INCLUDES += $(GSL_INCL)
 
 # Additional libraries
-LIBS  = -lgrackle -lgfortran -lgsl -lblas -lm
+LIBS  = $(GRACKLE_LIBS) $(GSL_LIBS) -lm
 
 CFLAGS = $(DEFINES) $(OPT) $(OPTIONS) $(DEV) $(INCLUDES)
 
