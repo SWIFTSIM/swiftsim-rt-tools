@@ -54,7 +54,7 @@ int main() {
       mass_units / length_units / length_units / length_units;
   double time_units = length_units / velocity_units;
   double energy_units = mass_units * velocity_units * velocity_units;
-  (void)energy_units; // Unused for now
+  (void)energy_units;  // Unused for now
   (void)density_units; // Unused for now
 
   /* Cosmology                  */
@@ -79,16 +79,16 @@ int main() {
   double a_convert_comoving = 1.;
   if (with_cosmo)
     a_convert_comoving = a_begin;
-  
+
   struct cosmology cosmology;
 
   /* Planck13 (EAGLE flavour) */
   cosmology.Omega_cdm = 0.2587481; /* Dark matter density parameter*/
-  cosmology.Omega_b = 0.0482519;  /* baryon density parameter*/
-  cosmology.Omega_l = 0.693;    /* Dark Energy density parameter */
-  cosmology.Omega_k = 0.;       /* Radiation density parameter */
-  cosmology.Omega_r = 0.;       /* Radiation density parameter */
-  cosmology.Omega_nu = 0.;      /* Neutrino density parameter */
+  cosmology.Omega_b = 0.0482519;   /* baryon density parameter*/
+  cosmology.Omega_l = 0.693;       /* Dark Energy density parameter */
+  cosmology.Omega_k = 0.;          /* Radiation density parameter */
+  cosmology.Omega_r = 0.;          /* Radiation density parameter */
+  cosmology.Omega_nu = 0.;         /* Neutrino density parameter */
   cosmology.w_0 = -1.0; /* Dark-energy equation-of-state parameter at z=0. */
   cosmology.w_a =
       0.; /* Dark-energy equation-of-state time evolution parameter. */
@@ -118,20 +118,20 @@ int main() {
 
   /* Black body temperature */
   double BB_temperature_phys = 1e5; /* Kelvin */
-  
+
   /* Photon Data */
   /* -------- */
   double photon_energy[RT_NGROUPS];
   double physical_photon_energy_density[RT_NGROUPS];
   double comoving_photon_energy_density[RT_NGROUPS];
   double frequency_bins[RT_NGROUPS];
-  
+
   /* Read in physical photon energy from file */
   FILE *energy_file = fopen("photon_energies", "rb");
   size_t temp = fread(photon_energy, sizeof(double), RT_NGROUPS, energy_file);
   (void)temp;
-  fclose(energy_file); 
-  
+  fclose(energy_file);
+
   /* Convert to energy density */
   /* Make spectrum flat if needed */
   for (int g = 0; g < RT_NGROUPS; g++) {
@@ -139,10 +139,8 @@ int main() {
       physical_photon_energy_density[g] = 756600.0 / RT_NGROUPS;
     } else {
       physical_photon_energy_density[g] = photon_energy[g] / gas_volume_phys;
-  
     }
   }
-
 
   /* Read photon frequency bins from file */
   FILE *bins_file = fopen("frequency_bins", "rb");
@@ -151,10 +149,13 @@ int main() {
   fclose(bins_file);
 
   /* Convert proper IC quantities to comoving */
-  double gas_volume_comoving = cosmo_get_comoving_volume(gas_volume_phys, a_convert_comoving);
-  double BB_temperature_comoving = cosmo_get_comoving_radiative_temperature(BB_temperature_phys, a_convert_comoving);
+  double gas_volume_comoving =
+      cosmo_get_comoving_volume(gas_volume_phys, a_convert_comoving);
+  double BB_temperature_comoving = cosmo_get_comoving_radiative_temperature(
+      BB_temperature_phys, a_convert_comoving);
   for (int g = 0; g < RT_NGROUPS; g++) {
-    comoving_photon_energy_density[g] = cosmo_get_comoving_energy_density(physical_photon_energy_density[g], a_begin);
+    comoving_photon_energy_density[g] = cosmo_get_comoving_energy_density(
+        physical_photon_energy_density[g], a_begin);
   }
 
   /* Write headers */
@@ -168,18 +169,22 @@ int main() {
   }
 
   /* Convert to physical to write */
-  double total_photon_energy_density_phys = cosmo_get_physical_energy_density(comoving_total_photon_energy_density, a_begin);
+  double total_photon_energy_density_phys = cosmo_get_physical_energy_density(
+      comoving_total_photon_energy_density, a_begin);
   if (verbose) {
-    printf("%15s%15s\n",
-           "Initial setup: ", "Photon energy");
+    printf("%15s%15s\n", "Initial setup: ", "Photon energy");
     printf("%15s%15f\n\n", "Initial setup: ", total_photon_energy_density_phys);
   }
 
   write_cosmo_header(stdout);
-  write_cosmo_timestep(stdout, 0, a_begin, total_photon_energy_density_phys * gas_volume_phys, gas_volume_phys, BB_temperature_phys, with_shifting_BB);
+  write_cosmo_timestep(stdout, 0, a_begin,
+                       total_photon_energy_density_phys * gas_volume_phys,
+                       gas_volume_phys, BB_temperature_phys, with_shifting_BB);
 
   write_cosmo_header(fd);
-  write_cosmo_timestep(fd, 0, a_begin, total_photon_energy_density_phys * gas_volume_phys, gas_volume_phys, BB_temperature_phys, with_shifting_BB);
+  write_cosmo_timestep(fd, 0, a_begin,
+                       total_photon_energy_density_phys * gas_volume_phys,
+                       gas_volume_phys, BB_temperature_phys, with_shifting_BB);
 
   /*********************************************************************
   / Calling the redshift solver
@@ -198,10 +203,10 @@ int main() {
 
   /* Value of expansion factor at the end of the step */
   double a_next = a_begin;
-  
+
   double photon_energy_new[RT_NGROUPS];
   // double redshift_factor[RT_NGROUPS]; // Unused for now
-  while (a < a_end) {    
+  while (a < a_end) {
     /* Reset total photon energy */
     comoving_total_photon_energy_density = 0.;
 
@@ -218,85 +223,95 @@ int main() {
       /* Marching in steps of equal a */
       a_next += da;
     }
-   
+
     /* Calculate Hubble parameter
-     * time_integrand returns 1/E = 1/(a*H) */ 
+     * time_integrand returns 1/E = 1/(a*H) */
     double H = 1 / (time_integrand(a_next, &cosmology) * a_next);
     dt = cosmo_get_dt(a, a_next, a_begin, a_end, t_table);
-    
+
     /* Recalculate BB temperature */
     double new_BB_temperature;
     if (with_shifting_BB) {
-      new_BB_temperature = cosmo_get_physical_radiative_temperature(BB_temperature_comoving, a);
+      new_BB_temperature =
+          cosmo_get_physical_radiative_temperature(BB_temperature_comoving, a);
     } else {
       new_BB_temperature = BB_temperature_phys;
     }
-   
+
     /* Keep track of boundary terms (E_2 nu_2 - E_1 nu_1) */
     double sum_of_boundaries = 0;
-    
+
     /* Calculate spectrum for boundary term scaling */
-    calculate_spectrum_energy_density(photon_energy_new, frequency_bins, new_BB_temperature);
+    calculate_spectrum_energy_density(photon_energy_new, frequency_bins,
+                                      new_BB_temperature);
 
     /* Update photon energy */
-    /* -------------------  */ 
-    
-    for (int i = 0; i < RT_NGROUPS; i++) { 
-      double fraction = comoving_photon_energy_density[i] / (cosmo_get_comoving_energy_density(photon_energy_new[i], a_next));
+    /* -------------------  */
+
+    for (int i = 0; i < RT_NGROUPS; i++) {
+      double fraction =
+          comoving_photon_energy_density[i] /
+          (cosmo_get_comoving_energy_density(photon_energy_new[i], a_next));
       // double fraction = 1.;
       double boundary_term;
-        
-      if (i+1 < RT_NGROUPS) {
+
+      if (i + 1 < RT_NGROUPS) {
 
         double nu1 = frequency_bins[i];
-	double nu2 = frequency_bins[i+1];
-	struct integration_params params = {new_BB_temperature};
-	//  PHYSICAL energy density /
-	double E1 = rt_get_energy_density(nu1, &params);
-	double E2 = rt_get_energy_density(nu2, &params);
-	
-	// Transform to comoving /
-	double E1_c = cosmo_get_comoving_density(E1, a_next);
-	
-	double E2_c = cosmo_get_comoving_density(E2, a_next);
-	
-	boundary_term = E2_c*nu2 - E1_c*nu1;
-	(void)E1_c;
-	(void)E2_c;
+        double nu2 = frequency_bins[i + 1];
+        struct integration_params params = {new_BB_temperature};
+        //  PHYSICAL energy density /
+        double E1 = rt_get_energy_density(nu1, &params);
+        double E2 = rt_get_energy_density(nu2, &params);
+
+        // Transform to comoving /
+        double E1_c = cosmo_get_comoving_density(E1, a_next);
+
+        double E2_c = cosmo_get_comoving_density(E2, a_next);
+
+        boundary_term = E2_c * nu2 - E1_c * nu1;
+        (void)E1_c;
+        (void)E2_c;
       } else {
-	double nu1 = frequency_bins[i];
-	struct integration_params params = {new_BB_temperature};
-	double E1 = rt_get_energy_density(nu1, &params);
-	double E1_c = cosmo_get_comoving_density(E1, a_next);
-	
-	boundary_term = -E1_c * nu1;
-	(void)E1_c;
+        double nu1 = frequency_bins[i];
+        struct integration_params params = {new_BB_temperature};
+        double E1 = rt_get_energy_density(nu1, &params);
+        double E1_c = cosmo_get_comoving_density(E1, a_next);
+
+        boundary_term = -E1_c * nu1;
+        (void)E1_c;
       }
       sum_of_boundaries += boundary_term;
       printf("Boundary term: %.10e\n", boundary_term);
       printf("Fraction : %.10e\n", fraction);
-      
-      comoving_photon_energy_density[i] -= H * dt * (comoving_photon_energy_density[i] - fraction * boundary_term);
+
+      comoving_photon_energy_density[i] -=
+          H * dt *
+          (comoving_photon_energy_density[i] - fraction * boundary_term);
       if (comoving_photon_energy_density[i] < 0.) {
         comoving_photon_energy_density[i] = 0.;
-      } 
+      }
     }
     printf("Sum of bounds: %.10e\n", sum_of_boundaries);
-    
-    
+
     for (int i = 0; i < RT_NGROUPS; i++) {
       comoving_total_photon_energy_density += comoving_photon_energy_density[i];
     }
 
-    total_photon_energy_density_phys = cosmo_get_physical_energy_density(comoving_total_photon_energy_density, a_next);
-    
+    total_photon_energy_density_phys = cosmo_get_physical_energy_density(
+        comoving_total_photon_energy_density, a_next);
+
     /* Update volume */
     gas_volume_phys = cosmo_get_physical_volume(gas_volume_comoving, a_next);
-    
-    write_cosmo_timestep(stdout, step, a_next, total_photon_energy_density_phys * gas_volume_phys, gas_volume_phys, new_BB_temperature, with_shifting_BB);
+
+    write_cosmo_timestep(stdout, step, a_next,
+                         total_photon_energy_density_phys * gas_volume_phys,
+                         gas_volume_phys, new_BB_temperature, with_shifting_BB);
 
     if (step % output_frequency == 0)
-      write_cosmo_timestep(fd, step, a_next, total_photon_energy_density_phys * gas_volume_phys, gas_volume_phys, new_BB_temperature, with_shifting_BB);
+      write_cosmo_timestep(
+          fd, step, a_next, total_photon_energy_density_phys * gas_volume_phys,
+          gas_volume_phys, new_BB_temperature, with_shifting_BB);
   }
 
   /* Clean up after yourself */
